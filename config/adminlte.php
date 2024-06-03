@@ -331,10 +331,14 @@ return [
             ]
         ],
         [
-            'text' => 'Multialmacén',
+            'text' => 'Almacén',
             'icon' => 'fas fa-fw fa-file',
             'url' => '#',
             'submenu' => [
+                [
+                    'text' => 'Multialmacen',
+                    'url' => 'multialmacen',
+                ],
                 [
                     'text' => 'Alta',
                     'url' => 'altalmacen',
@@ -360,12 +364,12 @@ return [
             'url' => '#',
             'submenu' => [
                 [
-                    'text' => 'Ingreso',
-                    'url' => 'ingresoinventario',
+                    'text' => 'Alta Producto',
+                    'url' => 'altainventario',
                 ],
                 [
-                    'text' => 'Multi Ingreso',
-                    'url' => 'multiingresoinventario',
+                    'text' => 'Multi Alta',
+                    'url' => 'multialtainventario',
                 ],
                 [
                     'text' => 'Baja',
@@ -446,16 +450,26 @@ return [
                     'text' => 'Alta',
                     'url' => 'altapedidos',
                 ]
-                /* ,
+            ]
+        ],
+        [
+            'text' => 'Precios',
+            'icon' => 'fas fa-fw fa-file',
+            'url' => '#',
+            'submenu' => [
+                [
+                    'text' => 'Alta',
+                    'url' => 'altaprecios',
+                ],
                 [
                     'text' => 'Baja',
-                    'url' => 'bajacompras',
+                    'url' => 'bajaprecios',
                 ],
                 [
                     'text' => 'Edición',
-                    'url' => 'edicioncompras',
+                    'url' => 'precios',
                 ]
- */
+
             ]
         ],
 

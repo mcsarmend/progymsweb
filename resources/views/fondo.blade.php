@@ -76,7 +76,7 @@
             drawRandomTriangles(50);
         });
 
-        drawRandomTriangles(50);
+        drawRandomTriangles(100);
     }
 
     function showUsersSections() {

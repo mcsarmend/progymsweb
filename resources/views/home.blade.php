@@ -14,7 +14,7 @@
 
 
             <div class="section">
-            <h2> SEcci+n 1</h2>
+                <h2> SEcci+n 1</h2>
 
             </div>
             <br>
@@ -39,7 +39,6 @@
 
 @section('css')
     <style>
-
         .section {
             border-bottom: 1px solid #034383;
             padding: 20px;
@@ -47,25 +46,43 @@
         }
 
 
+        
     </style>
 
 @stop
 
 @section('js')
 
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     {{-- LIBRERIAS DATATABLE --}}
-    <script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
-    <script src="https://cdn.datatables.net/plug-ins/1.10.25/dataRender/datetime.js"></script>
+    <!-- Estilos de DataTables -->
+    <script type="text/javascript" src="{{ asset('js/datatables/lang/Spanish.json') }}"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <!-- Estilos de los botones de DataTables -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.9/css/buttons.dataTables.css">
+
+    <!-- Scripts de DataTables y sus botones -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.9/js/dataTables.buttons.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.9/js/buttons.html5.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.2.9/js/buttons.print.js"></script>
+
+
+
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
 
     </script>
     {{-- LIBRERIAS HIGHCHARTS --}}
@@ -90,7 +107,6 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script>
-
         $(document).ready(function() {
 
 
@@ -98,10 +114,5 @@
             drawTriangles();
             showUsersSections();
         });
-
-
-
-
-
     </script>
 @stop

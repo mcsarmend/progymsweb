@@ -5,20 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class product extends Model
+class productwarehouse extends Model
 {
     use HasFactory;
-    protected $table = 'product';
-
-	protected $primary_key = 'id';
+    protected $table = 'product_warehouse';
 
 	public $timestamps = false;
 
 	protected $fillable = [
-		'id',
-		'nombre',
-		'marca',
-		'categoria'
+		'idproducto	',
+		'idwarehouse',
+		'existencias',
 	];
 
 	protected $guarded =[];
