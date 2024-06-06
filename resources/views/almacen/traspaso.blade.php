@@ -199,7 +199,10 @@
                         response.message,
                         'success'
                     );
-
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                    
                 },
                 error: function(response) {
                     Swal.fire(

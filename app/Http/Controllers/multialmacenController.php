@@ -19,11 +19,19 @@ class multialmacenController extends Controller
     {
         $type = $this->gettype();
         $products = DB::table('product as p')
-            ->select('p.id', 'p.nombre', 'b.nombre as marca', 'c.nombre as categoria', 'pw.existencias as existencias')
+            ->select(
+                'p.id',
+                'p.nombre',
+                'b.nombre as marca',
+                'c.nombre as categoria',
+                DB::raw('SUM(pw.existencias) as existencias')
+            )
             ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
             ->leftJoin('category as c', 'p.categoria', '=', 'c.id')
             ->leftJoin('product_warehouse as pw', 'p.id', '=', 'pw.idproducto')
+            ->groupBy('p.id', 'p.nombre', 'b.nombre', 'c.nombre')
             ->get();
+
 
 
         return view('almacen.multialmacen', ['type' => $type, 'products' => $products]);
@@ -130,28 +138,28 @@ class multialmacenController extends Controller
             $cantidades =  $request['cantidades'];
             $productos =  $request['productos'];
             $idproductos = [];
+            $existencias = 0;
             foreach ($productos as $producto) {
-                array_push($idproductos, substr($producto, 0, 9));
+                array_push($idproductos, substr($producto, 0, 10));
             }
-            foreach ($idproductos as $producto) {
-                $existencias = productwarehouse::select('existencias')
-                    ->where('idproducto', 'like', '%' . $producto . '%')
-                    ->where('idwarehouse', 'like', '%' . $producto . '%')
-                    ->get();
-            }
+
+
+            $productosTraspaso = 0;
+            $prodcutosNoTraspaso = 0;
+
+
             for ($i = 0; $i < count($cantidades); $i++) {
                 for ($j = 0; $j < count($idproductos); $j++) {
-                    if ($i = $j) {
+                    if ($i == $j) {
 
-
-                        if ($cantidades[$j] <= $existencias) {
-
-                            // ACUTALIZAR ALMACEN ORIGEN
-                            $existencias_origen = productwarehouse::select('existencias')
-                                ->where('idproducto', 'like', '%' . $idproductos[$i] . '%')
-                                ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
-                                ->get();
-                            $nuevaExistenciaOrigen = $existencias_origen - $existencias;
+                        // ACUTALIZAR ALMACEN ORIGEN
+                        $existencias_origen = productwarehouse::select('existencias')
+                            ->where('idproducto', 'like', '%' . $idproductos[$i] . '%')
+                            ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
+                            ->get();
+                        $ExisOr = $existencias_origen[0]["existencias"];
+                        if ($ExisOr  >= intval($cantidades[$i])) {
+                            $nuevaExistenciaOrigen = $ExisOr - intval($cantidades[$i]);
                             ProductWarehouse::where('idproducto', 'like', '%' . $idproductos[$i] . '%')
                                 ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
                                 ->update(['existencias' => $nuevaExistenciaOrigen]);
@@ -161,8 +169,10 @@ class multialmacenController extends Controller
                                 ->where('idproducto', 'like', '%' . $idproductos[$i] . '%')
                                 ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
                                 ->get();
-                            if ($existencias_destino) {
-                                $nuevaExistenciaDestino = $existencias_destino + $existencias;
+
+                            if ($existencias_destino != '[]') {
+                                $ExisDest = $existencias_destino[0]["existencias"];
+                                $nuevaExistenciaDestino = $ExisDest + intval($cantidades[$i]);
                                 ProductWarehouse::where('idproducto', 'like', '%' . $idproductos[$i] . '%')
                                     ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
                                     ->update(['existencias' => $nuevaExistenciaDestino]);
@@ -170,13 +180,17 @@ class multialmacenController extends Controller
                                 $nueva_existencia_destino = new ProductWarehouse();
                                 $nueva_existencia_destino->idproducto = $idproductos[$i];
                                 $nueva_existencia_destino->idwarehouse = $almacen_destino;
-                                $nueva_existencia_destino->existencia = $cantidades[$i];
+                                $nueva_existencia_destino->existencias = $cantidades[$i];
                                 $nueva_existencia_destino->save();
+                                $productosTraspaso++;
                             }
+                        } else {
+                            $prodcutosNoTraspaso++;
                         }
                     }
                 }
             }
+            return response()->json(['message' => $productosTraspaso . " Productos traspasados, " . $prodcutosNoTraspaso . " No traspasados"], 200);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], 500);
         }
