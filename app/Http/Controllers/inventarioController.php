@@ -12,6 +12,8 @@ use App\Models\warehouse;
 use App\Models\product;
 use App\Models\productprice;
 use App\Models\productwarehouse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 
 class inventarioController extends Controller
 {
@@ -42,13 +44,42 @@ class inventarioController extends Controller
     public function bajainventario()
     {
         $type = $this->gettype();
-        return view('inventario.baja', ['type' => $type]);
+
+
+        $products = DB::table('product as p')
+            ->select(
+                'p.id',
+                'p.nombre',
+                'b.nombre as marca',
+                'c.nombre as categoria',
+
+            )
+            ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
+            ->leftJoin('category as c', 'p.categoria', '=', 'c.id')
+            ->get();
+
+        return view('inventario.baja', ['type' => $type, 'productos' => $products]);
     }
 
     public function edicioninventario()
     {
         $type = $this->gettype();
-        return view('inventario.edicion', ['type' => $type]);
+
+        $products = DB::table('product as p')
+            ->select(
+                'p.id',
+                'p.nombre',
+                'b.nombre as marca',
+                'c.nombre as categoria',
+
+            )
+            ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
+            ->leftJoin('category as c', 'p.categoria', '=', 'c.id')
+            ->get();
+
+        $almacenes = warehouse::all();
+
+        return view('inventario.edicion', ['type' => $type, 'productos' => $products, 'almacenes' => $almacenes]);
     }
 
     // OTRAS FUNCIONES
@@ -105,6 +136,20 @@ class inventarioController extends Controller
             return response()->json(['message' => $th->getMessage()], 500);
         }
     }
+    public function eliminarproducto(Request $request)
+    {
+        try {
+            // Encuentra el usuario por su ID
+            $id = $request->id;
+
+            $productid = Crypt::decrypt($id);
+            product::findOrFail($productid)->delete();
+            return response()->json(['message' => 'Producto eliminado correctamente'], 200);
+        } catch (\Throwable $e) {
+            // Devolver una respuesta de error
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
 
 
     public function multialtaproducto(Request $request)
@@ -156,6 +201,23 @@ class inventarioController extends Controller
         $numero = substr($cadena, $posicionGuion + 1);
         return $numero;
     }
+
+    function enviareditaralmacenes(Request $request)
+    {
+
+        try {
+            $idproducto = $request->idproducto;
+            $idwarehouse = $request->idwarehouse;
+            $nuevas_existencias = $request->existencias;
+            ProductWarehouse::where('idproducto', '=',  $idproducto )
+                ->where('idwarehouse', '=',  $idwarehouse )
+                ->update(['existencias' => strval($nuevas_existencias) ]);
+            return response()->json(['message' => "Producto actualizado correctamente"], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 500);
+        }
+    }
+
 
 
 

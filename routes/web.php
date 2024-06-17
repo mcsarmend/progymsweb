@@ -70,9 +70,11 @@ Route::get('multialtainventario',[inventarioController::class, 'multialtainventa
 Route::get('bajainventario',[inventarioController::class, 'bajainventario'])->middleware(['auth']);
 Route::get('edicioninventario',[inventarioController::class, 'edicioninventario'])->middleware(['auth']);
 
-Route::post('altaproducto',[inventarioController::class, 'altaproducto'])->middleware(['auth']);
-Route::post('multialtaproducto',[inventarioController::class, 'multialtaproducto'])->middleware(['auth']);
 
+Route::post('enviareditaralmacenes',[inventarioController::class, 'enviareditaralmacenes'])->middleware(['auth']);
+Route::post('altaproducto',[inventarioController::class, 'altaproducto'])->middleware(['auth']);
+Route::post('eliminarproducto',[inventarioController::class, 'eliminarproducto'])->middleware(['auth']);
+Route::post('multialtaproducto',[inventarioController::class, 'multialtaproducto'])->middleware(['auth']);
 
 
 Route::get('altacliente',[clientesController::class, 'altacliente'])->middleware(['auth']);

@@ -95,7 +95,7 @@ class multialmacenController extends Controller
     {
 
         $productosAlmacen = DB::table('product_warehouse as pw')
-            ->select('pw.idproducto', 'w.nombre', 'pw.existencias')
+            ->select('pw.idproducto', 'w.id','w.nombre', 'pw.existencias')
             ->leftJoin('warehouse as w', 'pw.idwarehouse', '=', 'w.id')
             ->where('pw.idproducto', '=', $request["id_producto"])
             ->get();
