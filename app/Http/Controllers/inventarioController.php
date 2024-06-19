@@ -206,12 +206,38 @@ class inventarioController extends Controller
     {
 
         try {
-            $idproducto = $request->idproducto;
-            $idwarehouse = $request->idwarehouse;
-            $nuevas_existencias = $request->existencias;
-            ProductWarehouse::where('idproducto', '=',  $idproducto )
-                ->where('idwarehouse', '=',  $idwarehouse )
-                ->update(['existencias' => strval($nuevas_existencias) ]);
+            $idproducto = intval($request->id);
+            $almacen = $request->almacen;
+            $nueva_existencia = floatval($request->nueva_existencia);
+  
+            $id_warehouse = warehouse::select('id')
+            ->where('nombre',"=",$almacen)
+            ->first();
+
+            $idwarehouse= $id_warehouse->id ;
+            productwarehouse::where('idproducto', '=',  $idproducto)
+                ->where('idwarehouse', '=',  $idwarehouse)
+                ->update(['existencias' => $nueva_existencia]);
+            return response()->json(['message' => "Producto actualizado correctamente"], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 500);
+        }
+    }
+    function enviareditarprecio(Request $request)
+    {
+        try {
+            $idproducto = intval($request->id);
+            $tipo = $request->tipo;
+            $nuevo_precio = floatval($request->nuevo_precio);
+  
+            $idPrice = prices::select('id')
+            ->where('nombre',"=",$tipo)
+            ->first();
+
+            $id_price= $idPrice->id ;
+            productprice::where('idproducto', '=',  $idproducto)
+                ->where('idprice', '=',  $id_price)
+                ->update(['price' => $nuevo_precio]);
             return response()->json(['message' => "Producto actualizado correctamente"], 200);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], 500);

@@ -37,7 +37,7 @@
     </div>
     <div class="modal fade" id="almacenes" tabindex="-1" role="dialog" aria-labelledby="almacenesCenterTitle"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered custom-width" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="almacenesLongTitle">Detalle de almacenes</h5>
@@ -47,19 +47,19 @@
                 </div>
                 <div class="modal-body">
 
-                    <form id="enviareditaralmacenesform">
-                        @csrf
-                        <input id ="idproducto" name ="idproducto" class="form-control" readonly>
-                        <input id ="idwarehouse" name ="idwarehouse" class="form-control" style="display: none">
-                        <input id ="nombrealmacen" name ="nombrealmacen" class="form-control">
-                        <input type="text" id = "existencias" name="existencias" class="form-control">
-                        <br>
-                        <div class="row">
-                            <div class="col">
-                                <input type="submit" value="Enviar" class="btn btn-success">
-                            </div>
-                        </div>
-                    </form>
+                    <table id="almacenestabla" class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Almacen</th>
+                                <th>Existencias</th>
+                                <th>Editar</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -75,7 +75,7 @@
 
     <div class="modal fade" id="precios" tabindex="-1" role="dialog" aria-labelledby="preciosCenterTitle"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered custom-width " role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="preciosLongTitle">Detalle de precios</h5>
@@ -90,6 +90,7 @@
                                 <th>ID</th>
                                 <th>Tipo</th>
                                 <th>Precio</th>
+                                <th>Editar</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -97,7 +98,6 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary" data-dismiss="modal">Enviar</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 
                 </div>
@@ -114,7 +114,12 @@
 @stop
 
 @section('css')
-
+    <style>
+        .modal-dialog.custom-width {
+            max-width: 80%;
+            /* Ajusta este valor según tus necesidades */
+        }
+    </style>
 @stop
 
 @section('js')
@@ -202,13 +207,63 @@
                 },
                 dataType: 'json', // Tipo de datos esperados en la respuesta
                 success: function(data) {
+                    $('#almacenestabla').DataTable({
+                        destroy: true,
+                        scrollX: true,
+                        scrollCollapse: true,
+                        "language": {
+                            "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
+                        },
+                        "buttons": [
+                            'copy', 'excel', 'pdf', 'print'
+                        ],
+                        dom: 'Blfrtip',
+                        destroy: true,
+                        processing: true,
+                        sort: true,
+                        paging: true,
+                        lengthMenu: [
+                            [10, 25, 50, -1],
+                            [10, 25, 50, 'All']
+                        ], // Personalizar el menú de longitud de visualización
 
-                    $('#idproducto').val(data[0].idproducto);
-                    $('#nombrealmacen').val(data[0].nombre);
-                    $('#idwarehouse').val(data[0].id);
-                    $('#existencias').val(data[0].existencias);
-
-
+                        // Configurar las opciones de exportación
+                        // Para PDF
+                        pdf: {
+                            orientation: 'landscape', // Orientación del PDF (landscape o portrait)
+                            pageSize: 'A4', // Tamaño del papel del PDF
+                            exportOptions: {
+                                columns: ':visible' // Exportar solo las columnas visibles
+                            }
+                        },
+                        // Para Excel
+                        excel: {
+                            exportOptions: {
+                                columns: ':visible' // Exportar solo las columnas visibles
+                            }
+                        },
+                        "data": data,
+                        "columns": [{
+                                "data": "idproducto"
+                            },
+                            {
+                                "data": "nombre"
+                            },
+                            {
+                                "data": "existencias"
+                            },
+                            {
+                                "data": "editar",
+                                "render": function(data, type, row) {
+                                    return '<input type="number" class="form control" id = "idalmacen_' +
+                                        row.idproducto + row.nombre+
+                                        '"> <button onclick="enviareditaralmacenform(' +
+                                        row.idproducto + ",'" + row.nombre + "'" +
+                                        ')" class="btn btn-primary">Enviar</button>';
+                                }
+                            },
+                        ]
+                    });
                 },
                 error: function(xhr, status, error) {
                     // Manejar errores de la solicitud
@@ -216,6 +271,7 @@
                 }
             });
         }
+
 
         function editarprecios(id) {
             $('#precios').modal('show');
@@ -229,7 +285,62 @@
 
                 dataType: 'json', // Tipo de datos esperados en la respuesta
                 success: function(data) {
+                    $('#preciostabla').DataTable({
+                        destroy: true,
+                        scrollX: true,
+                        scrollCollapse: true,
+                        "language": {
+                            "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
+                        },
+                        "buttons": [
+                            'copy', 'excel', 'pdf', 'print'
+                        ],
+                        dom: 'Blfrtip',
+                        destroy: true,
+                        processing: true,
+                        sort: true,
+                        paging: true,
+                        lengthMenu: [
+                            [10, 25, 50, -1],
+                            [10, 25, 50, 'All']
+                        ], // Personalizar el menú de longitud de visualización
 
+                        // Configurar las opciones de exportación
+                        // Para PDF
+                        pdf: {
+                            orientation: 'landscape', // Orientación del PDF (landscape o portrait)
+                            pageSize: 'A4', // Tamaño del papel del PDF
+                            exportOptions: {
+                                columns: ':visible' // Exportar solo las columnas visibles
+                            }
+                        },
+                        // Para Excel
+                        excel: {
+                            exportOptions: {
+                                columns: ':visible' // Exportar solo las columnas visibles
+                            }
+                        },
+                        "data": data,
+                        "columns": [{
+                                "data": "idproducto"
+                            },
+                            {
+                                "data": "nombre"
+                            },
+                            {
+                                "data": "price"
+                            }, {
+                                "data": "editar",
+                                "render": function(data, type, row) {
+                                    return '<input type="number" class="form control" id = "idprecio_' +
+                                        row.idproducto + row.nombre +
+                                        '"> <button onclick="enviareditarprecioform(' +
+                                        row.idproducto + ",'" + row.nombre + "'" +
+                                        ')" class="btn btn-primary">Enviar</button>';
+                                }
+                            },
+                        ]
+                    });
                 },
                 error: function(xhr, status, error) {
                     // Manejar errores de la solicitud
@@ -238,41 +349,98 @@
             });
         }
 
+        function enviareditaralmacenform(id, almacen) {
+            nuevaexistencia = '#idalmacen_' + id + almacen;
+            val_nuevaexistencia = $(nuevaexistencia).val();
+            if (val_nuevaexistencia == "") {
+                Swal.fire(
+                    '¡Aviso!',
+                    "No haz llenado la nueva existencia",
+                    'warning'
+                )
+            } else {
+                var datosFormulario = {
+                    id: id,
+                    tipo: tipo,
+                    nueva_existencia: val_nuevaexistencia
+                };
+                // Realizar la solicitud AJAX con jQuery
 
+                $.ajax({
+                    url: '/enviareditarprecio', // Ruta al controlador de Laravel
+                    type: 'POST',
+                    data: datosFormulario, // Enviar los datos del formulario
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        Swal.fire(
+                            '¡Gracias por esperar!',
+                            response.message,
+                            'success'
+                        );
+                        /*                     setTimeout(function() {
+                                                window.location.reload();
+                                            }, 3000); */
 
-        $('#enviareditaralmacenesform').submit(function(e) {
-            e.preventDefault(); // Evitar la recarga de la página
+                    },
+                    error: function(response) {
+                        Swal.fire(
+                            '¡Gracias por esperar!',
+                            "Existe un error: " + response.message,
+                            'error'
+                        )
+                    }
+                });
+            }
 
-            // Obtener los datos del formulario
-            var datosFormulario = $(this).serialize();
+        }
 
-            // Realizar la solicitud AJAX con jQuery
-            $.ajax({
-                url: '/enviareditaralmacenes', // Ruta al controlador de Laravel
-                type: 'POST',
-                data: datosFormulario, // Enviar los datos del formulario
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    Swal.fire(
-                        '¡Gracias por esperar!',
-                        response.message,
-                        'success'
-                    );
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 3000);
-                    generarContrasena();
-                },
-                error: function(response) {
-                    Swal.fire(
-                        '¡Gracias por esperar!',
-                        "Existe un error: " + response.message,
-                        'error'
-                    )
-                }
-            });
-        });
+        function enviareditarprecioform(id, tipo) {
+            nuevoprecio = '#id_' + id + tipo;
+            val_nuevoprecio = $(nuevoprecio).val();
+            if (val_nuevoprecio == "") {
+                Swal.fire(
+                    '¡Aviso!',
+                    "No haz llenado el nuevo precio",
+                    'warning'
+                )
+            } else {
+                var datosFormulario = {
+                    id: id,
+                    tipo: tipo,
+                    nuevo_precio: val_nuevoprecio
+                };
+                // Realizar la solicitud AJAX con jQuery
+
+                $.ajax({
+                    url: '/enviareditarprecio', // Ruta al controlador de Laravel
+                    type: 'POST',
+                    data: datosFormulario, // Enviar los datos del formulario
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        Swal.fire(
+                            '¡Gracias por esperar!',
+                            response.message,
+                            'success'
+                        );
+                        /*                     setTimeout(function() {
+                                                window.location.reload();
+                                            }, 3000); */
+
+                    },
+                    error: function(response) {
+                        Swal.fire(
+                            '¡Gracias por esperar!',
+                            "Existe un error: " + response.message,
+                            'error'
+                        )
+                    }
+                });
+            }
+
+        }
     </script>
 @stop

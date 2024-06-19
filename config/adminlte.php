@@ -347,10 +347,10 @@ return [
                     'text' => 'Baja',
                     'url' => 'bajaalmacen',
                 ],
-                [
+/*                 [
                     'text' => 'Edición',
                     'url' => 'edicionalmacen',
-                ],
+                ], */
                 [
                     'text' => 'Traspasos',
                     'url' => 'traspasos',

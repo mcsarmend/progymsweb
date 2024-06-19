@@ -9,7 +9,7 @@
     <meta content="" name="description">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <link href="assets/images/logo.png" rel="icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,9 +27,28 @@
 
     <!-- Customized Bootstrap Stylesheet -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
 
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
+
+    <style>
+        /* Cambia el color de los indicadores del carrusel */
+        .carousel-indicators .active {
+            background-color: red;
+            /* Cambia este color al que desees */
+        }
+
+        .carousel-indicators li {
+            background-color: black;
+            /* Cambia este color al que desees */
+        }
+
+    </style>
 </head>
 
 <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="51">
@@ -93,18 +112,46 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 d-flex justify-content-center justify-content-lg-end wow fadeInUp"
-                data-wow-delay="0.3s">
-                <div class="owl-carousel screenshot-carousel">
-                    <img class="img-fluid" src="img/screenshot-1.png" alt="">
-                    <img class="img-fluid" src="img/screenshot-2.png" alt="">
-                    <img class="img-fluid" src="img/screenshot-3.png" alt="">
-                    <img class="img-fluid" src="img/screenshot-4.png" alt="">
-                    <img class="img-fluid" src="img/screenshot-5.png" alt="">
-                </div>
-            </div>
         </div>
         <!-- Navbar & Hero End -->
+        <div class="container-xxl py-5">
+            <div class="container-xxl">
+                <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                    <ol class="carousel-indicators">
+                        <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                        <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                        <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+                        <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+                    </ol>
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img class="img-fluid" src="assets/images/banner_1.jpg" alt="">
+                        </div>
+                        <div class="carousel-item">
+                            <img class="img-fluid" src="assets/images/banner_2.png" alt="">
+                        </div>
+                        <div class="carousel-item">
+                            <img class="img-fluid" src="assets/images/banner_3.png" alt="">
+                        </div>
+                        <div class="carousel-item">
+                            <img class="img-fluid" src="assets/images/banner_4.jpeg" alt="">
+                        </div>
+                    </div>
+                    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button"
+                        data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button"
+                        data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
 
 
         <!-- About Start -->
@@ -146,7 +193,7 @@
                             More</a>
                     </div>
                     <div class="col-lg-6">
-                        <img class="img-fluid wow fadeInUp" data-wow-delay="0.5s" src="img/about.png">
+                        <img class="img-fluid wow fadeInUp" data-wow-delay="0.5s" src="assets/images/fitnessperson.jpg">
                     </div>
                 </div>
             </div>
