@@ -3,24 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\warehouse;
+use App\Models\clients;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 class ventasController extends Controller
 {
-    public function remisionar(){
+    public function remisionar()
+    {
+        $almacenes = warehouse::all();
+        $clientes = clients::all();
+
         $type = $this->gettype();
-        return view('ventas.remisionar', ['type'=>$type]);
+        return view('ventas.remisionar', ['type' => $type]);
     }
-    public function remisiones(){
+    public function remisiones()
+    {
         $type = $this->gettype();
-        return view('ventas.remisiones', ['type'=>$type]);
+        return view('ventas.remisiones', ['type' => $type]);
     }
-    public function ventasreportes(){
+    public function ventasreportes()
+    {
         $type = $this->gettype();
-        return view('ventas.reportes', ['type'=>$type]);
+        return view('ventas.reportes', ['type' => $type]);
     }
 
-    public function gettype(){
+    public function gettype()
+    {
         if (Auth::check()) {
             $type = Auth::user()->type;
         }

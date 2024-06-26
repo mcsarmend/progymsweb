@@ -461,6 +461,29 @@ return [
             ]
         ],
         [
+            'text' => 'Vendedores',
+            'icon' => 'fas fa-fw fa-file',
+            'url' => '#',
+            'submenu' => [
+                [
+                    'text' => 'Vendedores',
+                    'url' => 'vendedores',
+                ],
+                [
+                    'text' => 'Alta',
+                    'url' => 'altavendedores',
+                ],
+                [
+                    'text' => 'Baja',
+                    'url' => 'bajavendedores',
+                ],
+                [
+                    'text' => 'Edición',
+                    'url' => 'edicionvendedores',
+                ]
+            ]
+        ],
+        [
             'text' => 'Precios',
             'icon' => 'fas fa-fw fa-file',
             'url' => '#',
@@ -479,7 +502,7 @@ return [
                 ],
                 [
                     'text' => 'Edición',
-                    'url' => 'precios',
+                    'url' => 'edicionprecios',
                 ]
 
             ]
