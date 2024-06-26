@@ -73,8 +73,8 @@ class clientesController extends Controller
             // Encuentra el usuario por su ID
             $id = $request->id;
 
-            $productid = Crypt::decrypt($id);
-            clients::findOrFail($productid)->delete();
+            $clientid = Crypt::decrypt($id);
+            clients::findOrFail($clientid)->delete();
             return response()->json(['message' => 'cliente eliminado correctamente'], 200);
         } catch (\Throwable $e) {
             // Devolver una respuesta de error

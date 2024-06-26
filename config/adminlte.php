@@ -411,6 +411,10 @@ return [
             'url' => '#',
             'submenu' => [
                 [
+                    'text' => 'Proveedores',
+                    'url' => 'proveedores',
+                ],
+                [
                     'text' => 'Alta',
                     'url' => 'altaproveedores',
                 ],
@@ -461,6 +465,10 @@ return [
             'icon' => 'fas fa-fw fa-file',
             'url' => '#',
             'submenu' => [
+                [
+                    'text' => 'Precios',
+                    'url' => 'precios',
+                ],
                 [
                     'text' => 'Alta',
                     'url' => 'altaprecios',

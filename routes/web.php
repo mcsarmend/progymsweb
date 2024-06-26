@@ -9,6 +9,7 @@ use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\inventarioController;
 use App\Http\Controllers\multialmacenController;
 use App\Http\Controllers\pedidosController;
+use App\Http\Controllers\preciosController;
 use App\Http\Controllers\proveedoresController;
 use App\Http\Controllers\usersController;
 use App\Http\Controllers\tokenController;
@@ -95,9 +96,27 @@ Route::post('editarcliente', [clientesController::class, 'editarcliente'])->midd
 
 
 //PROVEEDORES
+Route::get('proveedores', [proveedoresController::class, 'proveedores'])->middleware(['auth']);
 Route::get('altaproveedores', [proveedoresController::class, 'altaproveedores'])->middleware(['auth']);
 Route::get('bajaproveedores', [proveedoresController::class, 'bajaproveedores'])->middleware(['auth']);
 Route::get('edicionproveedores', [proveedoresController::class, 'edicionproveedores'])->middleware(['auth']);
+
+Route::post('crearproveedor', [proveedoresController::class, 'crearproveedor'])->middleware(['auth']);
+Route::post('eliminarproveedor', [proveedoresController::class, 'eliminarproveedor'])->middleware(['auth']);
+Route::post('editarproveedor', [proveedoresController::class, 'editarproveedor'])->middleware(['auth']);
+
+
+// PRECIOS
+Route::get('precios', [preciosController::class, 'precios'])->middleware(['auth']);
+Route::get('altaprecios', [preciosController::class, 'altaprecios'])->middleware(['auth']);
+Route::get('bajaprecios', [preciosController::class, 'bajaprecios'])->middleware(['auth']);
+Route::get('edicionprecios', [preciosController::class, 'edicionprecios'])->middleware(['auth']);
+
+Route::post('crearprecio', [preciosController::class, 'crearprecio'])->middleware(['auth']);
+Route::post('eliminarprecio', [preciosController::class, 'eliminarprecio'])->middleware(['auth']);
+Route::post('editarprecio', [preciosController::class, 'editarprecio'])->middleware(['auth']);
+
+
 
 //COMPRAS
 Route::get('altacompras', [comprasController::class, 'altacompras'])->middleware(['auth']);

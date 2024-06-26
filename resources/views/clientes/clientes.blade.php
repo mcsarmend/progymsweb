@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Edición Cliente')
+@section('title', 'Clientes')
 
 @section('content_header')
 
@@ -12,7 +12,7 @@
         <div class="card-body">
             <div class="card">
                 <div class="card-header">
-                    <h1 class="card-title" style ="font-size: 2rem">Editar cliente</h1>
+                    <h1 class="card-title" style ="font-size: 2rem">Clientes</h1>
                 </div>
                 <div class="card-body">
                     <table id=clientes class="table">

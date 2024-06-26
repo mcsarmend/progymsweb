@@ -1,22 +1,50 @@
 @extends('adminlte::page')
 
-@section('title', 'Baja Proveedores')
+@section('title', 'Baja Proveedor')
 
 @section('content_header')
-    <h1>Baja Proveedores</h1>
+
 @stop
 
 @section('content')
-   <div class="card">
-    <div class="card-header">
-        <h1 class="card-title">Baja Proveedores</h1>
-    </div>
-    <div class="card-body">
-        <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nihil laboriosam temporibus architecto, cumque accusamus asperiores in iusto dignissimos sequi. Odio alias commodi dicta repellat rerum quisquam! Ab aut nemo accusamus!</p>
-    </div>
+    <div class="card">
+        <div class="card-header">
+            <h1>Baja Proveedor</h1>
+        </div>
+        <div class="card-body">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title" style ="font-size: 2rem">Eliminar cliente</h1>
+                </div>
+                <div class="card-body">
+                    <form id="eliminar">
+                        @csrf
+                        <div class="row">
+                            <div class="col">
+                                <label for="almacen">Cliente:</label>
+                            </div>
+                            <div class="col">
+                                <select name="id" id="id" class="form-control">
+                                    @foreach ($suppliers as $supplier)
+                                        <option value="{{ encrypt($supplier->id) }}">{{ $supplier->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-   </div>
-   @include('fondo')
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col">
+                                <input type="submit" value="Eliminar" class="btn btn-danger">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    @include('fondo')
 @stop
 
 @section('css')
@@ -24,10 +52,45 @@
 @stop
 
 @section('js')
-<script>
-    $(document).ready(function() {
-        drawTriangles();
-        showUsersSections();
-    });
-</script>
+    <script>
+        $(document).ready(function() {
+            drawTriangles();
+            showUsersSections();
+        });
+        $('#eliminar').submit(function(e) {
+            e.preventDefault(); // Evitar la recarga de la página
+
+            // Obtener los datos del formulario
+            var datosFormulario = $(this).serialize();
+
+            // Realizar la solicitud AJAX con jQuery
+            $.ajax({
+                url: '/eliminarproveedor', // Ruta al controlador de Laravel
+                type: 'POST',
+                // data: datosFormulario, // Enviar los datos del formulario
+                data: datosFormulario,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.fire(
+                        '¡Gracias por esperar!',
+                        response.message,
+                        'success'
+                    );
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 3000);
+                    generarContrasena();
+                },
+                error: function(response) {
+                    Swal.fire(
+                        '¡Gracias por esperar!',
+                        "Existe un error: " + response.message,
+                        'error'
+                    )
+                }
+            });
+        });
+    </script>
 @stop

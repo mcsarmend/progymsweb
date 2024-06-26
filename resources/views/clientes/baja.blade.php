@@ -68,12 +68,7 @@
                 url: '/eliminarcliente', // Ruta al controlador de Laravel
                 type: 'POST',
                 // data: datosFormulario, // Enviar los datos del formulario
-                data: {
-                    nombre: datosFormulario.nombre,
-                    sucursal: parseInt(datosFormulario.sucursal),
-                    telefono: datosFormulario.nombre,
-                    precio: parseInt(datosFormulario.nombre)
-                }
+                data: datosFormulario,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
