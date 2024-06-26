@@ -255,9 +255,11 @@
                             {
                                 "data": "editar",
                                 "render": function(data, type, row) {
+
+                                    var idfila = row.nombre;
+                                    fila = quitarEspaciosExtra(idfila);
                                     return '<input type="number" class="form control" id = "idalmacen_' +
-                                        row.idproducto + row.nombre+
-                                        '"> <button onclick="enviareditaralmacenform(' +
+                                        row.idproducto +fila +'"> <button onclick="enviareditaralmacenform(' +
                                         row.idproducto + ",'" + row.nombre + "'" +
                                         ')" class="btn btn-primary">Enviar</button>';
                                 }
@@ -270,6 +272,10 @@
                     console.error(error); // Muestra el error en la consola del navegador
                 }
             });
+        }
+
+        function quitarEspaciosExtra(cadena) {
+            return cadena.replace(/\s+/g, '').trim();
         }
 
 
@@ -350,7 +356,7 @@
         }
 
         function enviareditaralmacenform(id, almacen) {
-            nuevaexistencia = '#idalmacen_' + id + almacen;
+            nuevaexistencia = '#idalmacen_' + id + quitarEspaciosExtra(almacen);
             val_nuevaexistencia = $(nuevaexistencia).val();
             if (val_nuevaexistencia == "") {
                 Swal.fire(
@@ -361,13 +367,13 @@
             } else {
                 var datosFormulario = {
                     id: id,
-                    tipo: tipo,
+                    almacen: almacen,
                     nueva_existencia: val_nuevaexistencia
                 };
                 // Realizar la solicitud AJAX con jQuery
 
                 $.ajax({
-                    url: '/enviareditarprecio', // Ruta al controlador de Laravel
+                    url: '/enviareditaralmacenes', // Ruta al controlador de Laravel
                     type: 'POST',
                     data: datosFormulario, // Enviar los datos del formulario
                     headers: {
@@ -397,7 +403,7 @@
         }
 
         function enviareditarprecioform(id, tipo) {
-            nuevoprecio = '#id_' + id + tipo;
+            nuevoprecio = '#idprecio_' + id + tipo;
             val_nuevoprecio = $(nuevoprecio).val();
             if (val_nuevoprecio == "") {
                 Swal.fire(

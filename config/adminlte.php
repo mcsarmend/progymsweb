@@ -297,7 +297,7 @@ return [
         //     'topnav_right' => true,
         // ],
         [
-            'type'         => 'fullscreen-widget',
+            'type' => 'fullscreen-widget',
             'topnav_right' => true,
         ],
 
@@ -347,10 +347,10 @@ return [
                     'text' => 'Baja',
                     'url' => 'bajaalmacen',
                 ],
-/*                 [
-                    'text' => 'Edición',
-                    'url' => 'edicionalmacen',
-                ], */
+                /*                 [
+                                    'text' => 'Edición',
+                                    'url' => 'edicionalmacen',
+                                ], */
                 [
                     'text' => 'Traspasos',
                     'url' => 'traspasos',
@@ -387,6 +387,10 @@ return [
             'url' => '#',
             'submenu' => [
                 [
+                    'text' => 'Clientes',
+                    'url' => 'clientes',
+                ],
+                [
                     'text' => 'Alta',
                     'url' => 'altacliente',
                 ],
@@ -395,7 +399,7 @@ return [
                     'url' => 'bajacliente',
                 ],
                 [
-                    'text' => 'edicion',
+                    'text' => 'Edicion',
                     'url' => 'edicioncliente',
                 ]
 

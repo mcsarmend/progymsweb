@@ -3,13 +3,14 @@
 @section('title', 'Ingreso Inventario')
 
 @section('content_header')
-    <h1>Alta Inventario</h1>
+
 
 @stop
 
 @section('content')
     <div class="card">
         <div class="card-header">
+            <h1>Alta Inventario</h1>
             <h4>Sección donde se dan de alta productos de manera unitaria</h4>
         </div>
         <div class="card-body">
