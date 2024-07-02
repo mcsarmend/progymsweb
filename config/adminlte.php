@@ -470,14 +470,6 @@ return [
                     'url' => 'vendedores',
                 ],
                 [
-                    'text' => 'Alta',
-                    'url' => 'altavendedores',
-                ],
-                [
-                    'text' => 'Baja',
-                    'url' => 'bajavendedores',
-                ],
-                [
                     'text' => 'Edición',
                     'url' => 'edicionvendedores',
                 ]

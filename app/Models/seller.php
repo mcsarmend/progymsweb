@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class clients extends Model
+class seller extends Model
 {
     use HasFactory;
-    protected $table = 'clients';
+    protected $table = 'seller';
 
     protected $primary_key = 'id';
 
@@ -18,10 +18,7 @@ class clients extends Model
         'id',
         'nombre',
         'sucursal',
-        'telefono',
-        'precio',
-        'sucursal'
+        'telefono'
     ];
 
-    protected $guarded = [];
 }

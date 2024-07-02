@@ -259,7 +259,8 @@
                                     var idfila = row.nombre;
                                     fila = quitarEspaciosExtra(idfila);
                                     return '<input type="number" class="form control" id = "idalmacen_' +
-                                        row.idproducto +fila +'"> <button onclick="enviareditaralmacenform(' +
+                                        row.idproducto + fila +
+                                        '"> <button onclick="enviareditaralmacenform(' +
                                         row.idproducto + ",'" + row.nombre + "'" +
                                         ')" class="btn btn-primary">Enviar</button>';
                                 }

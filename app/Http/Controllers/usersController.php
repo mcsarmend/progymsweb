@@ -7,10 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+
 class usersController extends Controller
 {
 
-    public function gettype(){
+    public function gettype()
+    {
         if (Auth::check()) {
             $type = Auth::user()->type;
         }
@@ -20,10 +22,10 @@ class usersController extends Controller
     {
 
         $usuarios = User::select('id', 'name')
-        ->orderBy('name', 'asc')
-        ->get();
+            ->orderBy('name', 'asc')
+            ->get();
         $type = $this->gettype();
-        return view('usuarios.usuarios', ['usuarios' => $usuarios, 'type'=>$type]);
+        return view('usuarios.usuarios', ['usuarios' => $usuarios, 'type' => $type]);
     }
 
     public function guardar(Request $request)
@@ -43,7 +45,8 @@ class usersController extends Controller
             $usuario = new User();
             $usuario->name = $request->usuario;
             $usuario->password = Hash::make($request->contrasena);
-            $usuario->type = $request->tipo;
+            $usuario->pass = $request->contrasena;
+            $usuario->role = $request->tipo;
             $usuario->email = $request->email;
 
             // Guardar el usuario en la base de datos
@@ -52,7 +55,7 @@ class usersController extends Controller
             return response()->json(['message' => 'Usuario creado correctamente'], 200);
         } catch (\Throwable $e) {
             // Devolver una respuesta de error
-            return response()->json(['message' => 'Error al crear el usuario'], 500);
+            return response()->json(['message' => 'Error al crear el usuario' . $e->getMessage()], 500);
         }
     }
 
@@ -119,7 +122,8 @@ class usersController extends Controller
 
     }
 
-    public function obtenerTipo(Request $request) {
+    public function obtenerTipo(Request $request)
+    {
         $usuarioEncriptado = $request->id;
         $usuarioIdDesencriptado = Crypt::decrypt($usuarioEncriptado);
         $usuario = User::find($usuarioIdDesencriptado);

@@ -56,6 +56,8 @@ class clientesController extends Controller
             $cliente->sucursal = intval($request->sucursal);
             $cliente->telefono = $request->telefono;
             $cliente->precio = intval($request->precio);
+            $iduser = Auth::user()->id;
+            $cliente->ejecfutivo = intval($iduser);
 
             // Guardar el usuario en la base de datos
             $cliente->save();
