@@ -131,7 +131,7 @@
                     setTimeout(function() {
                         window.location.reload();
                     }, 3000);
-                    generarContrasena();
+
                 },
                 error: function(response) {
                     Swal.fire(

@@ -92,7 +92,7 @@ class vendedorController extends Controller
     public function gettype()
     {
         if (Auth::check()) {
-            $type = Auth::user()->type;
+            $type = Auth::user()->role;
         }
         return $type;
     }

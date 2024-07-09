@@ -38,7 +38,7 @@
                     <div class="col"><label for="nota">Nota:</label></div>
                     <div class="col">
                         <textarea id="nota" name="nota" rows="3" cols="21" placeholder="Escribe tu texto aquí..."
-                            data-value=""></textarea>
+                            data-value="" value=""></textarea>
                     </div>
                     <div class="col"><label for="metodo_pago">Metodo de pago:</label></div>
                     <div class="col">
@@ -183,16 +183,18 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const idproducto = obtenerNumerosHastaGuion(result.value.producto);
-                        const idcliente = obtenerNumerosHastaGuion($('#cliente').val());
+                        var idcliente = obtenerNumerosHastaGuion($('#cliente').val());
                         var cantidad = $('#inputCantidad').val();
-                        if (idcliente === "") {
+                        var idsucursal = $('#sucursal').data('value')
+                        if (idcliente == null) {
                             idcliente = 1;
                         }
 
                         const data = {
                             id_producto: idproducto,
                             idcliente: idcliente,
-                            cantidad: cantidad
+                            cantidad: cantidad,
+                            almacen: idsucursal
                         };
 
                         $.ajax({
@@ -207,17 +209,20 @@
 
                                 agregarFila(data.idproducto, data.cantidad, data.subtotal, data.nombre,
                                     data.precio);
+
+
                             },
                             error: function(xhr, status, error) {
-                                console.error(error); // Manejar errores de la solicitud
+
+                                Swal.fire({
+                                    title: 'Error:',
+                                    text: xhr.responseJSON.error,
+                                    icon: 'warning'
+                                });
                             }
                         });
 
-                        Swal.fire({
-                            title: 'Has seleccionado:',
-                            text: result.value.producto,
-                            icon: 'success'
-                        });
+
                     }
                 });
             }
@@ -263,33 +268,56 @@
         }
 
         function agregarFila(codigo, cantidad, subtotal, nombre, precio) {
-            // Datos para la nueva fila
+            // Verificar si el código ya existe en alguna fila
+            var codigoExiste = false;
+            $('#productos tbody tr').each(function() {
+                var codigoExistente = $(this).find('td').eq(0).text();
+                if (codigoExistente === codigo) {
+                    codigoExiste = true;
+                    return false; // Salir del bucle each
+                }
+            });
 
+            // Si el código ya existe, no agregar la nueva fila
+            if (codigoExiste) {
+                Swal.fire({
+                    title: 'El producto ya ha sido agregado',
+                    icon: 'warning'
+                });
+                return;
+            }
 
             // Crear la nueva fila
-            var nuevaFila = `
-                    <tr>
-                        <td>${codigo}</td>
-                        <td>${cantidad}</td>
-                        <td>${nombre}</td>
-                        <td>${precio}</td>
-                        <td>${subtotal}</td>
-                        <td><button class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>
-                    </tr>
-                `;
+            var nuevaFila =
+                `<tr>
+                    <td>${codigo}</td>
+                    <td>${cantidad}</td>
+                    <td>${nombre}</td>
+                    <td>${precio}</td>
+                    <td>${subtotal}</td>
+                    <td><button class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>
+                </tr>`;
 
             // Agregar la nueva fila a la tabla
             $('#productos tbody').append(nuevaFila);
 
+            // Asignar el evento de eliminación a los botones de la nueva fila
             $('.eliminar-fila').off('click').on('click', function() {
                 $(this).closest('tr').remove();
             });
+
+            Swal.fire({
+                title: 'Has seleccionado:',
+                text: nombre,
+                icon: 'success'
+            });
         }
+
 
         $('#remisionar').submit(function(e) {
             e.preventDefault(); // Evitar la recarga de la página
 
-            // Obtener los datos del formulario
+            // Obtener los datos del formulario y generar la tabla inicial
             var datosFormulario = $(this).serialize();
             var datos = [];
             var formData = new URLSearchParams(datosFormulario);
@@ -301,7 +329,8 @@
             }
 
             // Crear la tabla HTML
-            var table = '<table style="width:100%; border: 1px solid black; border-collapse: collapse;">';
+            var table =
+                '<table style="width:100%; border: 1px solid black; border-collapse: collapse; font-size: 15px;">';
             table +=
                 '<tr><th style="border: 1px solid black; padding: 8px;">Campo</th><th style="border: 1px solid black; padding: 8px;">Valor</th></tr>';
             datos.forEach(element => {
@@ -311,14 +340,14 @@
             });
             table += '</table>';
 
-            // Clonar la tabla con id="producto" y quitar la última columna
+            // Clonar la tabla con id="productos" y ajustarla para el PDF
             var $productoTableClone = $('#productos').clone();
             $productoTableClone.find('tr').each(function() {
                 $(this).find('td:last-child, th:last-child').remove();
             });
 
             // Calcular la suma de la última columna
-            sum = 0;
+            var sum = 0;
             $productoTableClone.find('tr').each(function() {
                 var $lastTd = $(this).find('td:last-child');
                 if ($lastTd.length) {
@@ -335,19 +364,13 @@
                 '" style="border: 1px solid black; padding: 8px;">Total</td><td style="border: 1px solid black; padding: 8px;">' +
                 sum + '</td></tr>');
 
-
-
             // Obtener el HTML de la tabla modificada
             var productoTableHtml = $productoTableClone.prop('outerHTML');
 
-
-
-            // Concatenar las tablas
-            table += '<br>' + productoTableHtml;
-
+            // Mostrar el cuadro de diálogo de confirmación con SweetAlert
             Swal.fire({
                 title: '¡Se realizará una remisión con los siguientes datos!',
-                html: table,
+                html: table + '<br>' + productoTableHtml,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -356,72 +379,29 @@
                 width: '80%'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Obtener los valores necesarios para el PDF
+                    var nombreSucursal = $('#sucursal').val();
+                    var idsucursal = $('#sucursal').data('value');
+                    var numeroRemision = "123456789";
+                    var fecha = $('#fecha').val();
+                    const opciones = {
+                        timeZone: 'America/Mexico_City',
+                        hour12: false
+                    };
+                    var hora = new Date().toLocaleString('es-MX', opciones);
+                    var nota = $('#nota').val();
+                    var vendedor = $('#vendedor').data('value');
+                    var cantidadTotalLetra = convertirNumeroALetras(sum);
+                    var cliente = $('#cliente').val();
+                    var forma_pago = $('#metodo_pago').val();
+
+                    numeroRemision = validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago);
 
 
-
-                    Swal.fire({
-                        title: '!Remisión realizada correctamente!',
-                        text: 'Ticket No. ',
-                        icon: 'success',
-                        showCancelButton: true,
-                        cancelButtonText: 'Cerrar',
-                        confirmButtonText: 'Imprimir',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-
-                            // Datos para el PDF
-                            var nombreSucursal = $('#sucursal').val();
-                            var numeroRemision = "123456789";
-                            var fecha = $('#fecha').val();
-                            const opciones = {
-                                timeZone: 'America/Mexico_City',
-                                hour12: false
-                            };
-                            var hora = new Date().toLocaleString('es-MX', opciones);
-                            var nota = $('#nota').val();
-                            var vendedor = $('#vendedor').val();
-                            var cantidadTotalLetra = convertirNumeroALetras(sum);
-
-                            // Crear el PDF
-                            const {
-                                jsPDF
-                            } = window.jspdf;
-                            const doc = new jsPDF();
-
-                            doc.setFontSize(16);
-                            doc.text('GRUPO PROGYMS', 10, 10);
-                            doc.setFontSize(12);
-                            doc.text(`SUCURSAL: ${nombreSucursal}`, 10, 20);
-                            doc.text(`Remisión No.: ${numeroRemision}  ${fecha}`, 10, 30);
-                            doc.text(`Nota: ${nota}`, 10, 40);
-                            doc.text(`Almacen: ${nombreSucursal}`, 10, 50);
-                            doc.text(`Vendedor: ${vendedor}`, 10, 60);
-
-                            // Convertir la tabla HTML a un formato aceptable para jsPDF
-                            var res = doc.autoTableHtmlToJson($productoTableClone[0]);
-                            doc.autoTable(res.columns, res.data, {
-                                startY: 70
-                            });
-
-                            doc.text(`${cantidadTotalLetra}`, 10, doc.autoTable.previous.finalY +
-                                10);
-
-                            doc.text(`${fecha} ${hora}`, 10, doc.autoTable.previous.finalY + 20);
-
-                            doc.text(
-                                'Para cambios y devoluciones, presentar el producto SIN ABRIR con su ticket de venta dentro de los primeros 5 dias habiles despues de la fecha de compra.',
-                                10, doc.autoTable.previous.finalY + 30);
-
-                            // Guardar el PDF
-                            doc.save(`remision_${numeroRemision}.pdf`);
-                            Swal.fire('Ticket impreso!', '', 'success');
-                        } else if (result.isDenied) {
-                            Swal.fire('Ticket no impreso', '', 'info');
-                        }
-                    });
                 }
             });
         });
+
 
         $('#cliente').on('change', function() {
             var cliente = $(this).val();
@@ -452,6 +432,167 @@
                 }
             });
         });
+
+        function validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago) {
+
+
+
+            var table = $('#productos');
+            var tableData = tableToJson(table);
+
+            // Convertir a string JSON
+            tableData.forEach(element => {
+                delete element["Cancelar"];
+            });
+            var jsonString = JSON.stringify(tableData, null, 2);
+
+            var total = 0;
+            tableData.forEach(element => {
+                total += parseInt(element.Subtotal);
+            });
+
+            const data = {
+                nota: nota,
+                fecha: hora,
+                forma_pago: forma_pago,
+                almacen: idsucursal,
+                vendedor: vendedor,
+                cliente: cliente,
+                productos: jsonString,
+                total: total
+            };
+            $.ajax({
+                url: 'validarremision', // URL a la que se hace la solicitud
+                type: 'POST', // Tipo de solicitud (GET, POST, etc.)
+                data: data,
+                dataType: 'json', // Tipo de datos esperados en la respuesta
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    Swal.fire({
+                        title: '¡Remisión realizada correctamente!',
+                        icon: 'success',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Imprimir',
+                        width: '80%'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+
+
+                            // Crear el documento PDF
+                            const {
+                                jsPDF
+                            } = window.jspdf;
+                            const doc = new jsPDF({
+                                orientation: 'landscape',
+                                unit: 'mm',
+                                format: [400, 400]
+                            });
+
+                            // Agregar contenido al PDF
+                            doc.setFontSize(9);
+                            doc.setFont('helvetica', 'bold');
+                            doc.text('GRUPO PROGYMS', 30, 2);
+                            doc.text(`Sucursal: ${idsucursal}`, 29, 7);
+                            doc.text(`Remisión No.: ${numeroRemision}`, 10, 12);
+                            doc.text(`Hora.: ${hora}`, 10, 17);
+                            doc.text(`Nota: ${nota}`, 10, 22);
+                            doc.text(`Forma de pago : ${forma_pago}`, 10, 27);
+                            doc.text(`Almacen: ${idsucursal}`, 10, 32);
+                            doc.text(`Vendedor: ${vendedor}`, 10, 37);
+                            doc.text(`Cliente: ${cliente}`, 10, 42);
+
+                            // Convertir la tabla HTML a un formato aceptable para jsPDF
+                            var res = doc.autoTableHtmlToJson($productoTableClone[0]);
+                            doc.autoTable(res.columns, res.data, {
+                                startY: 47,
+                                margin: {
+                                    left: 3,
+                                    right: 5
+                                },
+                                styles: {
+                                    fontSize: 6,
+                                    fontStyle: 'bold'
+                                },
+                                columnStyles: {
+                                    0: {
+                                        cellWidth: 13
+                                    },
+                                    1: {
+                                        cellWidth: 14
+                                    },
+                                    2: {
+                                        cellWidth: 24
+                                    },
+                                    3: {
+                                        cellWidth: 13
+                                    },
+                                    4: {
+                                        cellWidth: 14
+                                    }
+                                },
+                                headStyles: {
+                                    fillColor: null,
+                                    textColor: 0
+                                },
+                                bodyStyles: {
+                                    fillColor: '#FFFFFF',
+                                    textColor: 0
+                                }
+                            });
+
+                            doc.setFontSize(6);
+                            // Agregar texto sobre cambios y devoluciones
+                            doc.text(
+                                'Para cambios y devoluciones, presentar el producto SIN ABRIR',
+                                10, doc.autoTable.previous.finalY + 10);
+                            doc.text(
+                                'con su ticket de venta dentro de los primeros 5 días hábiles ',
+                                10, doc.autoTable.previous.finalY + 15);
+                            // Guardar y mostrar el PDF
+                            doc.text(
+                                'después de la fecha de compra.',
+                                10, doc.autoTable.previous.finalY + 20);
+                            // Guardar y mostrar el PDF
+                            doc.save(`remision_${numeroRemision}.pdf`);
+                            Swal.fire('Ticket impreso!', '', 'success');
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+
+                    return xhr.responseJSON.error;
+                }
+            });
+
+        }
+
+
+        function tableToJson(table) {
+            var data = [];
+
+            // Obtener encabezados de la tabla
+            var headers = [];
+            $(table).find('thead th').each(function(index, th) {
+                headers[index] = $(th).text();
+            });
+
+            // Obtener filas de la tabla
+            $(table).find('tbody tr').each(function(index, tr) {
+                var row = {};
+                $(tr).find('td').each(function(cellIndex, td) {
+                    row[headers[cellIndex]] = $(td).text();
+                });
+                data.push(row);
+            });
+
+            return data;
+        }
+
+
 
         function convertirNumeroALetras(num) {
             const unidades = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];

@@ -455,7 +455,7 @@ return [
             'url' => '#',
             'submenu' => [
                 [
-                    'text' => 'Alta',
+                    'text' => 'Nuevo',
                     'url' => 'altapedidos',
                 ]
             ]
@@ -497,6 +497,18 @@ return [
                     'url' => 'edicionprecios',
                 ]
 
+            ]
+        ],
+
+        [
+            'text' => 'Notificaciones',
+            'icon' => 'fas fa-fw fa-file',
+            'url' => '#',
+            'submenu' => [
+                [
+                    'text' => 'Nueva',
+                    'url' => 'notificaciones',
+                ],
             ]
         ],
 

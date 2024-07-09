@@ -16,6 +16,27 @@
             <div class="card">
 
                 <div class="card-body">
+                    <form id="reporte">
+                        <br>
+                        <div class="row">
+                            <div class="col">
+                                <label for="sucursal">Almacen:</label>
+                            </div>
+                            <div class="col">
+                                <select name="sucursal" id="sucursal" class="form-control">
+                                    @foreach ($warehouses as $sucursal)
+                                        <option value="{{ encrypt($sucursal->id) }}">{{ $sucursal->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <button type="submit" class="btn btn-success">General</button>
+                            </div>
+                        </div>
+                    </form>
+                    <br>
                     <table id="productos" class="table">
                         <thead>
                             <tr>
@@ -319,5 +340,102 @@
                 }
             });
         }
+
+        $('#reporte').submit(function(e) {
+            e.preventDefault(); // Evitar la recarga de la página
+
+            // Obtener los datos del formulario
+            var datosFormulario = $(this).serialize();
+
+            // Realizar la solicitud AJAX con jQuery
+            $.ajax({
+                url: '/multialmacenfiltros', // Ruta al controlador de Laravel
+                type: 'GET',
+                // data: datosFormulario, // Enviar los datos del formulario
+                data: datosFormulario,
+
+                success: function(response) {
+                    Swal.fire(
+                        '¡Gracias por esperar!',
+                        response.message,
+                        'success'
+                    );
+
+                    $('#productos').DataTable({
+                        destroy: true,
+                        scrollX: true,
+                        scrollCollapse: true,
+                        "language": {
+                            "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
+                        },
+                        "buttons": [
+                            'copy', 'excel', 'pdf', 'print'
+                        ],
+                        dom: 'Blfrtip',
+                        processing: true,
+                        sort: true,
+                        paging: true,
+                        lengthMenu: [
+                            [10, 25, 50, -1],
+                            [10, 25, 50, 'All']
+                        ], // Personalizar el menú de longitud de visualización
+
+                        // Configurar las opciones de exportación
+                        // Para PDF
+                        pdf: {
+                            orientation: 'landscape', // Orientación del PDF (landscape o portrait)
+                            pageSize: 'A4', // Tamaño del papel del PDF
+                            exportOptions: {
+                                columns: ':visible' // Exportar solo las columnas visibles
+                            }
+                        },
+                        // Para Excel
+                        excel: {
+                            exportOptions: {
+                                columns: ':visible' // Exportar solo las columnas visibles
+                            }
+                        },
+                        "data": response,
+                        "columns": [{
+                                "data": "id"
+                            },
+                            {
+                                "data": "nombre"
+                            },
+                            {
+                                "data": "marca"
+                            },
+                            {
+                                "data": "categoria"
+                            },
+                            {
+                                "data": "existencias"
+                            },
+                            {
+                                "data": "almacenes",
+                                "render": function(data, type, row) {
+                                    return '<button onclick="veralmacenes(' + row.id +
+                                        ')" class="btn btn-primary">Ver</button>';
+                                }
+                            },
+                            {
+                                "data": "precios",
+                                "render": function(data, type, row) {
+                                    return '<button onclick="verprecios(' + row.id +
+                                        ')" class="btn btn-primary">Ver</button>';
+                                }
+                            },
+                        ]
+                    });
+                },
+                error: function(response) {
+                    Swal.fire(
+                        '¡Gracias por esperar!',
+                        "Existe un error: " + response.message,
+                        'error'
+                    )
+                }
+            });
+        });
     </script>
 @stop

@@ -46,6 +46,7 @@ Route::get('/dashboard', function () {
 });
 
 
+
 //Rutas
 //REMISIONES
 Route::get('remisionar', [ventasController::class, 'remisionar'])->middleware(['auth']);
@@ -53,6 +54,10 @@ Route::get('remisiones', [ventasController::class, 'remisiones'])->middleware(['
 Route::get('ventasreportes', [ventasController::class, 'ventasreportes'])->middleware(['auth']);
 Route::post('buscarprecio', [ventasController::class, 'buscarprecio'])->middleware(['auth']);
 Route::post('buscaridprecio', [ventasController::class, 'buscaridprecio'])->middleware(['auth']);
+Route::post('validarremision', [ventasController::class, 'validarremision'])->middleware(['auth']);
+Route::get('verproductosremision', [ventasController::class, 'verproductosremision'])->middleware(['auth']);
+Route::post('cancelarremision', [ventasController::class, 'cancelarremision'])->middleware(['auth']);
+Route::get('reporteremisiones', [ventasController::class, 'reporteremisiones'])->middleware(['auth']);
 
 
 
@@ -63,6 +68,7 @@ Route::get('altalmacen', [multialmacenController::class, 'altalmacen'])->middlew
 Route::get('bajaalmacen', [multialmacenController::class, 'bajaalmacen'])->middleware(['auth']);
 Route::get('edicionalmacen', [multialmacenController::class, 'edicionalmacen'])->middleware(['auth']);
 Route::get('traspasos', [multialmacenController::class, 'traspasos'])->middleware(['auth']);
+Route::get('multialmacenfiltros', [multialmacenController::class, 'multialmacenfiltros'])->middleware(['auth']);
 
 
 Route::get('detalleamacenes', [multialmacenController::class, 'detalleamacenes'])->middleware(['auth']);
@@ -148,6 +154,10 @@ Route::get('altapedidos', [pedidosController::class, 'altapedidos'])->middleware
 //OPCIONES
 Route::get('admin/settings', [adminsettingsController::class, 'index'])->middleware(['auth']);
 Route::get('recuperarcontrasena', [dashboardController::class, 'recuperarcontrasena']);
+
+// Notificaciones
+Route::get('notificaciones', [dashboardController::class, 'notificaciones']);
+Route::post('crearnotificacion', [dashboardController::class, 'crearnotificacion']);
 
 
 

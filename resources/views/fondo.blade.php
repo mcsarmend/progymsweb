@@ -5,10 +5,10 @@
 
     }
 
-/*     h1 {
+    /*     h1 {
 
         background: -webkit-radial-gradient(center, ellipse cover, #ffffff, #aabbcc) !important;
-     
+
         background: radial-gradient(ellipse at center, #ffffff, #aabbcc) !important;
     } */
 
@@ -82,14 +82,116 @@
     function showUsersSections() {
         var type = @json($type);
         switch (type) {
-            case '3':
-                $('a:contains("Cuentas")').hide();
+            case 4:
+                // Quitar cuentas de usuario
+                $('.user-footer a').each(function() {
+                    if ($(this).text().includes('Cuentas')) {
+                        $(this).hide();
+                        $(this).css('display', 'none !important'); // Añadir !important
+                        $(this).remove(); // Eliminar el enlace del DOM
+                    }
+                });
+                // Cambiar nombre
+                $('small').each(function() {
+                    if ($(this).text().includes('Administrador')) {
+                        $(this).text('Vendedor');
+
+                    }
+                });
+                // Quitar Inventario
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Inventario');
+                }).remove();
+                //Quitar Almacén
+                $('li.nav-item.dropdown .dropdown-menu li a').filter(function() {
+                    return $(this).text().trim() === 'Alta' ||
+                        $(this).text().trim() === 'Baja' ||
+                        $(this).text().trim() === 'Traspasos';
+                }).closest('li').hide();
+
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Clientes');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Proveedores');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Compras');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Precios');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Vendedores');
+                }).remove();
                 break;
-            case '2':
-                $('a:contains("Cuentas")').hide();
+            case 3:
+                // Quitar cuentas de usuario
+                $('.user-footer a').each(function() {
+                    if ($(this).text().includes('Cuentas')) {
+                        $(this).hide();
+                        $(this).css('display', 'none !important'); // Añadir !important
+                        $(this).remove(); // Eliminar el enlace del DOM
+                    }
+                });
+                // Cambiar nombre
+                $('small').each(function() {
+                    if ($(this).text().includes('Administrador')) {
+                        $(this).text('Supervisor');
+
+                    }
+                });
+                // Quitar Inventario
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Inventario');
+                }).remove();
+                //Quitar Almacén
+                $('li.nav-item.dropdown .dropdown-menu li a').filter(function() {
+                    return $(this).text().trim() === 'Alta' ||
+                        $(this).text().trim() === 'Baja' ||
+                        $(this).text().trim() === 'Traspasos';
+                }).closest('li').hide();
+
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Clientes');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Proveedores');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Compras');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Precios');
+                }).remove();
 
                 break;
+            case 2:
+                // Cambiar nombre
+                $('small').each(function() {
+                    if ($(this).text().includes('Administrador')) {
+                        $(this).text('Jefatura');
 
+                    }
+                });
+                // Quitar Inventario
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Inventario');
+                }).remove();
+                //Quitar Almacén
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Clientes');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Proveedores');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Compras');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Precios');
+                }).remove();
+                break;
             default:
                 break;
         }

@@ -12,21 +12,22 @@ class comprasController extends Controller
     public function altacompras()
     {
         $type = $this->gettype();
-        return view('compras.alta', ['type'=>$type]);
+        return view('compras.alta', ['type' => $type]);
     }
     public function bajacompras()
     {
         $type = $this->gettype();
-        return view('compras.baja', ['type'=>$type]);
+        return view('compras.baja', ['type' => $type]);
     }
     public function edicioncompras()
     {
         $type = $this->gettype();
-        return view('compras.edicion', ['type'=>$type]);
+        return view('compras.edicion', ['type' => $type]);
     }
-    public function gettype(){
+    public function gettype()
+    {
         if (Auth::check()) {
-            $type = Auth::user()->type;
+            $type = Auth::user()->role;
         }
         return $type;
     }

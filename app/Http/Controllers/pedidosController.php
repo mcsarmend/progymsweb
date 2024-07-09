@@ -9,14 +9,16 @@ use App\Models\User;
 
 class pedidosController extends Controller
 {
-    public function altapedidos(){
+    public function altapedidos()
+    {
         $type = $this->gettype();
-        return view('pedidos.alta', ['type'=>$type]);
+        return view('pedidos.alta', ['type' => $type]);
 
     }
-    public function gettype(){
+    public function gettype()
+    {
         if (Auth::check()) {
-            $type = Auth::user()->type;
+            $type = Auth::user()->role;
         }
         return $type;
     }

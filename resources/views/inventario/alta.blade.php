@@ -82,8 +82,8 @@
                 <div class="row">
                     <div class="col">
                         <label for="name">Cantidad:</label>
-                        <input type="text" name="existencia" required minlength="1" maxlength="3000" class="form-control"
-                            placeholder="">
+                        <input type="text" name="existencia" required minlength="1" maxlength="3000"
+                            class="form-control" placeholder="">
                         <br>
                     </div>
                 </div>
@@ -133,10 +133,10 @@
                         response.message,
                         'success'
                     );
-                   /*  setTimeout(function() {
-                        window.location.reload();
-                    }, 10000); */
-                    generarContrasena();
+                    /*  setTimeout(function() {
+                         window.location.reload();
+                     }, 10000); */
+
                 },
                 error: function(xhr) {
                     Swal.fire(

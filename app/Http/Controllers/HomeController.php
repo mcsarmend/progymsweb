@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\notification;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
@@ -24,7 +25,10 @@ class HomeController extends Controller
     public function index()
     {
 
-        $type = Auth::user()->type;
-        return view('home', compact('type'));
+        $type = Auth::user()->role;
+
+        $notification = notification::all();
+
+        return view('home', ['type' => $type, 'notificaciones' => $notification]);
     }
 }

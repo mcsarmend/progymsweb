@@ -10,7 +10,7 @@
     {{--  CREAR USUARIO --}}
     <div class="card">
         <div class="card-header">
-            <h1>Administración de cuentas</h1>
+            <h1>Cuentas de Usuarios</h1>
             <br><br>
             <h4 class="card-title" style ="font-size: 2rem">Crear usuario</h4>
         </div>
@@ -161,9 +161,9 @@
 @stop
 
 @section('css')
-<style>
+    <style>
 
-</style>
+    </style>
 @stop
 
 @section('js')
@@ -240,7 +240,8 @@
                             error: function(error) {
                                 Swal.fire(
                                     '¡Gracias por esperar!',
-                                    "Existe un error: " + error.responseJSON.message,
+                                    "Existe un error: " + error.responseJSON
+                                    .message,
                                     'error'
                                 )
                             }
@@ -289,7 +290,8 @@
                             error: function(error) {
                                 Swal.fire(
                                     '¡Gracias por esperar!',
-                                    "Existe un error: " + error.responseJSON.message,
+                                    "Existe un error: " + error.responseJSON
+                                    .message,
                                     'error'
                                 )
                             }
@@ -333,14 +335,14 @@
             nuevaOpcion.value = "0";
             nuevaOpcion.text = "Sin seleccionar";
             select.insertBefore(nuevaOpcion, select.firstChild);
-            select.value=0;
+            select.value = 0;
 
             select2 = document.getElementById("tipo_actualizar");
             nuevaOpcion2 = document.createElement("option");
             nuevaOpcion2.value = "0";
             nuevaOpcion2.text = "Sin seleccionar";
             select2.insertBefore(nuevaOpcion2, select2.firstChild);
-            select2.value=0;
+            select2.value = 0;
 
             // Poner sin seleccionar en eliminar
             select3 = document.getElementById("id");
@@ -348,7 +350,7 @@
             nuevaOpcion3.value = "0";
             nuevaOpcion3.text = "Sin seleccionar";
             select3.insertBefore(nuevaOpcion3, select.firstChild);
-            select3.value=0;
+            select3.value = 0;
 
         });
 

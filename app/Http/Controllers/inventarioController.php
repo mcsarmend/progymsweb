@@ -172,7 +172,7 @@ class inventarioController extends Controller
                 for ($i = 1; $i < 5; $i++) {
                     $product_price = new productprice();
                     $product_price->idproducto = $producto[0];
-                    $product_price->idprice =  $i;
+                    $product_price->idprice = $i;
                     $product_price->price = $producto[$i + 4];
                     $product_price->save();
                 }
@@ -209,14 +209,14 @@ class inventarioController extends Controller
             $idproducto = intval($request->id);
             $almacen = $request->almacen;
             $nueva_existencia = floatval($request->nueva_existencia);
-  
-            $id_warehouse = warehouse::select('id')
-            ->where('nombre',"=",$almacen)
-            ->first();
 
-            $idwarehouse= $id_warehouse->id ;
-            productwarehouse::where('idproducto', '=',  $idproducto)
-                ->where('idwarehouse', '=',  $idwarehouse)
+            $id_warehouse = warehouse::select('id')
+                ->where('nombre', "=", $almacen)
+                ->first();
+
+            $idwarehouse = $id_warehouse->id;
+            productwarehouse::where('idproducto', '=', $idproducto)
+                ->where('idwarehouse', '=', $idwarehouse)
                 ->update(['existencias' => $nueva_existencia]);
             return response()->json(['message' => "Producto actualizado correctamente"], 200);
         } catch (\Throwable $th) {
@@ -229,14 +229,14 @@ class inventarioController extends Controller
             $idproducto = intval($request->id);
             $tipo = $request->tipo;
             $nuevo_precio = floatval($request->nuevo_precio);
-  
-            $idPrice = prices::select('id')
-            ->where('nombre',"=",$tipo)
-            ->first();
 
-            $id_price= $idPrice->id ;
-            productprice::where('idproducto', '=',  $idproducto)
-                ->where('idprice', '=',  $id_price)
+            $idPrice = prices::select('id')
+                ->where('nombre', "=", $tipo)
+                ->first();
+
+            $id_price = $idPrice->id;
+            productprice::where('idproducto', '=', $idproducto)
+                ->where('idprice', '=', $id_price)
                 ->update(['price' => $nuevo_precio]);
             return response()->json(['message' => "Producto actualizado correctamente"], 200);
         } catch (\Throwable $th) {
@@ -250,7 +250,7 @@ class inventarioController extends Controller
     public function gettype()
     {
         if (Auth::check()) {
-            $type = Auth::user()->type;
+            $type = Auth::user()->role;
         }
         return $type;
     }

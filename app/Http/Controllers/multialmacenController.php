@@ -31,10 +31,11 @@ class multialmacenController extends Controller
             ->leftJoin('product_warehouse as pw', 'p.id', '=', 'pw.idproducto')
             ->groupBy('p.id', 'p.nombre', 'b.nombre', 'c.nombre')
             ->get();
+        $almacenes = warehouse::all();
 
 
 
-        return view('almacen.multialmacen', ['type' => $type, 'products' => $products]);
+        return view('almacen.multialmacen', ['type' => $type, 'products' => $products, 'warehouses' => $almacenes]);
     }
     public function altalmacen()
     {
@@ -95,7 +96,7 @@ class multialmacenController extends Controller
     {
 
         $productosAlmacen = DB::table('product_warehouse as pw')
-            ->select('pw.idproducto', 'w.id','w.nombre', 'pw.existencias')
+            ->select('pw.idproducto', 'w.id', 'w.nombre', 'pw.existencias')
             ->leftJoin('warehouse as w', 'pw.idwarehouse', '=', 'w.id')
             ->where('pw.idproducto', '=', $request["id_producto"])
             ->get();
@@ -135,8 +136,8 @@ class multialmacenController extends Controller
         try {
             $almacen_origen = $request['almacen_origen'];
             $almacen_destino = $request['almacen_destino'];
-            $cantidades =  $request['cantidades'];
-            $productos =  $request['productos'];
+            $cantidades = $request['cantidades'];
+            $productos = $request['productos'];
             $idproductos = [];
             $existencias = 0;
             foreach ($productos as $producto) {
@@ -158,7 +159,7 @@ class multialmacenController extends Controller
                             ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
                             ->get();
                         $ExisOr = $existencias_origen[0]["existencias"];
-                        if ($ExisOr  >= intval($cantidades[$i])) {
+                        if ($ExisOr >= intval($cantidades[$i])) {
                             $nuevaExistenciaOrigen = $ExisOr - intval($cantidades[$i]);
                             ProductWarehouse::where('idproducto', 'like', '%' . $idproductos[$i] . '%')
                                 ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
@@ -195,11 +196,30 @@ class multialmacenController extends Controller
             return response()->json(['message' => $th->getMessage()], 500);
         }
     }
+    public function multialmacenfiltros(Request $request)
+    {
+        $sucursal = Crypt::decrypt($request->sucursal);
 
+        $products = DB::table('product as p')
+            ->select(
+                'p.id',
+                'p.nombre',
+                'b.nombre as marca',
+                'c.nombre as categoria',
+                DB::raw('SUM(pw.existencias) as existencias')
+            )
+            ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
+            ->leftJoin('category as c', 'p.categoria', '=', 'c.id')
+            ->leftJoin('product_warehouse as pw', 'p.id', '=', 'pw.idproducto')
+            ->where('pw.idwarehouse', 'like', '%' . $sucursal . '%')
+            ->groupBy('p.id', 'p.nombre', 'b.nombre', 'c.nombre')
+            ->get();
+        return $products;
+    }
     public function gettype()
     {
         if (Auth::check()) {
-            $type = Auth::user()->type;
+            $type = Auth::user()->role;
         }
         return $type;
     }
