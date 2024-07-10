@@ -45,7 +45,7 @@
         canvas.width = contentWrapper.clientWidth;
         canvas.height = contentWrapper.clientHeight;
 
-        const colors = ["#3498db", "#ffffff", "#ecf0f1", "#bdc3c7"];
+        const colors = ["#a0101e", "#b54856", "#cc808e", "#e4b8c5"];
 
         function drawRandomTriangle() {
             const sideLength = Math.random() * 50 + 10;

@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\adminsettingsController;
 use App\Http\Controllers\clientesController;
 use App\Http\Controllers\comprasController;
@@ -11,11 +9,12 @@ use App\Http\Controllers\multialmacenController;
 use App\Http\Controllers\pedidosController;
 use App\Http\Controllers\preciosController;
 use App\Http\Controllers\proveedoresController;
+use App\Http\Controllers\reconocimientosController;
 use App\Http\Controllers\usersController;
-use App\Http\Controllers\tokenController;
 use App\Http\Controllers\vendedorController;
 use App\Http\Controllers\ventasController;
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 /*
 /*
@@ -27,7 +26,7 @@ use App\Http\Controllers\ventasController;
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 |
-*/
+ */
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -45,8 +44,6 @@ Route::get('/dashboard', function () {
     }
 });
 
-
-
 //Rutas
 //REMISIONES
 Route::get('remisionar', [ventasController::class, 'remisionar'])->middleware(['auth']);
@@ -59,9 +56,6 @@ Route::get('verproductosremision', [ventasController::class, 'verproductosremisi
 Route::post('cancelarremision', [ventasController::class, 'cancelarremision'])->middleware(['auth']);
 Route::get('reporteremisiones', [ventasController::class, 'reporteremisiones'])->middleware(['auth']);
 
-
-
-
 //ALMACEN
 Route::get('multialmacen', [multialmacenController::class, 'multialmacen'])->middleware(['auth']);
 Route::get('altalmacen', [multialmacenController::class, 'altalmacen'])->middleware(['auth']);
@@ -70,7 +64,6 @@ Route::get('edicionalmacen', [multialmacenController::class, 'edicionalmacen'])-
 Route::get('traspasos', [multialmacenController::class, 'traspasos'])->middleware(['auth']);
 Route::get('multialmacenfiltros', [multialmacenController::class, 'multialmacenfiltros'])->middleware(['auth']);
 
-
 Route::get('detalleamacenes', [multialmacenController::class, 'detalleamacenes'])->middleware(['auth']);
 Route::get('detalleprecios', [multialmacenController::class, 'detalleprecios'])->middleware(['auth']);
 Route::get('obtenerproducto', [multialmacenController::class, 'obtenerproducto'])->middleware(['auth']);
@@ -78,13 +71,11 @@ Route::post('realizartraspaso', [multialmacenController::class, 'realizartraspas
 Route::post('crearalmacen', [multialmacenController::class, 'crearalmacen'])->middleware(['auth']);
 Route::post('eliminaralmacen', [multialmacenController::class, 'eliminaralmacen'])->middleware(['auth']);
 
-
 //INVENTARIO
 Route::get('altainventario', [inventarioController::class, 'altainventario'])->middleware(['auth']);
 Route::get('multialtainventario', [inventarioController::class, 'multialtainventario'])->middleware(['auth']);
 Route::get('bajainventario', [inventarioController::class, 'bajainventario'])->middleware(['auth']);
 Route::get('edicioninventario', [inventarioController::class, 'edicioninventario'])->middleware(['auth']);
-
 
 Route::post('enviareditarprecio', [inventarioController::class, 'enviareditarprecio'])->middleware(['auth']);
 Route::post('enviareditaralmacenes', [inventarioController::class, 'enviareditaralmacenes'])->middleware(['auth']);
@@ -92,21 +83,15 @@ Route::post('altaproducto', [inventarioController::class, 'altaproducto'])->midd
 Route::post('eliminarproducto', [inventarioController::class, 'eliminarproducto'])->middleware(['auth']);
 Route::post('multialtaproducto', [inventarioController::class, 'multialtaproducto'])->middleware(['auth']);
 
-
 //CLIENTES
 Route::get('clientes', [clientesController::class, 'clientes'])->middleware(['auth']);
 Route::get('altacliente', [clientesController::class, 'altacliente'])->middleware(['auth']);
 Route::get('bajacliente', [clientesController::class, 'bajacliente'])->middleware(['auth']);
 Route::get('edicioncliente', [clientesController::class, 'edicioncliente'])->middleware(['auth']);
 
-
 Route::post('crearcliente', [clientesController::class, 'crearcliente'])->middleware(['auth']);
 Route::post('eliminarcliente', [clientesController::class, 'eliminarcliente'])->middleware(['auth']);
 Route::post('editarcliente', [clientesController::class, 'editarcliente'])->middleware(['auth']);
-
-
-
-
 
 //PROVEEDORES
 Route::get('proveedores', [proveedoresController::class, 'proveedores'])->middleware(['auth']);
@@ -117,7 +102,6 @@ Route::get('edicionproveedores', [proveedoresController::class, 'edicionproveedo
 Route::post('crearproveedor', [proveedoresController::class, 'crearproveedor'])->middleware(['auth']);
 Route::post('eliminarproveedor', [proveedoresController::class, 'eliminarproveedor'])->middleware(['auth']);
 Route::post('editarproveedor', [proveedoresController::class, 'editarproveedor'])->middleware(['auth']);
-
 
 // PRECIOS
 Route::get('precios', [preciosController::class, 'precios'])->middleware(['auth']);
@@ -139,31 +123,26 @@ Route::post('crearvendedor', [vendedorController::class, 'crearvendedor'])->midd
 Route::post('eliminarvendedor', [vendedorController::class, 'eliminarvendedor'])->middleware(['auth']);
 Route::post('editarvendedor', [vendedorController::class, 'editarvendedor'])->middleware(['auth']);
 
-
 //COMPRAS
 Route::get('altacompras', [comprasController::class, 'altacompras'])->middleware(['auth']);
 Route::get('bajacompras', [comprasController::class, 'bajacompras'])->middleware(['auth']);
 Route::get('edicioncompras', [comprasController::class, 'edicioncompras'])->middleware(['auth']);
 
-
 //PEDIDOS
 Route::get('altapedidos', [pedidosController::class, 'altapedidos'])->middleware(['auth']);
 
+// TAREAS
+Route::get('tareas', [dashboardController::class, 'tareas']);
+Route::get('tareasdelegadas', [dashboardController::class, 'tareasdelegadas']);
+Route::get('marcartarea', [dashboardController::class, 'marcartarea']);
 
+// RECONOCIMIENTOS
+Route::get('reconocimientos', [reconocimientosController::class, 'reconocimientos']);
+Route::get('nuevoreconocimiento', [reconocimientosController::class, 'nuevoreconocimiento']);
 
 //OPCIONES
 Route::get('admin/settings', [adminsettingsController::class, 'index'])->middleware(['auth']);
 Route::get('recuperarcontrasena', [dashboardController::class, 'recuperarcontrasena']);
-
-// Notificaciones
-Route::get('notificaciones', [dashboardController::class, 'notificaciones']);
-Route::post('crearnotificacion', [dashboardController::class, 'crearnotificacion']);
-
-
-
-
-
-
 
 Route::get('profile/username', [usersController::class, 'usuarios']);
 Route::post('guardar-usuario', [usersController::class, 'guardar']);
@@ -172,8 +151,6 @@ Route::post('actualizarext', [usersController::class, 'actualizarext']);
 Route::post('eliminar', [usersController::class, 'eliminar']);
 Route::get('obtener-tipo', [usersController::class, 'obtenerTipo']);
 
-
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-

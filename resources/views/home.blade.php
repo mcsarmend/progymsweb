@@ -9,9 +9,28 @@
     <br>
     <div class="card">
         <div class="card-header">
-            <h1>Notificaciones</h1>
+            <h1>Tareas</h1>
         </div>
         <div class="card-body" style="width: 100%">
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="table-danger">
+                        Fecha limite de realizacion de tarea terminado
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="table-warning">
+                        Tienes hasta hoy para realizar tu tarea
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="table-success">
+                        En tiempo para realizar tarea
+                    </div>
+                </div>
+            </div>
+
             <table id="notificaciones" class="table table-striped table-bordered display nowrap" style="width: 100%">
                 <thead>
                     <tr>
@@ -19,7 +38,9 @@
                         <th>Fecha Fin</th>
                         <th>Asunto</th>
                         <th>Descripción</th>
-                        <th>Dirigido a</th>
+                        <th>Asignado por</th>
+                        <th>Fecha Realizada</th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -84,7 +105,7 @@
         $(document).ready(function() {
             drawTriangles();
             showUsersSections();
-            var notificaciones = @json($notificaciones);
+            var tareas = @json($tareas);
 
             $('#notificaciones').DataTable({
                 destroy: true,
@@ -117,7 +138,7 @@
                         columns: ':visible'
                     }
                 },
-                data: notificaciones,
+                data: tareas,
                 columns: [{
                         "data": "fechainicio"
                     },
@@ -131,29 +152,23 @@
                         "data": "descripcion"
                     },
                     {
-                        "data": "objetivo",
+                        "data": "autor2",
+                    },
+                    {
+                        "data": "fecharealizada",
                         "render": function(data, type, row) {
-                            var objetivo = "";
-                            switch (data) {
-                                case 1:
-                                    objetivo = "Administradores";
-                                    break;
-                                case 2:
-                                    objetivo = "Jefes";
-                                    break;
-                                case 3:
-                                    objetivo = "Supervisores";
-                                    break;
-                                case 4:
-                                    objetivo = "Vendedores";
-                                    break;
-                                default:
-                                    objetivo = "Desconocido";
-                                    break;
+
+                            if (row.fechaaccion == null) {
+                                return '<button onclick="realizar_tarea(' + row.id +
+                                    ')" class="btn btn-info">Marcar</button>';
+                            } else {
+
+                                return row.fechaaccion;
                             }
-                            return `${objetivo}`;
+
                         }
-                    }
+                    },
+
                 ],
                 rowCallback: function(row, data) {
                     var today = new Date().toISOString().split('T')[0];
@@ -172,5 +187,57 @@
                 }
             });
         });
+
+        function realizar_tarea(id) {
+
+            const datos = {
+                id: id,
+            };
+            Swal.fire({
+                title: "¿Marcar tarea como realizada?",
+                text: "¡Esta acción no se puede deshacer!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "¡Si, marcarla!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+
+
+                    $.ajax({
+                        url: '/marcartarea', // Ruta al controlador de Laravel
+                        type: 'POST',
+                        // data: datosFormulario, // Enviar los datos del formulario
+                        data: datos,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            Swal.fire(
+                                '¡Gracias por esperar!',
+                                response.message,
+                                'success'
+                            );
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 3000);
+
+                        },
+                        error: function(response) {
+                            Swal.fire(
+                                '¡Gracias por esperar!',
+                                "Existe un error: " + response.message,
+                                'error'
+                            )
+                        }
+                    });
+
+
+
+                }
+            });
+        }
     </script>
 @stop

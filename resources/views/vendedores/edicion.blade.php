@@ -19,7 +19,7 @@
                         @csrf
                         <div class="row">
                             <div class="col">
-                                <label for="usuario">Precio:</label>
+                                <label for="usuario">Vendedor:</label>
                             </div>
                             <div class="col">
                                 <select name="id" id="id_actualizar" class="form-control">

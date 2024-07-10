@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\notification;
+use App\Models\task;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
@@ -26,9 +26,13 @@ class HomeController extends Controller
     {
 
         $type = Auth::user()->role;
+        $iduser = Auth::user()->id;
 
-        $notification = notification::all();
+        $tasks = Task::where('objetivo', $iduser)
+            ->leftJoin('users', 'task.autor', '=', 'users.id')
+            ->select('task.*', 'users.name as autor2')
+            ->get();
 
-        return view('home', ['type' => $type, 'notificaciones' => $notification]);
+        return view('home', ['type' => $type, 'tareas' => $tasks]);
     }
 }

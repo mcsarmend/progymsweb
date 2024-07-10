@@ -8,11 +8,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you can change the default title of your admin panel.
-|
+    |
     | For detailed instructions you can look the title section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Basic-Configuration
     |
-    */
+     */
 
     'title' => '',
     'title_prefix' => '',
@@ -28,7 +28,7 @@ return [
     | For detailed instructions you can look the favicon section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Basic-Configuration
     |
-    */
+     */
 
     'use_ico_only' => true,
     'use_full_favicon' => false,
@@ -45,7 +45,7 @@ return [
     | For detailed instructions you can look the google fonts section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Basic-Configuration
     |
-    */
+     */
 
     'google_fonts' => [
         'allowed' => true,
@@ -61,7 +61,7 @@ return [
     | For detailed instructions you can look the logo section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Basic-Configuration
     |
-    */
+     */
 
     'logo' => '<b>HERMES</b>Net',
     'logo_img' => 'assets/images/logo.png',
@@ -81,7 +81,7 @@ return [
     | For detailed instructions you can look the auth logo section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Basic-Configuration
     |
-    */
+     */
 
     'auth_logo' => [
         'enabled' => false,
@@ -104,7 +104,7 @@ return [
     | For detailed instructions you can look the preloader section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Basic-Configuration
     |
-    */
+     */
 
     'preloader' => [
         'enabled' => true,
@@ -127,7 +127,7 @@ return [
     | For detailed instructions you can look the user menu section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Basic-Configuration
     |
-    */
+     */
 
     'usermenu_enabled' => true,
     'usermenu_header' => true,
@@ -146,14 +146,14 @@ return [
     | For detailed instructions you can look the layout section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Layout-and-Styling-Configuration
     |
-    */
+     */
 
     'layout_topnav' => true,
-    'layout_boxed' => NULL,
+    'layout_boxed' => null,
     'layout_fixed_sidebar' => true,
-    'layout_fixed_navbar' => NULL,
-    'layout_fixed_footer' => NULL,
-    'layout_dark_mode' => NULL,
+    'layout_fixed_navbar' => null,
+    'layout_fixed_footer' => null,
+    'layout_dark_mode' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -165,7 +165,7 @@ return [
     | For detailed instructions you can look the auth classes section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Layout-and-Styling-Configuration
     |
-    */
+     */
 
     'classes_auth_card' => '',
     'classes_auth_header' => 'd-none',
@@ -184,7 +184,7 @@ return [
     | For detailed instructions you can look the admin panel classes here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Layout-and-Styling-Configuration
     |
-    */
+     */
 
     'classes_body' => '',
     'classes_brand' => '',
@@ -208,7 +208,7 @@ return [
     | For detailed instructions you can look the sidebar section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Layout-and-Styling-Configuration
     |
-    */
+     */
 
     'sidebar_mini' => 'lg',
     'sidebar_collapse' => false,
@@ -230,7 +230,7 @@ return [
     | For detailed instructions you can look the right sidebar section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Layout-and-Styling-Configuration
     |
-    */
+     */
 
     'right_sidebar' => false,
     'right_sidebar_icon' => 'fas fa-cogs',
@@ -250,7 +250,7 @@ return [
     | For detailed instructions you can look the urls section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Basic-Configuration
     |
-    */
+     */
 
     'use_route_url' => false,
     'dashboard_url' => 'home',
@@ -271,7 +271,7 @@ return [
     | For detailed instructions you can look the laravel mix section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Other-Configuration
     |
-    */
+     */
 
     'enabled_laravel_mix' => false,
     'laravel_mix_css_path' => 'css/app.css',
@@ -287,7 +287,7 @@ return [
     | For detailed instructions you can look here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Menu-Configuration
     |
-    */
+     */
 
     'menu' => [
         // Navbar items:
@@ -309,207 +309,376 @@ return [
         // ],
         // ['header' => 'account_settings'],
 
-
         [
             'text' => 'Ventas',
-            'icon' => 'fas fa-fw fa-file',
+            'icon' => 'fas fa-shopping-cart',
             'url' => '#',
             'submenu' => [
-                [
-                    'text' => 'Remisionar',
-                    'url' => 'remisionar',
-                ],
+
                 [
                     'text' => 'Remisiones',
-                    'url' => 'remisiones',
+                    'icon' => 'fas fa-file-alt',
+                    'url' => '#',
+                    'submenu' => [
+                        [
+                            'text' => 'Remisionar',
+                            'icon' => 'fas fa-file-alt',
+                            'url' => 'remisionar',
+                        ],
+                        [
+                            'text' => 'Remisiones',
+                            'icon' => 'fas fa-file-signature',
+                            'url' => 'remisiones',
+                        ],
+                    ],
                 ],
-                [
-                    'text' => 'Reportes',
-                    'url' => 'ventasreportes',
-                ]
 
-            ]
+                [
+                    'text' => 'Pedidos',
+                    'icon' => 'fas fa-shopping-cart',
+                    'url' => '#',
+                    'submenu' => [
+                        [
+                            'text' => 'Nuevo',
+                            'icon' => 'fas fa-plus-circle',
+                            'url' => 'altapedidos',
+                        ],
+                    ],
+                ],
+
+            ],
         ],
         [
             'text' => 'Almacén',
-            'icon' => 'fas fa-fw fa-file',
+            'icon' => 'fas fa-warehouse',
             'url' => '#',
             'submenu' => [
                 [
                     'text' => 'Multialmacen',
+                    'icon' => 'fas fa-dolly-flatbed',
                     'url' => 'multialmacen',
                 ],
                 [
                     'text' => 'Alta',
+                    'icon' => 'fas fa-plus-square',
                     'url' => 'altalmacen',
                 ],
                 [
                     'text' => 'Baja',
+                    'icon' => 'fas fa-minus-square',
                     'url' => 'bajaalmacen',
                 ],
-                /*                 [
-                                    'text' => 'Edición',
-                                    'url' => 'edicionalmacen',
-                                ], */
-                [
-                    'text' => 'Traspasos',
-                    'url' => 'traspasos',
-                ]
 
-            ]
+            ],
         ],
         [
             'text' => 'Inventario',
-            'icon' => 'fas fa-fw fa-file',
+            'icon' => 'fas fa-archive',
             'url' => '#',
             'submenu' => [
                 [
-                    'text' => 'Alta Producto',
-                    'url' => 'altainventario',
+                    'text' => 'Acciones',
+                    'icon' => 'fas fa-tasks',
+
+                    'submenu' => [
+                        [
+                            'text' => 'Alta Producto',
+                            'url' => 'altainventario',
+                            'icon' => 'fas fa-plus-square',
+                        ],
+                        [
+                            'text' => 'Multi Alta',
+                            'url' => 'multialtainventario',
+                            'icon' => 'fas fa-file-import',
+                        ],
+                        [
+                            'text' => 'Baja',
+                            'url' => 'bajainventario',
+                            'icon' => 'fas fa-minus-square',
+                        ],
+                        [
+                            'text' => 'Edición',
+                            'url' => 'edicioninventario',
+                            'icon' => 'fas fa-edit',
+                        ],
+                    ],
                 ],
                 [
-                    'text' => 'Multi Alta',
-                    'url' => 'multialtainventario',
+                    'text' => 'Movimientos inventario',
+                    'icon' => 'fas fa-user-friends',
+                    'submenu' => [
+                        [
+                            'text' => 'Compras',
+                            'url' => 'inventariocompras',
+                            'icon' => 'fas fa-shopping-bag',
+                        ],
+                        [
+                            'text' => 'Traspasos',
+                            'url' => 'traspasos',
+                            'icon' => 'fas fa-exchange-alt',
+                        ],
+                        [
+                            'text' => 'Mermas',
+                            'url' => 'mermas',
+                            'icon' => 'fas fa-trash-alt',
+                        ],
+                    ],
                 ],
-                [
-                    'text' => 'Baja',
-                    'url' => 'bajainventario',
-                ],
-                [
-                    'text' => 'Edición',
-                    'url' => 'edicioninventario',
-                ],
-            ]
+            ],
+
         ],
         [
             'text' => 'Clientes',
-            'icon' => 'fas fa-fw fa-file',
+            'icon' => 'fas fa-user-friends',
             'url' => '#',
             'submenu' => [
                 [
-                    'text' => 'Clientes',
-                    'url' => 'clientes',
+                    'text' => 'Acciones',
+                    'icon' => 'fas fa-tasks',
+                    'submenu' => [
+                        [
+                            'text' => 'Clientes',
+                            'url' => 'clientes',
+                            'icon' => 'fas fa-user-friends',
+                        ],
+                        [
+                            'text' => 'Alta',
+                            'url' => 'altacliente',
+                            'icon' => 'fas fa-plus-square',
+                        ],
+                        [
+                            'text' => 'Baja',
+                            'url' => 'bajacliente',
+                            'icon' => 'fas fa-minus-square',
+                        ],
+                        [
+                            'text' => 'Edicion',
+                            'url' => 'edicioncliente',
+                            'icon' => 'fas fa-edit',
+                        ],
+                    ],
                 ],
-                [
-                    'text' => 'Alta',
-                    'url' => 'altacliente',
-                ],
-                [
-                    'text' => 'Baja',
-                    'url' => 'bajacliente',
-                ],
-                [
-                    'text' => 'Edicion',
-                    'url' => 'edicioncliente',
-                ]
 
-            ]
-        ],
-        [
-            'text' => 'Proveedores',
-            'icon' => 'fas fa-fw fa-file',
-            'url' => '#',
-            'submenu' => [
-                [
-                    'text' => 'Proveedores',
-                    'url' => 'proveedores',
-                ],
-                [
-                    'text' => 'Alta',
-                    'url' => 'altaproveedores',
-                ],
-                [
-                    'text' => 'Baja',
-                    'url' => 'bajaproveedores',
-                ],
-                [
-                    'text' => 'Edición',
-                    'url' => 'edicionproveedores',
-                ]
+            ],
 
-            ]
         ],
+
         [
             'text' => 'Compras',
-            'icon' => 'fas fa-fw fa-file',
+            'icon' => 'fas fa-shopping-bag',
             'url' => '#',
             'submenu' => [
                 [
-                    'text' => 'Alta',
-                    'url' => 'altacompras',
-                ],
-                [
-                    'text' => 'Baja',
-                    'url' => 'bajacompras',
-                ],
-                [
-                    'text' => 'Edición',
-                    'url' => 'edicioncompras',
-                ]
+                    'text' => 'Compras',
+                    'icon' => 'fas fa-fw fa-file',
+                    'url' => '#',
+                    'submenu' => [
+                        [
+                            'text' => 'Alta',
+                            'icon' => 'fas fa-plus-square',
+                            'url' => 'altacompras',
+                        ],
+                        [
+                            'text' => 'Baja',
+                            'url' => 'bajacompras',
+                            'icon' => 'fas fa-minus-square',
+                        ],
+                        [
+                            'text' => 'Edición',
+                            'url' => 'edicioncompras',
+                            'icon' => 'fas fa-edit',
+                        ],
 
-            ]
-        ],
-        [
-            'text' => 'Pedidos',
-            'icon' => 'fas fa-fw fa-file',
-            'url' => '#',
-            'submenu' => [
+                    ],
+                ],
                 [
-                    'text' => 'Nuevo',
-                    'url' => 'altapedidos',
-                ]
-            ]
+                    'text' => 'Proveedores',
+                    'icon' => 'fas fa-truck-loading',
+                    'submenu' => [
+                        [
+                            'text' => 'Alta',
+                            'url' => 'altaproveedores',
+                            'icon' => 'fas fa-plus-square',
+                        ],
+                        [
+                            'text' => 'Baja',
+                            'url' => 'bajaproveedores',
+                            'icon' => 'fas fa-minus-square',
+                        ],
+                        [
+                            'text' => 'Edición',
+                            'url' => 'edicionproveedores',
+                            'icon' => 'fas fa-edit',
+                        ],
+                    ],
+                ],
+            ],
         ],
+
         [
             'text' => 'Vendedores',
-            'icon' => 'fas fa-fw fa-file',
+            'icon' => 'fas fa-user-tie',
+
             'url' => '#',
             'submenu' => [
                 [
                     'text' => 'Vendedores',
                     'url' => 'vendedores',
+                    'icon' => 'fas fa-user-tie',
                 ],
                 [
                     'text' => 'Edición',
                     'url' => 'edicionvendedores',
-                ]
-            ]
+                    'icon' => 'fas fa-edit',
+                ],
+            ],
         ],
         [
             'text' => 'Precios',
-            'icon' => 'fas fa-fw fa-file',
+            'icon' => 'fas fa-tag',
             'url' => '#',
             'submenu' => [
                 [
                     'text' => 'Precios',
                     'url' => 'precios',
+                    'icon' => 'fas fa-tag',
                 ],
                 [
                     'text' => 'Alta',
                     'url' => 'altaprecios',
+                    'icon' => 'fas fa-plus-square',
                 ],
                 [
                     'text' => 'Baja',
                     'url' => 'bajaprecios',
+                    'icon' => 'fas fa-minus-square',
                 ],
                 [
                     'text' => 'Edición',
                     'url' => 'edicionprecios',
-                ]
+                    'icon' => 'fas fa-edit',
+                ],
 
-            ]
+            ],
         ],
 
         [
-            'text' => 'Notificaciones',
-            'icon' => 'fas fa-fw fa-file',
+            'text' => 'Reportes',
+            'icon' => 'fas fa-chart-bar',
+            'url' => '#',
+            'submenu' => [
+                [
+                    'text' => 'Movimientos',
+                    'icon' => 'fas fa-user-friends',
+                    'submenu' => [
+                        [
+                            'text' => 'Compras',
+                            'url' => 'reportecompras',
+                            'icon' => 'fas fa-shopping-bag',
+                        ],
+                        [
+                            'text' => 'Traspasos',
+                            'url' => 'reportetraspasos',
+                            'icon' => 'fas fa-exchange-alt',
+                        ],
+                        [
+                            'text' => 'Mermas',
+                            'url' => 'ReporteMermas', 'icon' => 'fas fa-trash-alt'],
+                    ],
+                ],
+                [
+                    'text' => 'Inventario',
+                    'icon' => 'fas fa-archive',
+                    'submenu' => [
+                        [
+                            'text' => 'Lista de Precios',
+                            'url' => 'listaprecios',
+                            'icon' => 'fas fa-list-alt',
+                        ],
+                        [
+                            'text' => 'Existencias y costos actuales',
+                            'url' => 'existenciascostos',
+                            'icon' => 'fas fa-boxes',
+                        ],
+
+                    ],
+                ],
+                [
+                    'text' => 'Clientes',
+                    'icon' => 'fas fa-user-friends',
+                    'submenu' => [
+                        [
+                            'text' => 'Lista',
+                            'url' => 'listaclientes',
+                            'icon' => 'fas fa-list-alt',
+                        ],
+                        [
+                            'text' => 'Compras',
+                            'url' => 'comprasclientes',
+                            'icon' => 'fas fa-shopping-bag',
+                        ],
+
+                    ],
+                ],
+                [
+                    'text' => 'Remisiones',
+                    'icon' => 'fas fa-file-alt',
+                    'submenu' => [
+                        [
+                            'text' => 'Remisiones',
+                            'url' => 'reporteremisiones',
+                            'icon' => 'fas fa-file-alt',
+                        ],
+
+                    ],
+                ],
+                [
+                    'text' => 'Proveedores',
+                    'icon' => 'fas fa-truck-loading',
+                    'submenu' => [
+                        [
+                            'text' => 'Lista',
+                            'url' => 'proveedores',
+                            'icon' => 'fas fa-truck-loading',
+                        ],
+
+                    ],
+                ],
+            ],
+        ],
+        [
+            'text' => 'Tareas',
+            'icon' => 'fas fa-tasks',
             'url' => '#',
             'submenu' => [
                 [
                     'text' => 'Nueva',
-                    'url' => 'notificaciones',
+                    'icon' => 'fas fa-plus',
+                    'url' => 'tareas',
                 ],
-            ]
+                [
+                    'text' => 'Delegadas',
+                    'icon' => 'fas fa-user-cog',
+                    'url' => 'tareasdelegadas',
+                ],
+            ],
+        ],
+        [
+            'text' => 'Reconocimientos',
+            'icon' => 'fas fa-trophy',
+            'url' => '#',
+            'submenu' => [
+                [
+                    'text' => 'Nueva',
+                    'icon' => 'fas fa-plus',
+                    'url' => 'nuevoreconocimiento',
+                ],
+                [
+                    'text' => 'Reconocimientos',
+                    'icon' => 'fas fa-trophy',
+                    'url' => 'reconocimientos',
+                ],
+            ],
         ],
 
     ],
@@ -524,7 +693,7 @@ return [
     | For detailed instructions you can look the menu filters section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Menu-Configuration
     |
-    */
+     */
 
     'filters' => [
         JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
@@ -546,7 +715,7 @@ return [
     | For detailed instructions you can look the plugins section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Plugins-Configuration
     |
-    */
+     */
 
     'plugins' => [
         'Datatables' => [
@@ -632,7 +801,7 @@ return [
     | For detailed instructions you can look the iframe mode section here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/IFrame-Mode-Configuration
     |
-    */
+     */
 
     'iframe' => [
         'default_tab' => [
@@ -664,7 +833,7 @@ return [
     | For detailed instructions you can look the livewire here:
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Other-Configuration
     |
-    */
+     */
 
     'livewire' => false,
 ];

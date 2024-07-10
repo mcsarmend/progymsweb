@@ -48,6 +48,15 @@
             /* Cambia este color al que desees */
         }
 
+        .container-xxl {
+
+            width: 100%;
+            padding-right: var(--bs-gutter-x, .75rem);
+            padding-left: var(--bs-gutter-x, 4.8rem);
+            margin-right: auto;
+            margin-left: auto;
+
+        }
     </style>
 </head>
 
@@ -67,7 +76,8 @@
         <div class="container-xxl position-relative p-0" id="Inicio">
             <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
                 <a href="" class="navbar-brand p-0">
-                    <h1 class="m-0">Progyms</h1>
+
+                    <img src="assets/images/logoCompleto.png" alt="Logo">
                     <!-- <img src="img/logo.png" alt="Logo"> -->
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -193,7 +203,8 @@
                             More</a>
                     </div>
                     <div class="col-lg-6">
-                        <img class="img-fluid wow fadeInUp" data-wow-delay="0.5s" src="assets/images/fitnessperson.jpg">
+                        <img class="img-fluid wow fadeInUp" data-wow-delay="0.5s"
+                            src="assets/images/fitnessperson.jpg">
                     </div>
                 </div>
             </div>
