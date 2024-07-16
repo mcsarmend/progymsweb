@@ -419,7 +419,7 @@ return [
                         ],
                         [
                             'text' => 'Mermas',
-                            'url' => 'mermas',
+                            'url' => 'inventariomermas',
                             'icon' => 'fas fa-trash-alt',
                         ],
                     ],
@@ -436,11 +436,7 @@ return [
                     'text' => 'Acciones',
                     'icon' => 'fas fa-tasks',
                     'submenu' => [
-                        [
-                            'text' => 'Clientes',
-                            'url' => 'clientes',
-                            'icon' => 'fas fa-user-friends',
-                        ],
+
                         [
                             'text' => 'Alta',
                             'url' => 'altacliente',
@@ -456,6 +452,18 @@ return [
                             'url' => 'edicioncliente',
                             'icon' => 'fas fa-edit',
                         ],
+                    ],
+                ],
+                [
+                    'text' => 'Lista',
+                    'icon' => 'fas fa-tasks',
+                    'submenu' => [
+                        [
+                            'text' => 'Clientes',
+                            'url' => 'clientes',
+                            'icon' => 'fas fa-user-friends',
+                        ],
+
                     ],
                 ],
 
@@ -573,17 +581,18 @@ return [
                     'submenu' => [
                         [
                             'text' => 'Compras',
-                            'url' => 'reportecompras',
+                            'url' => 'reportemovimientoscompras',
                             'icon' => 'fas fa-shopping-bag',
                         ],
                         [
                             'text' => 'Traspasos',
-                            'url' => 'reportetraspasos',
+                            'url' => 'reportemovimientostraspasos',
                             'icon' => 'fas fa-exchange-alt',
                         ],
                         [
                             'text' => 'Mermas',
-                            'url' => 'ReporteMermas', 'icon' => 'fas fa-trash-alt'],
+                            'url' => 'reportemovimientosmermas',
+                            'icon' => 'fas fa-trash-alt'],
                     ],
                 ],
                 [
@@ -592,12 +601,12 @@ return [
                     'submenu' => [
                         [
                             'text' => 'Lista de Precios',
-                            'url' => 'listaprecios',
+                            'url' => 'reporteinventariolistaprecios',
                             'icon' => 'fas fa-list-alt',
                         ],
                         [
                             'text' => 'Existencias y costos actuales',
-                            'url' => 'existenciascostos',
+                            'url' => 'reporteinventarioexistenciascostos',
                             'icon' => 'fas fa-boxes',
                         ],
 
@@ -609,12 +618,12 @@ return [
                     'submenu' => [
                         [
                             'text' => 'Lista',
-                            'url' => 'listaclientes',
+                            'url' => 'reporteclienteslista',
                             'icon' => 'fas fa-list-alt',
                         ],
                         [
                             'text' => 'Compras',
-                            'url' => 'comprasclientes',
+                            'url' => 'reporteclientescompras',
                             'icon' => 'fas fa-shopping-bag',
                         ],
 
@@ -638,7 +647,7 @@ return [
                     'submenu' => [
                         [
                             'text' => 'Lista',
-                            'url' => 'proveedores',
+                            'url' => 'reporteproveedoreslista',
                             'icon' => 'fas fa-truck-loading',
                         ],
 

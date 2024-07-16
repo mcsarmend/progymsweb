@@ -3,19 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\productwarehouse;
-use App\Models\warehouse;
 use App\Models\clients;
 use App\Models\prices;
 use App\Models\product;
 use App\Models\productprice;
+use App\Models\productwarehouse;
 use App\Models\referrals;
+use App\Models\warehouse;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use DateTime;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-
 
 class ventasController extends Controller
 {
@@ -27,14 +26,16 @@ class ventasController extends Controller
         $nombresucursal = warehouse::select('nombre')
             ->where('id', '=', $idsucursal)
             ->first();
+        $idssucursales = warehouse::select('id', 'nombre')
+            ->get();
+
         $clientes = clients::all();
         $type = $this->gettype();
         $productos = product::all();
-        return view('ventas.remisionar', ['type' => $type, 'idsucursal' => $idsucursal, 'nombresucursal' => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor' => $vendedor, 'clientes' => $clientes, 'productos' => $productos]);
+        return view('ventas.remisionar', ['type' => $type, 'idssucursales' => $idssucursales, 'idsucursal' => $idsucursal, 'nombresucursal' => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor' => $vendedor, 'clientes' => $clientes, 'productos' => $productos]);
     }
     public function remisiones()
     {
-
 
         $timezone = 'America/Mexico_City';
         $hoy = Carbon::today($timezone);
@@ -56,7 +57,6 @@ class ventasController extends Controller
             )
             ->get();
 
-
         $type = $this->gettype();
 
         return view('ventas.remisiones', ['type' => $type, 'remisiones' => $remisiones]);
@@ -74,7 +74,7 @@ class ventasController extends Controller
         $idcliente = $request->idcliente;
         $idprice = clients::where('id', '=', $idcliente)->value('precio');
         $nombre = product::where('id', '=', $idproducto)->value('nombre');
-        $idsucursal = $request->almacen;
+        $idsucursal = $request->sucursal;
 
         // Validar existencias en sucursal
         $validarCantidad = productwarehouse::where('idproducto', '=', $idproducto)
@@ -83,13 +83,13 @@ class ventasController extends Controller
         if ($validarCantidad == null) {
 
             return response()->json([
-                'error' => 'No hay existencias suficientes. Cuentas con: 0'
+                'error' => 'No hay existencias suficientes. Cuentas con: 0',
             ], 500);
         } else {
 
             if ($cantidad > $validarCantidad) {
                 return response()->json([
-                    'error' => 'No hay existencias suficientes. Cuentas con: ' . $validarCantidad
+                    'error' => 'No hay existencias suficientes. Cuentas con: ' . $validarCantidad,
                 ], 500);
             } else {
                 $precio = productprice::where('idproducto', '=', $idproducto)
@@ -101,15 +101,11 @@ class ventasController extends Controller
                     'precio' => $precio,
                     'subtotal' => $subtotal,
                     'nombre' => $nombre,
-                    'cantidad' => $cantidad
+                    'cantidad' => $cantidad,
                 ]);
             }
 
-
         }
-
-
-
 
     }
     public function buscaridprecio(Request $request)
@@ -122,7 +118,7 @@ class ventasController extends Controller
 
         return response()->json([
             'nombreprecio' => $precio,
-            'cantidad' => $request->cantidad
+            'cantidad' => $request->cantidad,
         ]);
     }
 
@@ -143,12 +139,8 @@ class ventasController extends Controller
             $remision->total = $request->total;
             $remision->estatus = "emitida";
 
-
             $productos = json_decode($request->productos);
             $remision->productos = json_encode($productos); // Convertir el array de productos a JSON
-
-
-
 
             foreach ($productos as $producto) {
 
@@ -162,11 +154,10 @@ class ventasController extends Controller
                 $CantidadDescontar = $producto->Cantidad;
                 $nuevaexistencia = $existenciasActual->existencias - intVal($CantidadDescontar);
 
-
                 productwarehouse::where('idproducto', intVal($idproducto))
                     ->where('idwarehouse', intVal($almacen))
                     ->update([
-                        'existencias' => $nuevaexistencia
+                        'existencias' => $nuevaexistencia,
                     ]);
             }
 
@@ -215,29 +206,22 @@ class ventasController extends Controller
                 $CantidadSumar = $producto->Cantidad;
                 $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadSumar);
 
-
                 productwarehouse::where('idproducto', intVal($idproducto))
                     ->where('idwarehouse', intVal($almacen))
                     ->update([
-                        'existencias' => $nuevaexistencia
+                        'existencias' => $nuevaexistencia,
                     ]);
             }
-
-
 
             $idremision = $request->id;
             $remision = referrals::find($idremision);
             $remision->estatus = "cancelada";
             $remision->save();
 
-
-
-
             return response()->json(['message' => 'Remisión cancelada correctamente'], 200);
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Error al cenlar la remision' . $th->getMessage()], 200);
         }
-
 
     }
 
@@ -271,7 +255,6 @@ class ventasController extends Controller
 
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
         }
-
 
     }
     public function gettype()

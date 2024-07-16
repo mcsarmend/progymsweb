@@ -53,17 +53,6 @@
 
 
 
-                {{--                 <div class="row">
-                    @foreach ($almacenes as $almacen)
-                        <div class="col-md-3">
-                            <label for="">{{ $almacen->nombre }}:</label>
-                            <input type="text" class="form-control" name="almacen_{{ $almacen->id }}" value="0"
-                                required>
-                            <br>
-                        </div>
-                    @endforeach
-                </div> --}}
-
 
                 <h3>Precios</h3>
                 <div class="row">
@@ -84,6 +73,12 @@
                         <label for="name">Cantidad:</label>
                         <input type="text" name="existencia" required minlength="1" maxlength="3000"
                             class="form-control" placeholder="">
+                        <br>
+                    </div>
+                    <div class="col">
+                        <label for="costo">Costo:</label>
+                        <input type="text" name="costo" required minlength="1" maxlength="10"
+                            id="costo"class="form-control" placeholder="">
                         <br>
                     </div>
                 </div>

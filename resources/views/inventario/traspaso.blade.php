@@ -19,7 +19,7 @@
                             <div class="col">
                                 <label for="">Almacén Origen:</label>
                                 <select class="form-control" name="almacen_origen" required>
-                                    <option class="form-control" value="">Selecciona una marca</option>
+                                    <option class="form-control" value="">Selecciona un almacen</option>
                                     @foreach ($almacenes as $almacen)
                                         <option class="form-control" value="{{ $almacen->id }}">{{ $almacen->nombre }}
                                         </option>
@@ -29,7 +29,7 @@
                             <div class="col">
                                 <label for="">Almacén Destino:</label>
                                 <select class="form-control" name="almacen_destino" required>
-                                    <option class="form-control" value="">Selecciona una almacen</option>
+                                    <option class="form-control" value="">Selecciona un almacen</option>
                                     @foreach ($almacenes as $almacen)
                                         <option class="form-control" value="{{ $almacen->id }}">{{ $almacen->nombre }}
                                         </option>
@@ -59,14 +59,14 @@
                                         class="form-control">
                                     <datalist id="productos-list">
                                         @foreach ($productos as $producto)
-                                            <option value="{{ $producto->id }} {{ $producto->nombre }}" >
+                                            <option value="{{ $producto->id }} {{ $producto->nombre }}">
                                         @endforeach
                                     </datalist>
                                 </div>
                                 <datalist id="productos-list">
                                     <!-- Las opciones se llenarán dinámicamente -->
                                 </datalist>
-                                
+
                             </div>
                             <br>
                         </div>
@@ -199,15 +199,12 @@
                         response.message,
                         'success'
                     );
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 3000);
-                    
+
                 },
                 error: function(response) {
                     Swal.fire(
                         '¡Gracias por esperar!',
-                        "Existe un error: " + response.message,
+                        "Existe un error: " + response.responseJSON.message,
                         'error'
                     )
                 }

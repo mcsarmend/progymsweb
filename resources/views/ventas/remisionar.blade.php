@@ -23,10 +23,21 @@
                     <div class="col"><label for="vendedor">Vendedor:</label></div>
                     <div class="col"><input type="text" class="form-control" id="vendedor" name = "vendedor"
                             data-value={{ $idvendedor }} value="{{ $vendedor }}" readonly></div>
+                    @if ($type == 4)
+                        <div class="col"><label for="sucursal">Sucursal:</label></div>
+                        <div class="col"><input type="text" class="form-control" id="sucursal" name = "sucursal"
+                                data-value={{ $idsucursal }} value={{ $nombresucursal->nombre }} readonly></div>
+                    @else
+                        <div class="col"><label for="sucursal">Sucursal:</label></div>
+                        <div class="col">
+                            <select name="sucursal" id="sucursal" class="form-control">
+                                @foreach ($idssucursales as $almacen)
+                                    <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
 
-                    <div class="col"><label for="sucursal">Sucursal:</label></div>
-                    <div class="col"><input type="text" class="form-control" id="sucursal" name = "sucursal"
-                            data-value={{ $idsucursal }} value={{ $nombresucursal->nombre }} readonly></div>
 
                     <div class="col"><label for="fecha">Fecha:</label></div>
                     <div class="col"><input type="date" class="form-control" id="fecha" name = "fecha"
@@ -90,6 +101,21 @@
                         <thead>
                             <tr>
                                 <th>Codigo</th>
+                                <table id="productos" class="table" border="0.1">
+                                    <thead>
+                                        <tr>
+                                            <th>Codigo</th>
+                                            <th>Cantidad</th>
+                                            <th>Nombre</th>
+                                            <th>Precio Unitario</th>
+                                            <th>Subtotal</th>
+                                            <th>Cancelar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
                                 <th>Cantidad</th>
                                 <th>Nombre</th>
                                 <th>Precio Unitario</th>
@@ -135,6 +161,9 @@
         $(document).ready(function() {
             drawTriangles();
             showUsersSections();
+
+
+
             $('#fecha').val(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000 - 6 * 60 * 60000)
                 .toISOString().split('T')[0]);
 
@@ -154,14 +183,15 @@
                 Swal.fire({
                     title: 'Productos',
                     html: `
-                <label for="inputCantidad">Cantidad:</label>
-                <input type="number" id="inputCantidad" class="form-control col-sm-14" >
-                <br>
+
                 <label for="inputWithDatalist">Selecciona un producto:</label>
                 <input list="datalistOptions" id="inputWithDatalist" class="form-control col-sm-14">
                 <datalist id="datalistOptions">
                     ${generateOptions()}
                 </datalist>
+                <label for="inputCantidad">Cantidad:</label>
+                <input type="number" id="inputCantidad" class="form-control col-sm-14" >
+                <br>
             `,
                     focusConfirm: false,
                     preConfirm: () => {
@@ -185,7 +215,7 @@
                         const idproducto = obtenerNumerosHastaGuion(result.value.producto);
                         var idcliente = obtenerNumerosHastaGuion($('#cliente').val());
                         var cantidad = $('#inputCantidad').val();
-                        var idsucursal = $('#sucursal').data('value')
+                        var idsucursal = $('#sucursal').val();
                         if (idcliente == null) {
                             idcliente = 1;
                         }
@@ -194,7 +224,7 @@
                             id_producto: idproducto,
                             idcliente: idcliente,
                             cantidad: cantidad,
-                            almacen: idsucursal
+                            sucursal: idsucursal
                         };
 
                         $.ajax({
@@ -321,6 +351,7 @@
             var datosFormulario = $(this).serialize();
             var datos = [];
             var formData = new URLSearchParams(datosFormulario);
+            var numeroRemision = "123456789";
             for (const [key, value] of formData.entries()) {
                 datos.push({
                     key: key,
@@ -342,6 +373,7 @@
 
             // Clonar la tabla con id="productos" y ajustarla para el PDF
             var $productoTableClone = $('#productos').clone();
+            $productoTableClone.attr('id', 'productosClone')
             $productoTableClone.find('tr').each(function() {
                 $(this).find('td:last-child, th:last-child').remove();
             });
@@ -382,7 +414,7 @@
                     // Obtener los valores necesarios para el PDF
                     var nombreSucursal = $('#sucursal').val();
                     var idsucursal = $('#sucursal').data('value');
-                    var numeroRemision = "123456789";
+                    numeroRemision = "123456789";
                     var fecha = $('#fecha').val();
                     const opciones = {
                         timeZone: 'America/Mexico_City',
@@ -394,8 +426,10 @@
                     var cantidadTotalLetra = convertirNumeroALetras(sum);
                     var cliente = $('#cliente').val();
                     var forma_pago = $('#metodo_pago').val();
+                    var $productoTableClone2 = $('#productos').clone();
 
-                    numeroRemision = validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago);
+                    numeroRemision = validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago,
+                        $productoTableClone2);
 
 
                 }
@@ -433,9 +467,9 @@
             });
         });
 
-        function validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago) {
+        function validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago, numeroRemision) {
 
-
+            var $productoTableClone = $('#productosClone').clone();
 
             var table = $('#productos');
             var tableData = tableToJson(table);
@@ -461,6 +495,7 @@
                 productos: jsonString,
                 total: total
             };
+            var msg = "";
             $.ajax({
                 url: 'validarremision', // URL a la que se hace la solicitud
                 type: 'POST', // Tipo de solicitud (GET, POST, etc.)
@@ -470,8 +505,10 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(data) {
+                    msg = data.message + ": " + data.id;
+                    numeroRemision = data.id;
                     Swal.fire({
-                        title: '¡Remisión realizada correctamente!',
+                        title: msg,
                         icon: 'success',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',

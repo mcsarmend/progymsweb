@@ -10,6 +10,7 @@ use App\Http\Controllers\pedidosController;
 use App\Http\Controllers\preciosController;
 use App\Http\Controllers\proveedoresController;
 use App\Http\Controllers\reconocimientosController;
+use App\Http\Controllers\reportesController;
 use App\Http\Controllers\usersController;
 use App\Http\Controllers\vendedorController;
 use App\Http\Controllers\ventasController;
@@ -54,20 +55,17 @@ Route::post('buscaridprecio', [ventasController::class, 'buscaridprecio'])->midd
 Route::post('validarremision', [ventasController::class, 'validarremision'])->middleware(['auth']);
 Route::get('verproductosremision', [ventasController::class, 'verproductosremision'])->middleware(['auth']);
 Route::post('cancelarremision', [ventasController::class, 'cancelarremision'])->middleware(['auth']);
-Route::get('reporteremisiones', [ventasController::class, 'reporteremisiones'])->middleware(['auth']);
 
 //ALMACEN
 Route::get('multialmacen', [multialmacenController::class, 'multialmacen'])->middleware(['auth']);
 Route::get('altalmacen', [multialmacenController::class, 'altalmacen'])->middleware(['auth']);
 Route::get('bajaalmacen', [multialmacenController::class, 'bajaalmacen'])->middleware(['auth']);
 Route::get('edicionalmacen', [multialmacenController::class, 'edicionalmacen'])->middleware(['auth']);
-Route::get('traspasos', [multialmacenController::class, 'traspasos'])->middleware(['auth']);
 Route::get('multialmacenfiltros', [multialmacenController::class, 'multialmacenfiltros'])->middleware(['auth']);
 
 Route::get('detalleamacenes', [multialmacenController::class, 'detalleamacenes'])->middleware(['auth']);
 Route::get('detalleprecios', [multialmacenController::class, 'detalleprecios'])->middleware(['auth']);
 Route::get('obtenerproducto', [multialmacenController::class, 'obtenerproducto'])->middleware(['auth']);
-Route::post('realizartraspaso', [multialmacenController::class, 'realizartraspaso'])->middleware(['auth']);
 Route::post('crearalmacen', [multialmacenController::class, 'crearalmacen'])->middleware(['auth']);
 Route::post('eliminaralmacen', [multialmacenController::class, 'eliminaralmacen'])->middleware(['auth']);
 
@@ -76,18 +74,24 @@ Route::get('altainventario', [inventarioController::class, 'altainventario'])->m
 Route::get('multialtainventario', [inventarioController::class, 'multialtainventario'])->middleware(['auth']);
 Route::get('bajainventario', [inventarioController::class, 'bajainventario'])->middleware(['auth']);
 Route::get('edicioninventario', [inventarioController::class, 'edicioninventario'])->middleware(['auth']);
+Route::get('traspasos', [inventarioController::class, 'traspasos'])->middleware(['auth']);
+Route::get('inventariocompras', [inventarioController::class, 'inventariocompras'])->middleware(['auth']);
+Route::get('inventariomermas', [inventarioController::class, 'inventariomermas'])->middleware(['auth']);
 
+Route::post('buscarpreciocompras', [inventarioController::class, 'buscarpreciocompras'])->middleware(['auth']);
 Route::post('enviareditarprecio', [inventarioController::class, 'enviareditarprecio'])->middleware(['auth']);
 Route::post('enviareditaralmacenes', [inventarioController::class, 'enviareditaralmacenes'])->middleware(['auth']);
 Route::post('altaproducto', [inventarioController::class, 'altaproducto'])->middleware(['auth']);
 Route::post('eliminarproducto', [inventarioController::class, 'eliminarproducto'])->middleware(['auth']);
 Route::post('multialtaproducto', [inventarioController::class, 'multialtaproducto'])->middleware(['auth']);
+Route::post('realizartraspaso', [inventarioController::class, 'realizartraspaso'])->middleware(['auth']);
 
 //CLIENTES
 Route::get('clientes', [clientesController::class, 'clientes'])->middleware(['auth']);
 Route::get('altacliente', [clientesController::class, 'altacliente'])->middleware(['auth']);
 Route::get('bajacliente', [clientesController::class, 'bajacliente'])->middleware(['auth']);
 Route::get('edicioncliente', [clientesController::class, 'edicioncliente'])->middleware(['auth']);
+Route::get('verdireccioncliente', [clientesController::class, 'verdireccioncliente'])->middleware(['auth']);
 
 Route::post('crearcliente', [clientesController::class, 'crearcliente'])->middleware(['auth']);
 Route::post('eliminarcliente', [clientesController::class, 'eliminarcliente'])->middleware(['auth']);
@@ -139,6 +143,19 @@ Route::get('marcartarea', [dashboardController::class, 'marcartarea']);
 // RECONOCIMIENTOS
 Route::get('reconocimientos', [reconocimientosController::class, 'reconocimientos']);
 Route::get('nuevoreconocimiento', [reconocimientosController::class, 'nuevoreconocimiento']);
+
+// REPORTES
+Route::get('reportemovimientoscompras', [reportesController::class, 'reportemovimientoscompras'])->middleware(['auth']);
+Route::get('reportemovimientostraspasos', [reportesController::class, 'reportemovimientostraspasos'])->middleware(['auth']);
+Route::get('reportemovimientosmermas', [reportesController::class, 'reportemovimientosmermas'])->middleware(['auth']);
+Route::get('reporteremisiones', [reportesController::class, 'reporteremisiones'])->middleware(['auth']);
+Route::get('reporteinventariolistaprecios', [reportesController::class, 'reporteinventariolistaprecios'])->middleware(['auth']);
+Route::get('reporteinventarioexistenciascostos', [reportesController::class, 'reporteinventarioexistenciascostos'])->middleware(['auth']);
+Route::get('reporteclienteslista', [reportesController::class, 'reporteclienteslista'])->middleware(['auth']);
+Route::get('reporteclientescompras', [reportesController::class, 'reporteclientescompras'])->middleware(['auth']);
+Route::get('reporteproveedoreslista', [reportesController::class, 'reporteproveedoreslista'])->middleware(['auth']);
+
+Route::get('generarreporteremisiones', [reportesController::class, 'generarreporteremisiones'])->middleware(['auth']);
 
 //OPCIONES
 Route::get('admin/settings', [adminsettingsController::class, 'index'])->middleware(['auth']);

@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\product;
 use App\Models\productprice;
-use App\Models\productwarehouse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\warehouse;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
 class multialmacenController extends Controller
 {
@@ -33,8 +32,6 @@ class multialmacenController extends Controller
             ->get();
         $almacenes = warehouse::all();
 
-
-
         return view('almacen.multialmacen', ['type' => $type, 'products' => $products, 'warehouses' => $almacenes]);
     }
     public function altalmacen()
@@ -53,18 +50,6 @@ class multialmacenController extends Controller
         $type = $this->gettype();
         return view('almacen.edicion', ['type' => $type]);
     }
-
-    public function traspasos()
-    {
-
-
-        $type = $this->gettype();
-        $almacenes = warehouse::all();
-        $productos = product::all();
-
-        return view('almacen.traspaso', ['type' => $type, 'almacenes' => $almacenes, 'productos' => $productos]);
-    }
-
 
     public function crearalmacen(Request $request)
     {
@@ -130,72 +115,6 @@ class multialmacenController extends Controller
         return response()->json($productos);
     }
 
-    public function realizartraspaso(Request $request)
-    {
-
-        try {
-            $almacen_origen = $request['almacen_origen'];
-            $almacen_destino = $request['almacen_destino'];
-            $cantidades = $request['cantidades'];
-            $productos = $request['productos'];
-            $idproductos = [];
-            $existencias = 0;
-            foreach ($productos as $producto) {
-                array_push($idproductos, substr($producto, 0, 10));
-            }
-
-
-            $productosTraspaso = 0;
-            $prodcutosNoTraspaso = 0;
-
-
-            for ($i = 0; $i < count($cantidades); $i++) {
-                for ($j = 0; $j < count($idproductos); $j++) {
-                    if ($i == $j) {
-
-                        // ACUTALIZAR ALMACEN ORIGEN
-                        $existencias_origen = productwarehouse::select('existencias')
-                            ->where('idproducto', 'like', '%' . $idproductos[$i] . '%')
-                            ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
-                            ->get();
-                        $ExisOr = $existencias_origen[0]["existencias"];
-                        if ($ExisOr >= intval($cantidades[$i])) {
-                            $nuevaExistenciaOrigen = $ExisOr - intval($cantidades[$i]);
-                            ProductWarehouse::where('idproducto', 'like', '%' . $idproductos[$i] . '%')
-                                ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
-                                ->update(['existencias' => $nuevaExistenciaOrigen]);
-
-                            // ACTUALIZAR ALMACEN DESTINO
-                            $existencias_destino = productwarehouse::select('existencias')
-                                ->where('idproducto', 'like', '%' . $idproductos[$i] . '%')
-                                ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
-                                ->get();
-
-                            if ($existencias_destino != '[]') {
-                                $ExisDest = $existencias_destino[0]["existencias"];
-                                $nuevaExistenciaDestino = $ExisDest + intval($cantidades[$i]);
-                                ProductWarehouse::where('idproducto', 'like', '%' . $idproductos[$i] . '%')
-                                    ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
-                                    ->update(['existencias' => $nuevaExistenciaDestino]);
-                            } else {
-                                $nueva_existencia_destino = new ProductWarehouse();
-                                $nueva_existencia_destino->idproducto = $idproductos[$i];
-                                $nueva_existencia_destino->idwarehouse = $almacen_destino;
-                                $nueva_existencia_destino->existencias = $cantidades[$i];
-                                $nueva_existencia_destino->save();
-                                $productosTraspaso++;
-                            }
-                        } else {
-                            $prodcutosNoTraspaso++;
-                        }
-                    }
-                }
-            }
-            return response()->json(['message' => $productosTraspaso . " Productos traspasados, " . $prodcutosNoTraspaso . " No traspasados"], 200);
-        } catch (\Throwable $th) {
-            return response()->json(['message' => $th->getMessage()], 500);
-        }
-    }
     public function multialmacenfiltros(Request $request)
     {
         $sucursal = Crypt::decrypt($request->sucursal);

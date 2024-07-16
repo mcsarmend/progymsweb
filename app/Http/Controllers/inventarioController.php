@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\brand;
 use App\Models\category;
 use App\Models\prices;
-use App\Models\warehouse;
 use App\Models\product;
 use App\Models\productprice;
 use App\Models\productwarehouse;
-use Illuminate\Support\Facades\DB;
+use App\Models\supplier;
+use App\Models\warehouse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
 class inventarioController extends Controller
 {
@@ -35,6 +36,36 @@ class inventarioController extends Controller
 
         return view('inventario.alta', ['type' => $type, 'marcas' => $marcas, 'categorias' => $categorias, 'almacenes' => $almacenes, 'precios' => $precios]);
     }
+    public function traspasos()
+    {
+
+        $type = $this->gettype();
+        $almacenes = warehouse::all();
+        $productos = product::all();
+
+        return view('inventario.traspaso', ['type' => $type, 'almacenes' => $almacenes, 'productos' => $productos]);
+    }
+
+    public function inventariocompras()
+    {
+
+        $type = $this->gettype();
+        $sucursales = warehouse::all();
+        $productos = product::all();
+        $proveedores = supplier::all();
+
+        return view('inventario.compras', ['type' => $type, 'productos' => $productos, 'proveedores' => $proveedores, 'sucursales' => $sucursales]);
+    }
+
+    public function inventariomermas()
+    {
+
+        $type = $this->gettype();
+        // $almacenes = warehouse::all();
+        // $productos = product::all();
+
+        return view('inventario.mermas', ['type' => $type]);
+    }
 
     public function multialtainventario()
     {
@@ -44,7 +75,6 @@ class inventarioController extends Controller
     public function bajainventario()
     {
         $type = $this->gettype();
-
 
         $products = DB::table('product as p')
             ->select(
@@ -95,6 +125,7 @@ class inventarioController extends Controller
             $product->nombre = $request['name'];
             $product->marca = $request['marca'];
             $product->categoria = $request['categoria'];
+            $product->costo = $request['costo'];
             $product->save();
 
             /* Registrar los precios */
@@ -119,8 +150,6 @@ class inventarioController extends Controller
                 $product_price->save();
             }
 
-
-
             /* Registrar inventario */
 
             $productwarehouse = new productwarehouse();
@@ -128,7 +157,6 @@ class inventarioController extends Controller
             $productwarehouse->idwarehouse = 1;
             $productwarehouse->existencias = $request['existencia'];
             $productwarehouse->save();
-
 
             return response()->json(['message' => 'Producto creado correctamente'], 200);
         } catch (\Throwable $th) {
@@ -151,11 +179,9 @@ class inventarioController extends Controller
         }
     }
 
-
     public function multialtaproducto(Request $request)
     {
         $productos = $request->data;
-
 
         try {
             foreach ($productos as $producto) {
@@ -177,7 +203,6 @@ class inventarioController extends Controller
                     $product_price->save();
                 }
 
-
                 /* Registrar inventario */
 
                 $productwarehouse = new productwarehouse();
@@ -193,7 +218,7 @@ class inventarioController extends Controller
         }
     }
 
-    function extraerNumero($cadena)
+    public function extraerNumero($cadena)
     {
         // Buscar la posición del guion bajo
         $posicionGuion = strpos($cadena, '_');
@@ -202,7 +227,7 @@ class inventarioController extends Controller
         return $numero;
     }
 
-    function enviareditaralmacenes(Request $request)
+    public function enviareditaralmacenes(Request $request)
     {
 
         try {
@@ -223,7 +248,7 @@ class inventarioController extends Controller
             return response()->json(['message' => $th->getMessage()], 500);
         }
     }
-    function enviareditarprecio(Request $request)
+    public function enviareditarprecio(Request $request)
     {
         try {
             $idproducto = intval($request->id);
@@ -244,8 +269,90 @@ class inventarioController extends Controller
         }
     }
 
+    public function realizartraspaso(Request $request)
+    {
+        try {
+            $almacen_origen = $request['almacen_origen'];
+            $almacen_destino = $request['almacen_destino'];
+            $cantidades = $request['cantidades'];
+            $productos = $request['productos'];
+            $idproductos = [];
+            $existencias = 0;
+            foreach ($productos as $producto) {
+                array_push($idproductos, substr($producto, 0, 10));
+            }
 
+            $productosTraspaso = 0;
+            $prodcutosNoTraspaso = 0;
 
+            for ($i = 0; $i < count($cantidades); $i++) {
+                for ($j = 0; $j < count($idproductos); $j++) {
+                    if ($i == $j) {
+
+                        // ACUTALIZAR ALMACEN ORIGEN
+                        $existencias_origen = productwarehouse::select('existencias')
+                            ->where('idproducto', 'like', '%' . $idproductos[$i] . '%')
+                            ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
+                            ->get();
+
+                        if ($existencias_origen != '[]') {
+                            $ExisOr = $existencias_origen[0]["existencias"];
+                            $nuevaExistenciaOrigen = $ExisOr - intval($cantidades[$i]);
+                            ProductWarehouse::where('idproducto', 'like', '%' . $idproductos[$i] . '%')
+                                ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
+                                ->update(['existencias' => $nuevaExistenciaOrigen]);
+
+                            // ACTUALIZAR ALMACEN DESTINO
+                            $existencias_destino = productwarehouse::select('existencias')
+                                ->where('idproducto', 'like', '%' . $idproductos[$i] . '%')
+                                ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
+                                ->get();
+
+                            if ($existencias_destino != '[]') {
+                                $ExisDest = $existencias_destino[0]["existencias"];
+                                $nuevaExistenciaDestino = $ExisDest + intval($cantidades[$i]);
+                                ProductWarehouse::where('idproducto', 'like', '%' . $idproductos[$i] . '%')
+                                    ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
+                                    ->update(['existencias' => $nuevaExistenciaDestino]);
+                            } else {
+                                $nueva_existencia_destino = new ProductWarehouse();
+                                $nueva_existencia_destino->idproducto = $idproductos[$i];
+                                $nueva_existencia_destino->idwarehouse = $almacen_destino;
+                                $nueva_existencia_destino->existencias = $cantidades[$i];
+                                $nueva_existencia_destino->save();
+                                $productosTraspaso++;
+                            }
+                        } else {
+                            return response()->json(['message' => "No cuentas con unidades en el almacen origen"], 500);
+                            $prodcutosNoTraspaso++;
+                        }
+
+                    }
+                }
+            }
+            return response()->json(['message' => $productosTraspaso . " Productos traspasados, " . $prodcutosNoTraspaso . " No traspasados"], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 500);
+        }
+    }
+
+    public function buscarpreciocompras(Request $request)
+    {
+        $idproducto = $request->id_producto;
+        $cantidad = $request->cantidad;
+        $idcliente = $request->idcliente;
+        $nombre = product::where('id', '=', $idproducto)->value('nombre');
+        $costo = product::where('id', '=', $idproducto)->value('costo');
+        $idsucursal = $request->sucursal;
+
+        return response()->json([
+            'idproducto' => $idproducto,
+            'costo' => $costo,
+            'nombre' => $nombre,
+            'cantidad' => $cantidad,
+        ]);
+
+    }
 
     public function gettype()
     {

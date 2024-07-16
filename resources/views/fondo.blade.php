@@ -32,6 +32,11 @@
         width: 100%;
         height: 100%;
     }
+
+    .dropdown-item.active,
+    .dropdown-item:active {
+        background-color: #a0101e !important;
+    }
 </style>
 
 <script>
@@ -103,15 +108,21 @@
                     return $(this).text().trim().includes('Inventario');
                 }).remove();
                 //Quitar Almacén
-                $('li.nav-item.dropdown .dropdown-menu li a').filter(function() {
-                    return $(this).text().trim() === 'Alta' ||
-                        $(this).text().trim() === 'Baja' ||
-                        $(this).text().trim() === 'Traspasos';
-                }).closest('li').hide();
+                var almacenMenu = $('.nav-item.dropdown').has('.fas.fa-warehouse');
 
-                $('li.nav-item.dropdown').filter(function() {
-                    return $(this).text().trim().includes('Clientes');
-                }).remove();
+                // Eliminar las secciones "Alta" y "Baja" dentro del menú "Almacén"
+                almacenMenu.find('.dropdown-item').each(function() {
+                    var itemText = $(this).text().trim();
+                    if (itemText === 'Alta' || itemText === 'Baja') {
+                        $(this).parent()
+                            .remove(); // Eliminar el elemento <li> que contiene la <a> con el texto "Alta" o "Baja"
+                    }
+                });
+
+
+                // $('li.nav-item.dropdown').filter(function() {
+                //     return $(this).text().trim().includes('Clientes');
+                // }).remove();
                 $('li.nav-item.dropdown').filter(function() {
                     return $(this).text().trim().includes('Proveedores');
                 }).remove();

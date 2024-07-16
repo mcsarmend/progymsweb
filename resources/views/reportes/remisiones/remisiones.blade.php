@@ -111,7 +111,7 @@
 
             // Realizar la solicitud AJAX con jQuery
             $.ajax({
-                url: '/reporteremisiones', // Ruta al controlador de Laravel
+                url: '/generarreporteremisiones', // Ruta al controlador de Laravel
                 type: 'GET',
                 // data: datosFormulario, // Enviar los datos del formulario
                 data: datosFormulario,
