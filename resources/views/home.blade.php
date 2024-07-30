@@ -86,9 +86,9 @@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.2.9/js/dataTables.buttons.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.2.9/js/buttons.html5.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.9/js/buttons.print.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.9/js/buttons.print.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.debug.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.8.0/html2pdf.bundle.min.js"
         integrity="sha512-w3u9q/DeneCSwUDjhiMNibTRh/1i/gScBVp2imNVAMCt6cUHIw6xzhzcPFIaL3Q1EbI2l+nu17q2aLJJLo4ZYg=="

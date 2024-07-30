@@ -29,23 +29,11 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
-Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect('/home');
-    } else {
-        return view('/welcome');
-    }
-});
-
-Route::get('/dashboard', function () {
-    if (Auth::check()) {
-        return redirect('/home');
-    } else {
-        return view('/welcome');
-    }
-});
+Route::get('/', [dashboardController::class, 'showDashboard']);
+Route::get('/dashboard', [dashboardController::class, 'checkDashboard']);
 
 //Rutas
+
 //REMISIONES
 Route::get('remisionar', [ventasController::class, 'remisionar'])->middleware(['auth']);
 Route::get('remisiones', [ventasController::class, 'remisiones'])->middleware(['auth']);
@@ -78,6 +66,8 @@ Route::get('traspasos', [inventarioController::class, 'traspasos'])->middleware(
 Route::get('inventariocompras', [inventarioController::class, 'inventariocompras'])->middleware(['auth']);
 Route::get('inventariomermas', [inventarioController::class, 'inventariomermas'])->middleware(['auth']);
 
+Route::post('enviarmerma', [inventarioController::class, 'enviarmerma'])->middleware(['auth']);
+Route::post('enviarcompra', [inventarioController::class, 'enviarcompra'])->middleware(['auth']);
 Route::post('buscarpreciocompras', [inventarioController::class, 'buscarpreciocompras'])->middleware(['auth']);
 Route::post('enviareditarprecio', [inventarioController::class, 'enviareditarprecio'])->middleware(['auth']);
 Route::post('enviareditaralmacenes', [inventarioController::class, 'enviareditaralmacenes'])->middleware(['auth']);
@@ -118,6 +108,8 @@ Route::post('eliminarprecio', [preciosController::class, 'eliminarprecio'])->mid
 Route::post('editarprecio', [preciosController::class, 'editarprecio'])->middleware(['auth']);
 
 // VENDEDORES
+Route::get('registroentrada', [vendedorController::class, 'registroentrada'])->middleware(['auth']);
+Route::post('register-entry', [vendedorController::class, 'register'])->middleware(['auth']);
 Route::get('vendedores', [vendedorController::class, 'vendedores'])->middleware(['auth']);
 Route::get('altavendedores', [vendedorController::class, 'altavendedores'])->middleware(['auth']);
 Route::get('bajavendedores', [vendedorController::class, 'bajavendedores'])->middleware(['auth']);
@@ -139,6 +131,9 @@ Route::get('altapedidos', [pedidosController::class, 'altapedidos'])->middleware
 Route::get('tareas', [dashboardController::class, 'tareas']);
 Route::get('tareasdelegadas', [dashboardController::class, 'tareasdelegadas']);
 Route::get('marcartarea', [dashboardController::class, 'marcartarea']);
+
+// LAN DING PAGE
+Route::get('table-products', [dashboardController::class, 'get_productos']);
 
 // RECONOCIMIENTOS
 Route::get('reconocimientos', [reconocimientosController::class, 'reconocimientos']);

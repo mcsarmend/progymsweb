@@ -207,4 +207,15 @@
                 break;
         }
     }
+
+    function getFormattedDateTime() {
+        var now = new Date();
+        var day = ("0" + now.getDate()).slice(-2);
+        var month = ("0" + (now.getMonth() + 1)).slice(-2);
+        var year = now.getFullYear().toString().slice(-2);
+        var hours = ("0" + now.getHours()).slice(-2);
+        var minutes = ("0" + now.getMinutes()).slice(-2);
+
+        return day + month + year + hours + minutes;
+    }
 </script>

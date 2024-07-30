@@ -9,6 +9,7 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
 class dashboardController extends Controller
 {
@@ -24,6 +25,59 @@ class dashboardController extends Controller
 
         $usuarios = User::select('id', 'name')->get();
         return view('tareas.nueva', ['type' => $type, 'usuarios' => $usuarios]);
+    }
+    public function showDashboard()
+    {
+        if (Auth::check()) {
+            return view('home');
+        } else {
+
+            $products = DB::table('product as p')
+                ->select(
+                    'p.nombre as producto',
+                    'b.nombre as marca',
+                    'c.nombre as categoria',
+                    DB::raw('precio_publico.price as publico'),
+                    DB::raw('precio_frecuente.price as frecuente'),
+                    DB::raw('precio_mayoreo.price as mayoreo'),
+                    DB::raw('precio_distribuidor.price as distribuidor')
+                )
+                ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
+                ->leftJoin('category as c', 'p.categoria', '=', 'c.id')
+                ->leftJoin('product_price as precio_publico', function ($join) {
+                    $join->on('p.id', '=', 'precio_publico.idproducto')
+                        ->where('precio_publico.idprice', '=', 1);
+                })
+                ->leftJoin('product_price as precio_frecuente', function ($join) {
+                    $join->on('p.id', '=', 'precio_frecuente.idproducto')
+                        ->where('precio_frecuente.idprice', '=', 2);
+                })
+                ->leftJoin('product_price as precio_mayoreo', function ($join) {
+                    $join->on('p.id', '=', 'precio_mayoreo.idproducto')
+                        ->where('precio_mayoreo.idprice', '=', 3);
+                })
+                ->leftJoin('product_price as precio_distribuidor', function ($join) {
+                    $join->on('p.id', '=', 'precio_distribuidor.idproducto')
+                        ->where('precio_distribuidor.idprice', '=', 4);
+                })
+                ->orderBy('c.nombre', 'desc')
+                ->get();
+
+            return view('welcome', ['products' => $products]);
+        }
+    }
+
+    public function checkDashboard()
+    {
+        $type = $this->gettype();
+
+        $iduser = Auth::user()->id;
+
+        $tasks = Task::where('autor', $iduser)
+            ->leftJoin('users', 'task.objetivo', '=', 'users.id')
+            ->select('task.*', 'users.name as objetivo2')
+            ->get();
+        return view('tareas.delegadas', ['type' => $type, 'tareas' => $tasks]);
     }
 
     public function tareasdelegadas()

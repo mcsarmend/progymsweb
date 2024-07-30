@@ -9,8 +9,10 @@ use App\Models\prices;
 use App\Models\product;
 use App\Models\productprice;
 use App\Models\productwarehouse;
+use App\Models\stockMovements;
 use App\Models\supplier;
 use App\Models\warehouse;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -61,10 +63,10 @@ class inventarioController extends Controller
     {
 
         $type = $this->gettype();
-        // $almacenes = warehouse::all();
-        // $productos = product::all();
+        $almacenes = warehouse::all();
+        $productos = product::all();
 
-        return view('inventario.mermas', ['type' => $type]);
+        return view('inventario.mermas', ['type' => $type, 'sucursales' => $almacenes, 'productos' => $productos]);
     }
 
     public function multialtainventario()
@@ -161,7 +163,7 @@ class inventarioController extends Controller
             return response()->json(['message' => 'Producto creado correctamente'], 200);
         } catch (\Throwable $th) {
 
-            return response()->json(['message' => $th->getMessage()], 500);
+            return response()->json(['error' => $th->getMessage()], 500);
         }
     }
     public function eliminarproducto(Request $request)
@@ -175,7 +177,7 @@ class inventarioController extends Controller
             return response()->json(['message' => 'Producto eliminado correctamente'], 200);
         } catch (\Throwable $e) {
             // Devolver una respuesta de error
-            return response()->json(['message' => $e->getMessage()], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -214,7 +216,7 @@ class inventarioController extends Controller
             return response()->json(['message' => 'Productos creado correctamente'], 200);
         } catch (\Throwable $th) {
 
-            return response()->json(['message' => $th->getMessage()], 500);
+            return response()->json(['error' => $th->getMessage()], 500);
         }
     }
 
@@ -245,7 +247,7 @@ class inventarioController extends Controller
                 ->update(['existencias' => $nueva_existencia]);
             return response()->json(['message' => "Producto actualizado correctamente"], 200);
         } catch (\Throwable $th) {
-            return response()->json(['message' => $th->getMessage()], 500);
+            return response()->json(['error' => $th->getMessage()], 500);
         }
     }
     public function enviareditarprecio(Request $request)
@@ -265,75 +267,82 @@ class inventarioController extends Controller
                 ->update(['price' => $nuevo_precio]);
             return response()->json(['message' => "Producto actualizado correctamente"], 200);
         } catch (\Throwable $th) {
-            return response()->json(['message' => $th->getMessage()], 500);
+            return response()->json(['error' => $th->getMessage()], 500);
         }
     }
 
     public function realizartraspaso(Request $request)
     {
-        try {
-            $almacen_origen = $request['almacen_origen'];
-            $almacen_destino = $request['almacen_destino'];
-            $cantidades = $request['cantidades'];
-            $productos = $request['productos'];
-            $idproductos = [];
-            $existencias = 0;
-            foreach ($productos as $producto) {
-                array_push($idproductos, substr($producto, 0, 10));
-            }
 
+        try {
             $productosTraspaso = 0;
             $prodcutosNoTraspaso = 0;
+            $almacen_origen = $request->almacen_origen;
+            $almacen_destino = $request->almacen_destino;
+            $movimiento = new stockMovements();
+            $movimiento->movimiento = $request->movimiento;
+            $autor = Auth::user()->id;
+            $movimiento->autor = $autor;
+            $productos = $request->productos;
+            $movimiento->documento = $request->documento;
+            $movimiento->importe = $request->importe;
+            $now = new DateTime();
+            $fdate = $now->format('Y-m-d H:i:s');
+            $fechaMysql = $fdate;
+            $movimiento->fecha = $fechaMysql;
+            $almacen = $request->sucursal;
+            $productos = json_decode($request->productos);
+            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+            $movimiento->save();
 
-            for ($i = 0; $i < count($cantidades); $i++) {
-                for ($j = 0; $j < count($idproductos); $j++) {
-                    if ($i == $j) {
+            foreach ($productos as $producto) {
+                $idproducto = $producto->Codigo;
+                $cantidad = $producto->Cantidad;
+                // ACUTALIZAR ALMACEN ORIGEN
+                $existencias_origen = productwarehouse::select('existencias')
+                    ->where('idproducto', 'like', '%' . $idproducto . '%')
+                    ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
+                    ->get();
 
-                        // ACUTALIZAR ALMACEN ORIGEN
-                        $existencias_origen = productwarehouse::select('existencias')
-                            ->where('idproducto', 'like', '%' . $idproductos[$i] . '%')
-                            ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
-                            ->get();
+                if ($existencias_origen != '[]') {
+                    $ExisOr = $existencias_origen[0]["existencias"];
+                    $nuevaExistenciaOrigen = $ExisOr - intval($cantidad);
+                    ProductWarehouse::where('idproducto', 'like', '%' . $idproducto . '%')
+                        ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
+                        ->update(['existencias' => $nuevaExistenciaOrigen]);
 
-                        if ($existencias_origen != '[]') {
-                            $ExisOr = $existencias_origen[0]["existencias"];
-                            $nuevaExistenciaOrigen = $ExisOr - intval($cantidades[$i]);
-                            ProductWarehouse::where('idproducto', 'like', '%' . $idproductos[$i] . '%')
-                                ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
-                                ->update(['existencias' => $nuevaExistenciaOrigen]);
+                    // ACTUALIZAR ALMACEN DESTINO
+                    $existencias_destino = productwarehouse::select('existencias')
+                        ->where('idproducto', 'like', '%' . $idproducto . '%')
+                        ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
+                        ->get();
 
-                            // ACTUALIZAR ALMACEN DESTINO
-                            $existencias_destino = productwarehouse::select('existencias')
-                                ->where('idproducto', 'like', '%' . $idproductos[$i] . '%')
-                                ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
-                                ->get();
-
-                            if ($existencias_destino != '[]') {
-                                $ExisDest = $existencias_destino[0]["existencias"];
-                                $nuevaExistenciaDestino = $ExisDest + intval($cantidades[$i]);
-                                ProductWarehouse::where('idproducto', 'like', '%' . $idproductos[$i] . '%')
-                                    ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
-                                    ->update(['existencias' => $nuevaExistenciaDestino]);
-                            } else {
-                                $nueva_existencia_destino = new ProductWarehouse();
-                                $nueva_existencia_destino->idproducto = $idproductos[$i];
-                                $nueva_existencia_destino->idwarehouse = $almacen_destino;
-                                $nueva_existencia_destino->existencias = $cantidades[$i];
-                                $nueva_existencia_destino->save();
-                                $productosTraspaso++;
-                            }
-                        } else {
-                            return response()->json(['message' => "No cuentas con unidades en el almacen origen"], 500);
-                            $prodcutosNoTraspaso++;
-                        }
-
+                    if ($existencias_destino != '[]') {
+                        $ExisDest = $existencias_destino[0]["existencias"];
+                        $nuevaExistenciaDestino = $ExisDest + intval($cantidad);
+                        ProductWarehouse::where('idproducto', 'like', '%' . $idproducto . '%')
+                            ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
+                            ->update(['existencias' => $nuevaExistenciaDestino]);
+                    } else {
+                        $nueva_existencia_destino = new ProductWarehouse();
+                        $nueva_existencia_destino->idproducto = $idproducto;
+                        $nueva_existencia_destino->idwarehouse = $almacen_destino;
+                        $nueva_existencia_destino->existencias = $cantidad;
+                        $nueva_existencia_destino->save();
+                        $productosTraspaso++;
                     }
+                } else {
+                    return response()->json(['message' => "No cuentas con unidades en el almacen origen"], 500);
+                    $prodcutosNoTraspaso++;
                 }
+
             }
-            return response()->json(['message' => $productosTraspaso . " Productos traspasados, " . $prodcutosNoTraspaso . " No traspasados"], 200);
+
+            return response()->json(['message' => "Traspaso realizado correctamente"], 200);
         } catch (\Throwable $th) {
-            return response()->json(['message' => $th->getMessage()], 500);
+            return response()->json(['error' => "Error: " . $th->getMessage()], 500);
         }
+
     }
 
     public function buscarpreciocompras(Request $request)
@@ -351,6 +360,95 @@ class inventarioController extends Controller
             'nombre' => $nombre,
             'cantidad' => $cantidad,
         ]);
+
+    }
+
+    public function enviarcompra(Request $request)
+    {
+
+        try {
+            $movimiento = new stockMovements();
+            $movimiento->movimiento = $request->movimiento;
+            $autor = Auth::user()->id;
+            $movimiento->autor = $autor;
+            $productos = $request->productos;
+            $movimiento->documento = $request->documento;
+            $movimiento->importe = $request->importe;
+            $now = new DateTime();
+            $fdate = $now->format('Y-m-d H:i:s');
+            $fechaMysql = $fdate;
+            $movimiento->fecha = $fechaMysql;
+            $almacen = $request->sucursal;
+            $productos = json_decode($request->productos);
+            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+            $movimiento->save();
+
+            foreach ($productos as $producto) {
+                $idproducto = $producto->Codigo;
+
+                $existenciasActual = productwarehouse::select('existencias')
+                    ->where('idproducto', intVal($idproducto))
+                    ->where('idwarehouse', intVal($almacen))
+                    ->first();
+
+                $CantidadDSumar = $producto->Cantidad;
+                $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
+
+                productwarehouse::where('idproducto', intVal($idproducto))
+                    ->where('idwarehouse', intVal($almacen))
+                    ->update([
+                        'existencias' => $nuevaexistencia,
+                    ]);
+            }
+
+            return response()->json(['message' => "Compra realizada correctamente"], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => "Error: " . $th->getMessage()], 500);
+        }
+
+    }
+    public function enviarmerma(Request $request)
+    {
+
+        try {
+            $movimiento = new stockMovements();
+            $movimiento->movimiento = $request->movimiento;
+            $autor = Auth::user()->id;
+            $movimiento->autor = $autor;
+            $productos = $request->productos;
+            $movimiento->documento = $request->documento;
+            $movimiento->importe = $request->importe;
+            $now = new DateTime();
+            $fdate = $now->format('Y-m-d H:i:s');
+            $fechaMysql = $fdate;
+            $movimiento->fecha = $fechaMysql;
+            $almacen = $request->sucursal;
+            $productos = json_decode($request->productos);
+            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+            $movimiento->save();
+
+            foreach ($productos as $producto) {
+                $idproducto = $producto->Codigo;
+
+                $existenciasActual = productwarehouse::select('existencias')
+                    ->where('idproducto', intVal($idproducto))
+                    ->where('idwarehouse', intVal($almacen))
+                    ->first();
+
+                $CantidadDSumar = $producto->Cantidad;
+                $nuevaexistencia = $existenciasActual->existencias - intVal($CantidadDSumar);
+
+                productwarehouse::where('idproducto', intVal($idproducto))
+                    ->where('idwarehouse', intVal($almacen))
+                    ->update([
+                        'existencias' => $nuevaexistencia,
+                    ]);
+            }
+
+            return response()->json(['message' => "Merma realizada correctamente"], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => "Error: " . $th->getMessage()], 500);
+        }
 
     }
 

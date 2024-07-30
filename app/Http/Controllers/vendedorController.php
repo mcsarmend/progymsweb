@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\attendance;
 use App\Models\seller;
 use App\Models\warehouse;
 use Illuminate\Foundation\Auth\User;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 
 class vendedorController extends Controller
 {
@@ -37,6 +38,21 @@ class vendedorController extends Controller
             ->get();
         $type = $this->gettype();
         return view('vendedores.vendedores', ['type' => $type, 'users' => $users]);
+    }
+    public function registroentrada()
+    {
+
+        $type = $this->gettype();
+        return view('vendedores.registroentrada', ['type' => $type]);
+    }
+    public function register(Request $request)
+    {
+        try {
+            $attendance = new attendance();
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
     }
 
     public function crearvendedor(Request $request)
@@ -76,7 +92,6 @@ class vendedorController extends Controller
             // Encuentra el usuario por su ID
             $id = $request->id;
 
-
             $productid = Crypt::decrypt($id);
             seller::findOrFail($productid)->delete();
             return response()->json(['message' => 'vendedor eliminado correctamente'], 200);
@@ -85,9 +100,6 @@ class vendedorController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
-
-
-
 
     public function gettype()
     {

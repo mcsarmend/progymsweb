@@ -530,6 +530,11 @@ return [
             'url' => '#',
             'submenu' => [
                 [
+                    'text' => 'Registro Entrada',
+                    'url' => 'registroentrada',
+                    'icon' => 'fas fa-user-tie',
+                ],
+                [
                     'text' => 'Vendedores',
                     'url' => 'vendedores',
                     'icon' => 'fas fa-user-tie',

@@ -15,9 +15,7 @@
                 <div class="card-body">
                     <form method="post" id="enviarcompra">
                         <div class="row">
-                            <div class="col">
-                                <div class="btn btn-primary" onclick="buscarProducto()">Agregar otro producto</div>
-                            </div>
+
                             <div class="col"><label for="proveedor">Proveedor:</label></div>
                             <div class="col">
                                 <select name="proveedor" id="proveedor" class="form-control">
@@ -37,7 +35,13 @@
                             </div>
                             <div class="col"><label for="documento">Documento:</label></div>
                             <div class="col">
-                                <input type="text" name="documento" id="documento" class="form-control" readonly>
+                                <input type="text" name="documento" id="documento" class="form-control">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col">
+                                <div class="btn btn-primary" onclick="buscarProducto()">Agregar otro producto</div>
                             </div>
                         </div>
                         <br>
@@ -76,6 +80,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
     <script>
+        var datos = [];
+
         $(document).ready(function() {
             drawTriangles();
             showUsersSections();
@@ -91,16 +97,7 @@
             crearnodocumento();
         });
 
-        function getFormattedDateTime() {
-            var now = new Date();
-            var day = ("0" + now.getDate()).slice(-2);
-            var month = ("0" + (now.getMonth() + 1)).slice(-2);
-            var year = now.getFullYear().toString().slice(-2);
-            var hours = ("0" + now.getHours()).slice(-2);
-            var minutes = ("0" + now.getMinutes()).slice(-2);
 
-            return day + month + year + hours + minutes;
-        }
 
 
 
@@ -113,7 +110,6 @@
         }
 
         function buscarProducto() {
-            var precioproducto = "";
             Swal.fire({
                 title: 'Productos',
                 html: `
@@ -130,8 +126,12 @@
                 preConfirm: () => {
                     const cantidad = document.getElementById('inputCantidad').value;
                     const producto = document.getElementById('inputWithDatalist').value;
-                    if (cantidad === "" || producto === "") {
-                        Swal.showValidationMessage('Debes llenar ambos campos');
+                    const datalist = document.getElementById('datalistOptions');
+                    const options = Array.from(datalist.options).map(option => option.value);
+                    if (cantidad === "" || producto === "" || !options.includes(producto)) {
+                        Swal.showValidationMessage(
+                            'Debes llenar ambos campos y seleccionar un producto válido');
+                        return false;
                     }
                     return {
                         cantidad: cantidad,
@@ -144,23 +144,22 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     const idproducto = obtenerNumerosHastaGuion(result.value.producto);
-                    var idcliente = "";
-                    var cantidad = $('#inputCantidad').val();
-                    var idsucursal = $('#sucursal').val();
-                    if (idcliente == null) {
-                        idcliente = 1;
-                    }
+                    const cantidad = result.value.cantidad;
+                    const idsucursal = $('#sucursal').val();
+                    const idcliente = ""; // Ajusta esto según tus necesidades
+
                     const data = {
                         id_producto: idproducto,
-                        idcliente: idcliente,
+                        idcliente: idcliente || 1,
                         cantidad: cantidad,
                         sucursal: idsucursal
                     };
+
                     $.ajax({
-                        url: 'buscarpreciocompras', // URL a la que se hace la solicitud
-                        type: 'POST', // Tipo de solicitud (GET, POST, etc.)
+                        url: 'buscarpreciocompras',
+                        type: 'POST',
                         data: data,
-                        dataType: 'json', // Tipo de datos esperados en la respuesta
+                        dataType: 'json',
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
@@ -178,6 +177,7 @@
                 }
             });
         }
+
 
         function generateOptions() {
             var options = @json($productos);
@@ -237,6 +237,141 @@
 
         function obtenerNumerosHastaGuion(text) {
             return text.split('-')[0];
+        }
+
+
+        $('#enviarcompra').submit(function(e) {
+            e.preventDefault(); // Evitar la recarga de la página
+            $('#sucursal').prop('disabled', false);
+            // Obtener los datos del formulario y generar la tabla inicial
+            var datosFormulario = $(this).serialize();
+
+            var formData = new URLSearchParams(datosFormulario);
+            datosForm = [];
+            for (const [key, value] of formData.entries()) {
+                datosForm.push({
+                    key: key,
+                    value: value
+                });
+            }
+
+            sucursal = datosForm[1]["value"];
+            datos = tableToJson("productos");
+            $('#sucursal').prop('disabled', true);
+            // Clonar la tabla con id="productos" y ajustarla para el PDF
+            var $productoTableClone = $('#productos').clone();
+            $productoTableClone.attr('id', 'productosClone')
+            $productoTableClone.find('tr').each(function() {
+                $(this).find('td:last-child, th:last-child').remove();
+            });
+
+            // Calcular la suma de la última columna
+            var sum = 0;
+            $productoTableClone.find('tr').each(function() {
+                var $lastTd = $(this).find('td:last-child');
+                if ($lastTd.length) {
+                    var value = parseFloat($lastTd.text());
+                    if (!isNaN(value)) {
+                        sum += value;
+                    }
+                }
+            });
+
+            if (sum == 0) {
+                Swal.fire({
+                    title: 'No hay productos agregados',
+                    text: 'Debe agregar al menos un producto',
+                    icon: 'error'
+                });
+                return;
+            }
+
+
+
+
+
+            // Mostrar el cuadro de diálogo de confirmación con SweetAlert
+            Swal.fire({
+                title: '¡Se realizará un ingreso de mercancia por "Compra"!',
+                text: "Total de importe: " + sum,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar',
+                width: '80%'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Obtener los valores necesarios para el PDF
+                    var documento = $('#documento').val();
+
+
+                    numeroRemision = enviarcompra("SALE", datos, documento, sum, sucursal);
+
+                }
+            });
+        });
+
+        function enviarcompra(movimiento, data, documento, suma, sucursal) {
+
+            const datos = {
+                sucursal: sucursal,
+                movimiento: movimiento,
+                productos: data,
+                documento: documento,
+                importe: suma
+            };
+
+            $.ajax({
+                url: 'enviarcompra', // URL a la que se hace la solicitud
+                type: 'POST', // Tipo de solicitud (GET, POST, etc.)
+                data: datos,
+                dataType: 'json', // Tipo de datos esperados en la respuesta
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.fire({
+                        title: '¡Gracias por esperar!:',
+                        text: response.message,
+                        icon: 'success'
+                    });
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 3000);
+
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        title: 'Error:',
+                        text: xhr.responseJSON.error,
+                        icon: 'danger'
+                    });
+                }
+            });
+        }
+
+        function tableToJson(tableId) {
+            var table = $('#' + tableId);
+            var headers = [];
+            var data = [];
+
+            // Obtener encabezados de la tabla
+            table.find('thead th').each(function(index, item) {
+                headers[index] = $(item).text();
+            });
+
+            // Obtener filas de la tabla
+            table.find('tbody tr').each(function() {
+                var row = {};
+                $(this).find('td').each(function(index, item) {
+                    row[headers[index]] = $(item).text();
+                });
+                data.push(row);
+            });
+
+            // Convertir datos a JSON
+            return JSON.stringify(data, null, 4);
         }
     </script>
 @stop
