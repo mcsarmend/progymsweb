@@ -3,7 +3,7 @@
 
 <head>
 
-    <title>Progyms</title>
+    <title>Grupo Progyms</title>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="description" content="">
@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
     <!-- MAIN CSS -->
     <link rel="stylesheet" href="css/templatemo-style.css">
 </head>
@@ -36,14 +36,10 @@
         <div class="container">
 
             <div class="navbar-header">
-                <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon icon-bar"></span>
-                    <span class="icon icon-bar"></span>
-                    <span class="icon icon-bar"></span>
-                </button>
+
 
                 <!-- lOGO TEXT HERE -->
-                <a href="index.html" class="navbar-brand">Progyms</a>
+                <a href="#" class="navbar-brand">Grupo Progyms</a>
 
             </div>
 
@@ -59,7 +55,7 @@
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="https://www.facebook.com/grupoprogyms/"><i class="fa fa-facebook-square"></i></a></li>
+
                     <li class="section-btn"><a href="#" data-toggle="modal" data-target="#modal-form">Iniciar
                             Sesión</a></li>
                 </ul>
@@ -86,7 +82,7 @@
                 <div class="col-md-6 col-sm-12">
                     <div class="home-video">
                         <div class="embed-responsive embed-responsive-16by9">
-                            <iframe src="https://www.youtube.com/embed/AqcjdkPMPJA" frameborder="0"
+                            <iframe src="https://www.youtube.com/embed/VENsOnIFGwg" frameborder="0"
                                 allowfullscreen></iframe>
                         </div>
                     </div>
@@ -119,7 +115,7 @@
 
                 <div class="col-md-4 col-sm-12">
                     <div class="about-image">
-                        <img src="assets/images/fitnessperson.jpg" class="" alt="">
+                        <img src="assets/images/fitnessperson.jpg" style="width: 90%; height: auto;" alt="">
                     </div>
                 </div>
 
@@ -128,7 +124,7 @@
     </section>
 
 
-    <!-- BLOG -->
+    <!-- MAS VENDIDOS -->
     <section id="mostsell" data-stellar-background-ratio="0.5">
         <div class="container">
             <div class="row">
@@ -161,7 +157,7 @@
                     <!-- BLOG THUMB -->
                     <div class="media blog-thumb">
                         <div class="media-object media-left">
-                            <a><img src="assets/images/ghostlegend.jpg" class="img-responsive" alt=""></a>
+                            <a><img src="assets/images/ghostlegend.png" class="img-responsive" alt=""></a>
                         </div>
                         <div class="media-body blog-info">
                             <small><i class="fa fa-clock-o"></i>Ghost Legend</small>
@@ -211,85 +207,47 @@
     </section>
 
 
-    <!-- WORK -->
+    <!-- PRODUCTOs -->
     <section id="products" data-stellar-background-ratio="0.5">
         <div class="container">
             <div class="row">
 
                 <div class="col-md-12 col-sm-12">
                     <div class="section-title">
-                        <h2>Our work</h2>
+                        <h2>Nuestros Productos</h2>
                         <span class="line-bar">...</span>
                     </div>
                 </div>
-
-                <div class="col-md-3 col-sm-6">
-                    <!-- WORK THUMB -->
-                    <div class="work-thumb">
-                        <a href="img/work-image1.jpg" class="image-popup">
-                            <img src="img/work-image1.jpg" class="img-responsive" alt="Work">
-
-                            <div class="work-info">
-                                <h3>Clean &amp; Minimal</h3>
-                                <small>Product Design</small>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-md-3 col-sm-6">
-                    <!-- WORK THUMB -->
-                    <div class="work-thumb">
-                        <a href="img/work-image2.jpg" class="image-popup">
-                            <img src="img/work-image2.jpg" class="img-responsive" alt="Work">
-
-                            <div class="work-info">
-                                <h3>Studio Bag</h3>
-                                <small>Branding</small>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-md-3 col-sm-6">
-                    <!-- WORK THUMB -->
-                    <div class="work-thumb">
-                        <a href="img/work-image3.jpg" class="image-popup">
-                            <img src="img/work-image3.jpg" class="img-responsive" alt="Work">
-
-                            <div class="work-info">
-                                <h3>Frame Design</h3>
-                                <small>Photography</small>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-md-3 col-sm-6">
-                    <!-- WORK THUMB -->
-                    <div class="work-thumb">
-                        <a href="img/work-image4.jpg" class="image-popup">
-                            <img src="img/work-image4.jpg" class="img-responsive" alt="Work">
-
-                            <div class="work-info">
-                                <h3>Paint Work</h3>
-                                <small>Art, Design</small>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
+            </div>
+            <div class="row">
+                <table class="table table-hover" id="table-products">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Marca</th>
+                            <th>Categoria</th>
+                            <th>Público</th>
+                            <th>Frecuente</th>
+                            <th>Mayoreo</th>
+                            <th>Distribuidor</th>
+                            <th>Buscar Imagen</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </section>
-    <!-- WORK -->
+    <!-- RESEÑAS -->
+
+
+
     <section id="review" data-stellar-background-ratio="0.5">
         <div class="container">
             <div class="row">
 
                 <div class="col-md-12 col-sm-12">
                     <div class="section-title">
-                        <h2>Our work</h2>
+                        <h2>Reseñas</h2>
                         <span class="line-bar">...</span>
                     </div>
                 </div>
@@ -297,12 +255,15 @@
                 <div class="col-md-3 col-sm-6">
                     <!-- WORK THUMB -->
                     <div class="work-thumb">
-                        <a href="img/work-image1.jpg" class="image-popup">
-                            <img src="img/work-image1.jpg" class="img-responsive" alt="Work">
+                        <a href="assets/images/acero_gym.jpeg" class="image-popup">
+                            <img src="assets/images/acero_gym.jpeg" class="img-responsive" alt="Work">
 
                             <div class="work-info">
-                                <h3>Clean &amp; Minimal</h3>
-                                <small>Product Design</small>
+                                <h3>Acero Gym</h3>
+                                <small>
+                                    Me encanta que siempre estén al tanto de las últimas tendencias y productos del
+                                    mercado. Además, tienen cinco sucursales, lo cual es súper conveniente. ¡Sin duda,
+                                    seguiré siendo cliente fiel </small>
                             </div>
                         </a>
                     </div>
@@ -311,12 +272,14 @@
                 <div class="col-md-3 col-sm-6">
                     <!-- WORK THUMB -->
                     <div class="work-thumb">
-                        <a href="img/work-image2.jpg" class="image-popup">
-                            <img src="img/work-image2.jpg" class="img-responsive" alt="Work">
+                        <a href="assets/images/iron_gym.jpeg" class="image-popup">
+                            <img src="assets/images/iron_gym.jpeg" class="img-responsive" alt="Work">
 
                             <div class="work-info">
-                                <h3>Studio Bag</h3>
-                                <small>Branding</small>
+                                <h3>Iron Addicts</h3>
+                                <small>El personal es muy conocedor y siempre me dan buenos consejos sobre qué
+                                    productos utilizar. ¡Una tienda indispensable para cualquier amante del
+                                    fitness!</small>
                             </div>
                         </a>
                     </div>
@@ -325,12 +288,14 @@
                 <div class="col-md-3 col-sm-6">
                     <!-- WORK THUMB -->
                     <div class="work-thumb">
-                        <a href="img/work-image3.jpg" class="image-popup">
-                            <img src="img/work-image3.jpg" class="img-responsive" alt="Work">
+                        <a href="assets/images/warriors-gym.png" class="image-popup">
+                            <img src="assets/images/warriors-gym.png" class="img-responsive" alt="Work">
 
                             <div class="work-info">
-                                <h3>Frame Design</h3>
-                                <small>Photography</small>
+                                <h3>Warriors Gym</h3>
+                                <small>El personal es muy conocedor y siempre me dan buenos consejos sobre qué
+                                    productos utilizar. ¡Una tienda indispensable para cualquier amante del
+                                    fitness!</small>
                             </div>
                         </a>
                     </div>
@@ -339,12 +304,13 @@
                 <div class="col-md-3 col-sm-6">
                     <!-- WORK THUMB -->
                     <div class="work-thumb">
-                        <a href="img/work-image4.jpg" class="image-popup">
-                            <img src="img/work-image4.jpg" class="img-responsive" alt="Work">
+                        <a href="assets/images/espartanos-gym.png" class="image-popup">
+                            <img src="assets/images/espartanos-gym.png" class="img-responsive" alt="Work">
 
                             <div class="work-info">
-                                <h3>Paint Work</h3>
-                                <small>Art, Design</small>
+                                <h3>Espartanos Gym</h3>
+                                <small>Su dedicación al cliente es incomparable y siempre salgo satisfecho con mis
+                                    compras. ¡Altamente recomendados!</small>
                             </div>
                         </a>
                     </div>
@@ -358,74 +324,47 @@
     <section id="contact" data-stellar-background-ratio="0.5">
         <div class="container">
             <div class="row">
-
                 <div class="col-md-12 col-sm-12">
                     <div class="section-title">
-                        <h2>Contact us</h2>
+                        <h2>Contáctanos</h2>
                         <span class="line-bar">...</span>
                     </div>
                 </div>
-
-                <div class="col-md-8 col-sm-8">
-
-                    <!-- CONTACT FORM HERE -->
-                    <form id="contact-form" role="form" action="#" method="post">
-                        <div class="col-md-6 col-sm-6">
-                            <input type="text" class="form-control" placeholder="Full Name" id="cf-name"
-                                name="cf-name" required="">
-                        </div>
-
-                        <div class="col-md-6 col-sm-6">
-                            <input type="email" class="form-control" placeholder="Your Email" id="cf-email"
-                                name="cf-email" required="">
-                        </div>
-
-                        <div class="col-md-6 col-sm-6">
-                            <input type="tel" class="form-control" placeholder="Your Phone" id="cf-number"
-                                name="cf-number" required="">
-                        </div>
-
-                        <div class="col-md-6 col-sm-6">
-                            <select class="form-control" id="cf-budgets" name="cf-budgets">
-                                <option>Budget Level</option>
-                                <option>$500 to $1,000</option>
-                                <option>$1,000 to $2,200</option>
-                                <option>$2,200 to $4,500</option>
-                                <option>$4,500 to $7,500</option>
-                                <option>$7,500 to $12,000</option>
-                                <option>$12,000 or more</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-12 col-sm-12">
-                            <textarea class="form-control" rows="6" placeholder="Your requirements" id="cf-message" name="cf-message"
-                                required=""></textarea>
-                        </div>
-
-                        <div class="col-md-4 col-sm-12">
-                            <input type="submit" class="form-control" name="submit" value="Send Message">
-                        </div>
-
-                    </form>
+            </div>
+            <div class="row">
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215512415377" class="btn section-btn smoothScroll" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Viveros (Tlalnepantal)
+                    </a>
                 </div>
-
-                <div class="col-md-4 col-sm-4">
-                    <div class="google-map">
-                        <!-- How to change your own map point
-            1. Go to Google Maps
-            2. Click on your location point
-            3. Click "Share" and choose "Embed map" tab
-            4. Copy only URL and paste it within the src="" field below
- -->
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3647.3030413476204!2d100.5641230193719!3d13.757206847615207!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xf51ce6427b7918fc!2sG+Tower!5e0!3m2!1sen!2sth!4v1510722015945"
-                            allowfullscreen></iframe>
-                    </div>
+                <br>
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215648149566" class="btn section-btn smoothScroll" target="_blank">
+                        <i class="fab fa-whatsapp"></i> San Esteban (Naucalpan)
+                    </a>
                 </div>
-
+                <br>
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215578397643" class="btn section-btn smoothScroll" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Town Center (Nicolás Romero)
+                    </a>
+                </div>
+                <br>
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215531216226" class="btn section-btn smoothScroll" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Plaza Coacalco
+                    </a>
+                </div>
+                <br>
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215643018711" class="btn section-btn smoothScroll" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Villas de la Hacienda (Cuautitlan Izcalli)
+                    </a>
+                </div>
             </div>
         </div>
     </section>
+
 
 
     <!-- FOOTER -->
@@ -435,53 +374,37 @@
 
                 <div class="col-md-5 col-sm-12">
                     <div class="footer-thumb footer-info">
-                        <h2>Hydro Company</h2>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
-                            labore et dolore magna aliqua.</p>
+                        <h2>Grupo Progyms</h2>
+                        <p>Con 8 años de experiencia en el mercado,ProGyms se ha convertido en la referencia definitiva
+                            para todos tus suplementos alimenticios y refacciones de gimnasio. Contamos con 5 sucursales
+                            estratégicamente ubicadas para brindarte el mejor servicio.</p>
                     </div>
                 </div>
 
-                <div class="col-md-2 col-sm-4">
+
+
+                <div class="col-md-5 col-sm-4">
                     <div class="footer-thumb">
-                        <h2>Company</h2>
+                        <h2>Servicio al cliente</h2>
                         <ul class="footer-link">
-                            <li><a href="#">About Us</a></li>
-                            <li><a href="#">Join our team</a></li>
-                            <li><a href="#">Read Blog</a></li>
-                            <li><a href="#">Press</a></li>
+                            <li><a href="preguntasfrecuentes">Preguntas Frecuentes</a></li>
+                            <li><a href="politicadeusodirigido">Política de uso dirigido</a></li>
+                            <li><a href="politicaenvio">Política de envío y devoluciones</a></li>
+                            <li><a href="politicaprivacidad">Política de privacidad</a></li>
                         </ul>
                     </div>
                 </div>
 
-                <div class="col-md-2 col-sm-4">
-                    <div class="footer-thumb">
-                        <h2>Services</h2>
-                        <ul class="footer-link">
-                            <li><a href="#">Pricing</a></li>
-                            <li><a href="#">Documentation</a></li>
-                            <li><a href="#">Support</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="col-md-3 col-sm-4">
-                    <div class="footer-thumb">
-                        <h2>Find us</h2>
-                        <p>123 Grand Rama IX, <br> Krung Thep Maha Nakhon 10400</p>
-                    </div>
-                </div>
 
                 <div class="col-md-12 col-sm-12">
                     <div class="footer-bottom">
                         <div class="col-md-6 col-sm-5">
                             <div class="copyright-text">
-                                <p>Copyright &copy; 2017 Your Company</p>
+                                <p id="copyright">Copyright &copy; <span id="current-year"></span>Grupo Progyms</p>
                             </div>
                         </div>
                         <div class="col-md-6 col-sm-7">
-                            <div class="phone-contact">
-                                <p>Call us <span>(+66) 010-020-0340</span></p>
-                            </div>
+
                             <ul class="social-icon">
                                 <li><a href="https://www.facebook.com/grupoprogyms/" class="fa fa-facebook-square"
                                         attr="facebook icon"></a></li>
@@ -513,29 +436,21 @@
 
                             <div class="col-md-12 col-sm-12">
                                 <div class="modal-title">
-                                    <h2>Hydro Co</h2>
+                                    <h2>Grupo Progyms</h2>
                                 </div>
 
                                 <!-- NAV TABS -->
-                                <ul class="nav nav-tabs" role="tablist">
-                                    <li><a href="#sign_in" aria-controls="sign_in" role="tab"
-                                            data-toggle="tab">Sign In</a></li>
-                                </ul>
-
                                 <!-- TAB PANES -->
-                                <div class="tab-content">
-
-
-                                    <div role="tabpanel" class="tab-pane fade in" id="sign_in">
-                                        <form action="#" method="post">
-                                            <input type="email" class="form-control" name="email"
-                                                placeholder="Email" required>
-                                            <input type="password" class="form-control" name="password"
-                                                placeholder="Password" required>
-                                            <input type="submit" class="form-control" name="submit"
-                                                value="Iniciar Sesión">
-                                        </form>
-                                    </div>
+                                <div role="tabpanel" class="tab-pane fade in" id="sign_in">
+                                    <form action="login" method="post">
+                                        @csrf
+                                        <input type="email" class="form-control" name="email"
+                                            placeholder="Email" required>
+                                        <input type="password" class="form-control" name="password"
+                                            placeholder="Password" required>
+                                        <input type="submit" class="form-control" name="submit"
+                                            value="Iniciar Sesión">
+                                    </form>
                                 </div>
                             </div>
 
@@ -554,7 +469,78 @@
     <script src="js/jquery.magnific-popup.min.js"></script>
     <script src="js/smoothscroll.js"></script>
     <script src="js/custom.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function() {
 
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+                var currentYear = new Date().getFullYear();
+                document.getElementById('current-year').textContent = currentYear;
+            });
+
+            var products = @json($products); // Esto convierte los productos en un array de JavaScript
+
+            $('#table-products').DataTable({
+                destroy: true,
+                scrollX: true,
+                scrollCollapse: true,
+                "language": {
+                    "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
+                },
+                "buttons": [
+
+                ],
+                dom: 'Blfrtip',
+                destroy: true,
+                processing: true,
+                sort: true,
+                paging: true,
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, 'All']
+                ], // Personalizar el menú de longitud de visualización
+
+
+                "data": products,
+                "columns": [{
+                        "data": "producto"
+                    },
+                    {
+                        "data": "marca"
+                    },
+                    {
+                        "data": "categoria"
+                    },
+                    {
+                        "data": "publico"
+                    },
+                    {
+                        "data": "frecuente"
+                    },
+                    {
+                        "data": "mayoreo"
+                    },
+                    {
+                        "data": "distribuidor"
+                    },
+                    {
+                        "data": null,
+                        "defaultContent": "<button class='btn section-btn smoothScroll search-image'>Buscar Imagen</button>"
+                    }
+                ]
+            });
+
+            // Event listener for the search image buttons
+            $('#table-products tbody').on('click', 'button.search-image', function() {
+                var data = $('#table-products').DataTable().row($(this).parents('tr')).data();
+                var productName = data.producto;
+                var searchUrl = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(
+                    productName);
+                window.open(searchUrl, '_blank');
+            });
+        });
+    </script>
 </body>
 
 </html>

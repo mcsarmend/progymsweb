@@ -77,7 +77,24 @@ class dashboardController extends Controller
             ->leftJoin('users', 'task.objetivo', '=', 'users.id')
             ->select('task.*', 'users.name as objetivo2')
             ->get();
-        return view('tareas.delegadas', ['type' => $type, 'tareas' => $tasks]);
+
+        return view('home', ['type' => $type, 'tareas' => $tasks]);
+    }
+    public function preguntasfrecuentes()
+    {
+        return view('preguntasfrecuentes');
+    }
+    public function politicadeusodirigido()
+    {
+        return view('politicadeusodirigido');
+    }
+    public function politicaenvio()
+    {
+        return view('politicaenvio');
+    }
+    public function politicaprivacidad()
+    {
+        return view('politicaprivacidad');
     }
 
     public function tareasdelegadas()

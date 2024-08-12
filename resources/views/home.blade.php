@@ -152,7 +152,7 @@
                         "data": "descripcion"
                     },
                     {
-                        "data": "autor2",
+                        "data": "objetivo2",
                     },
                     {
                         "data": "fecharealizada",

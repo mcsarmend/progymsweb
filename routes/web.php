@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\adminsettingsController;
+use App\Http\Controllers\asistenciasController;
 use App\Http\Controllers\clientesController;
 use App\Http\Controllers\comprasController;
 use App\Http\Controllers\dashboardController;
@@ -31,6 +32,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [dashboardController::class, 'showDashboard']);
 Route::get('/dashboard', [dashboardController::class, 'checkDashboard']);
+Route::get('/preguntasfrecuentes', [dashboardController::class, 'preguntasfrecuentes']);
+Route::get('/politicadeusodirigido', [dashboardController::class, 'politicadeusodirigido']);
+Route::get('/politicaenvio', [dashboardController::class, 'politicaenvio']);
+Route::get('/politicaprivacidad', [dashboardController::class, 'politicaprivacidad']);
 
 //Rutas
 
@@ -107,9 +112,15 @@ Route::post('crearprecio', [preciosController::class, 'crearprecio'])->middlewar
 Route::post('eliminarprecio', [preciosController::class, 'eliminarprecio'])->middleware(['auth']);
 Route::post('editarprecio', [preciosController::class, 'editarprecio'])->middleware(['auth']);
 
+//ASISTENCIAS
+Route::get('registroentrada', [asistenciasController::class, 'registroentrada'])->middleware(['auth']);
+Route::get('registrosalida', [asistenciasController::class, 'registrosalida'])->middleware(['auth']);
+Route::get('asistenciapersonal', [asistenciasController::class, 'asistenciapersonal'])->middleware(['auth']);
+Route::post('registrarentrada', [asistenciasController::class, 'registrarentrada'])->middleware(['auth']);
+Route::post('registrarsalida', [asistenciasController::class, 'registrarsalida'])->middleware(['auth']);
+Route::post('reporteasistenciaspersonal', [asistenciasController::class, 'reporteasistenciaspersonal'])->middleware(['auth']);
+
 // VENDEDORES
-Route::get('registroentrada', [vendedorController::class, 'registroentrada'])->middleware(['auth']);
-Route::post('register-entry', [vendedorController::class, 'register'])->middleware(['auth']);
 Route::get('vendedores', [vendedorController::class, 'vendedores'])->middleware(['auth']);
 Route::get('altavendedores', [vendedorController::class, 'altavendedores'])->middleware(['auth']);
 Route::get('bajavendedores', [vendedorController::class, 'bajavendedores'])->middleware(['auth']);

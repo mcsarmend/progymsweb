@@ -547,6 +547,34 @@ return [
             ],
         ],
         [
+            'text' => 'Asistencias',
+            'icon' => 'fas fa-user-tie',
+
+            'url' => '#',
+            'submenu' => [
+                [
+                    'text' => 'Registro Entrada',
+                    'url' => 'registroentrada',
+                    'icon' => 'fas fas fa-clock',
+                ],
+                [
+                    'text' => 'Registro Salida',
+                    'url' => 'registrosalida',
+                    'icon' => 'fas fa-sign-out-alt',
+                ],
+                [
+                    'text' => 'Asistencia',
+                    'url' => 'asistenciapersonal',
+                    'icon' => 'fas fa-file-alt',
+                ],
+                [
+                    'text' => 'Asistencia General',
+                    'url' => 'asistenciageneral',
+                    'icon' => 'fas fa-file',
+                ],
+            ],
+        ],
+        [
             'text' => 'Precios',
             'icon' => 'fas fa-tag',
             'url' => '#',
