@@ -21,6 +21,26 @@
     <link rel="stylesheet" href="css/templatemo-style.css">
 </head>
 
+<style>
+    .img-responsive {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    @media screen and (max-width: 639px) {
+        .media.blog-thumb .media-left img {
+            position: relative;
+            bottom: 6em;
+            padding-top: 180px;
+            width: 360px;
+            padding-right: 20px;
+            padding-left: 42px;
+        }
+    }
+</style>
+
 <body>
 
     <!-- PRE LOADER -->
@@ -513,16 +533,28 @@
                         "data": "categoria"
                     },
                     {
-                        "data": "publico"
+                        "data": "publico",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
                     },
                     {
-                        "data": "frecuente"
+                        "data": "frecuente",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
                     },
                     {
-                        "data": "mayoreo"
+                        "data": "mayoreo",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
                     },
                     {
-                        "data": "distribuidor"
+                        "data": "distribuidor",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
                     },
                     {
                         "data": null,
