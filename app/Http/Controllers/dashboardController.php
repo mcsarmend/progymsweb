@@ -29,7 +29,17 @@ class dashboardController extends Controller
     public function showDashboard()
     {
         if (Auth::check()) {
-            return view('home');
+
+            $type = Auth::user()->role;
+            $iduser = Auth::user()->id;
+
+            $tasks = Task::where('objetivo', $iduser)
+                ->leftJoin('users', 'task.autor', '=', 'users.id')
+                ->select('task.*', 'users.name as autor2')
+                ->get();
+
+            return view('home', ['type' => $type, 'tareas' => $tasks]);
+
         } else {
 
             $products = DB::table('product as p')
@@ -69,16 +79,16 @@ class dashboardController extends Controller
 
     public function checkDashboard()
     {
-        $type = $this->gettype();
 
+        $type = Auth::user()->role;
         $iduser = Auth::user()->id;
 
-        $tasks = Task::where('autor', $iduser)
-            ->leftJoin('users', 'task.objetivo', '=', 'users.id')
-            ->select('task.*', 'users.name as objetivo2')
+        $tasks = Task::leftJoin('users', 'task.autor', '=', 'users.id')
+            ->select('task.*', 'users.name as autor')
+            ->where('task.objetivo', $iduser)
             ->get();
 
-        return view('home', ['type' => $type, 'tareas' => $tasks]);
+        return view('dashboard', ['type' => $type, 'tareas' => $tasks]);
     }
     public function preguntasfrecuentes()
     {
@@ -113,7 +123,8 @@ class dashboardController extends Controller
     public function creartarea(Request $request)
     {
         try {
-
+            $timezone = 'America/Mexico_City';
+            $hoy = Carbon::now($timezone)->format('Y-m-d H:i:s');
             // Create a new instance of the notification model
             $tarea = new task();
 
@@ -136,6 +147,7 @@ class dashboardController extends Controller
 
             $tarea->asunto = $request->asunto;
             $tarea->descripcion = $request->descripcion;
+            $tarea->fechaaccion = $request->fechaaccion;
             $tarea->autor = Auth::user()->id;
             $tarea->objetivo = Crypt::decrypt($request->usuario);
 

@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\warehouse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 
 class usersController extends Controller
 {
@@ -24,11 +25,14 @@ class usersController extends Controller
         $usuarios = User::select('id', 'name')
             ->orderBy('name', 'asc')
             ->get();
+
+        $idssucursales = warehouse::select('id', 'nombre')
+            ->get();
         $type = $this->gettype();
-        return view('usuarios.usuarios', ['usuarios' => $usuarios, 'type' => $type]);
+        return view('usuarios.usuarios', ['usuarios' => $usuarios, 'type' => $type, 'idssucursales' => $idssucursales]);
     }
 
-    public function guardar(Request $request)
+    public function crearusuario(Request $request)
     {
 
         try {
@@ -48,6 +52,10 @@ class usersController extends Controller
             $usuario->pass = $request->contrasena;
             $usuario->role = $request->tipo;
             $usuario->email = $request->email;
+            $usuario->phone = $request->telefono;
+            $usuario->warehouse = $request->sucursal;
+            $usuario->hora_entrada = $request->hora_entrada;
+            $usuario->hora_salida = $request->hora_salida;
 
             // Guardar el usuario en la base de datos
             $usuario->save();
@@ -59,7 +67,7 @@ class usersController extends Controller
         }
     }
 
-    public function actualizar(Request $request)
+    public function actualizarusuario(Request $request)
     {
 
         try {
@@ -102,7 +110,7 @@ class usersController extends Controller
         }
 
     }
-    public function eliminar(Request $request)
+    public function eliminarusuario(Request $request)
     {
 
         try {

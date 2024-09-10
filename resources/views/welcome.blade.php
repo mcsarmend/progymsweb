@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/magnific-popup.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="shortcut icon" href="favicons/favicon.ico">
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
 
@@ -23,10 +24,12 @@
 
 <style>
     .img-responsive {
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-        transition: transform 0.5s ease;
+        position: relative;
+        bottom: 1em;
+        padding-top: 87px;
+        width: 365px;
+        padding-right: 0px;
+        padding-left: 7px;
     }
 
     @media screen and (max-width: 639px) {
@@ -67,7 +70,7 @@
             <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav navbar-nav-first">
                     <li><a href="#home" class="smoothScroll">Inicio</a></li>
-                    <li><a href="#about" class="smoothScroll">Acerca de nosotros</a></li>
+                    <li><a href="#about" class="smoothScroll">Nosotros</a></li>
                     <li><a href="#mostsell" class="smoothScroll">Mas Vendidos</a></li>
                     <li><a href="#products" class="smoothScroll">Productos</a></li>
                     <li><a href="#review" class="smoothScroll">Reseñas</a></li>

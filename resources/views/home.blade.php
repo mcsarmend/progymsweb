@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Inicio')
 
 @section('content_header')
 @stop
@@ -152,7 +152,7 @@
                         "data": "descripcion"
                     },
                     {
-                        "data": "objetivo2",
+                        "data": "autor",
                     },
                     {
                         "data": "fecharealizada",

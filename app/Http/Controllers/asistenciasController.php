@@ -24,23 +24,76 @@ class asistenciasController extends Controller
     }
     public function asistenciapersonal()
     {
-        $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
-        $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
-
-        $attendances = DB::table('attendance as a')
-            ->select(
-                DB::raw('DATE(a.fecha_hora) as fecha'),
-                DB::raw('MAX(CASE WHEN a.evento = "ENTRANCE" THEN TIME(a.hora) ELSE NULL END) as hora_entrada'),
-                DB::raw('MAX(CASE WHEN a.evento = "EXIT" THEN TIME(a.hora) ELSE NULL END) as hora_salida')
-            )
-            ->whereBetween('a.fecha', [$startOfMonth, $endOfMonth])
-            ->groupBy(DB::raw('DATE(a.fecha_hora)'))
+        $now = Carbon::now();
+        $id = Auth::user()->id;
+        $attendances = DB::table(DB::raw('(
+            SELECT
+                CAST(fecha_hora AS DATE) AS fecha,
+                users.name AS vendedor,
+                MIN(CASE WHEN evento = "ENTRANCE" THEN CAST(fecha_hora AS TIME) END) AS hora_entrada,
+                MAX(CASE WHEN evento = "EXIT" THEN CAST(fecha_hora AS TIME) END) AS hora_salida,
+                users.hora_entrada AS user_hora_entrada
+            FROM attendance
+            LEFT JOIN users ON users.id = attendance.id_user
+            WHERE evento IN ("ENTRANCE", "EXIT")
+            AND users.id = ' . $id . '
+            AND MONTH(fecha_hora) = ?
+            AND YEAR(fecha_hora) = ?
+            GROUP BY CAST(fecha_hora AS DATE), users.id, users.name, users.hora_entrada
+        ) AS subquery'))
+            ->select([
+                'fecha',
+                'vendedor',
+                'hora_entrada',
+                'hora_salida',
+                DB::raw('CASE WHEN hora_entrada > DATE_ADD(user_hora_entrada, INTERVAL 15 MINUTE) THEN "SI" ELSE "NO" END AS incidencia_entrada'),
+            ])
+            ->setBindings([$now->month, $now->year])
+            ->orderBy('fecha', 'asc')
+            ->orderBy('vendedor', 'asc')
             ->get();
+
         $type = $this->gettype();
 
         return response()->view('asistencias.asistenciapersonal', ['type' => $type, 'asistencias' => $attendances], 200);
 
     }
+
+    public function asistenciageneral()
+    {
+        $now = Carbon::now();
+
+        $attendances = DB::table(DB::raw('(
+            SELECT
+                CAST(fecha_hora AS DATE) AS fecha,
+                users.name AS vendedor,
+                MIN(CASE WHEN evento = "ENTRANCE" THEN CAST(fecha_hora AS TIME) END) AS hora_entrada,
+                MAX(CASE WHEN evento = "EXIT" THEN CAST(fecha_hora AS TIME) END) AS hora_salida,
+                users.hora_entrada AS user_hora_entrada
+            FROM attendance
+            LEFT JOIN users ON users.id = attendance.id_user
+            WHERE evento IN ("ENTRANCE", "EXIT")
+            AND MONTH(fecha_hora) = ?
+            AND YEAR(fecha_hora) = ?
+            GROUP BY CAST(fecha_hora AS DATE), users.id, users.name, users.hora_entrada
+        ) AS subquery'))
+            ->select([
+                'fecha',
+                'vendedor',
+                'hora_entrada',
+                'hora_salida',
+                DB::raw('CASE WHEN hora_entrada > DATE_ADD(user_hora_entrada, INTERVAL 15 MINUTE) THEN "SI" ELSE "NO" END AS incidencia_entrada'),
+            ])
+            ->setBindings([$now->month, $now->year])
+            ->orderBy('fecha', 'asc')
+            ->orderBy('vendedor', 'asc')
+            ->get();
+
+        $type = $this->gettype();
+
+        return response()->view('asistencias.asistenciageneral', ['type' => $type, 'asistencias' => $attendances]);
+    }
+
     public function registrarentrada(Request $request)
     {
         try {

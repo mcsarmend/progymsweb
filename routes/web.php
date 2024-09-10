@@ -116,6 +116,7 @@ Route::post('editarprecio', [preciosController::class, 'editarprecio'])->middlew
 Route::get('registroentrada', [asistenciasController::class, 'registroentrada'])->middleware(['auth']);
 Route::get('registrosalida', [asistenciasController::class, 'registrosalida'])->middleware(['auth']);
 Route::get('asistenciapersonal', [asistenciasController::class, 'asistenciapersonal'])->middleware(['auth']);
+Route::get('asistenciageneral', [asistenciasController::class, 'asistenciageneral'])->middleware(['auth']);
 Route::post('registrarentrada', [asistenciasController::class, 'registrarentrada'])->middleware(['auth']);
 Route::post('registrarsalida', [asistenciasController::class, 'registrarsalida'])->middleware(['auth']);
 Route::post('reporteasistenciaspersonal', [asistenciasController::class, 'reporteasistenciaspersonal'])->middleware(['auth']);
@@ -140,6 +141,7 @@ Route::get('altapedidos', [pedidosController::class, 'altapedidos'])->middleware
 
 // TAREAS
 Route::get('tareas', [dashboardController::class, 'tareas']);
+Route::post('creartarea', [dashboardController::class, 'creartarea']);
 Route::get('tareasdelegadas', [dashboardController::class, 'tareasdelegadas']);
 Route::get('marcartarea', [dashboardController::class, 'marcartarea']);
 
@@ -168,10 +170,10 @@ Route::get('admin/settings', [adminsettingsController::class, 'index'])->middlew
 Route::get('recuperarcontrasena', [dashboardController::class, 'recuperarcontrasena']);
 
 Route::get('profile/username', [usersController::class, 'usuarios']);
-Route::post('guardar-usuario', [usersController::class, 'guardar']);
-Route::post('actualizar-usuario', [usersController::class, 'actualizar']);
+Route::post('crearusuario', [usersController::class, 'crearusuario']);
+Route::post('actualizarusuario', [usersController::class, 'actualizarusuario']);
 Route::post('actualizarext', [usersController::class, 'actualizarext']);
-Route::post('eliminar', [usersController::class, 'eliminar']);
+Route::post('eliminar', [usersController::class, 'eliminarusuario']);
 Route::get('obtener-tipo', [usersController::class, 'obtenerTipo']);
 
 Auth::routes();

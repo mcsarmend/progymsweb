@@ -28,9 +28,9 @@ class HomeController extends Controller
         $type = Auth::user()->role;
         $iduser = Auth::user()->id;
 
-        $tasks = Task::where('objetivo', $iduser)
-            ->leftJoin('users', 'task.autor', '=', 'users.id')
-            ->select('task.*', 'users.name as autor2')
+        $tasks = Task::leftJoin('users', 'task.autor', '=', 'users.id')
+            ->select('task.*', 'users.name as autor')
+            ->where('task.objetivo', $iduser)
             ->get();
 
         return view('home', ['type' => $type, 'tareas' => $tasks]);

@@ -88,6 +88,8 @@
 
         var type = @json($type);
         switch (type) {
+
+            // VENDEDOR
             case 4:
 
                 // Cambiar nombre
@@ -96,7 +98,54 @@
                         $(this).text('Vendedor');
                     }
                 });
-            default:
+                $('.user-footer a').each(function() {
+                    if ($(this).text().includes('Cuentas')) {
+                        $(this).hide();
+                        $(this).css('display', 'none !important'); // Añadir !important
+                        $(this).remove(); // Eliminar el enlace del DOM
+                    }
+                });
+
+
+                // Quitar Inventario
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Ventas');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Almacén');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Inventario');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Clientes');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Compras');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Vendedores');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Precios');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Reportes');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Reconocimientos');
+                }).remove();
+                break;
+
+                // JEFATURA
+            case 3:
+
+                // Cambiar nombre
+                $('small').each(function() {
+                    if ($(this).text().includes('Administrador')) {
+                        $(this).text('Jefatura');
+                    }
+                });
 
                 $('.user-footer a').each(function() {
                     if ($(this).text().includes('Cuentas')) {
@@ -135,6 +184,96 @@
                     return $(this).text().trim().includes('Reconocimientos');
                 }).remove();
                 break;
+
+
+                // SUPERVISION
+            case 2:
+
+                // Cambiar nombre
+                $('small').each(function() {
+                    if ($(this).text().includes('Administrador')) {
+                        $(this).text('Supervision');
+                    }
+                });
+                $('.user-footer a').each(function() {
+                    if ($(this).text().includes('Cuentas')) {
+                        $(this).hide();
+                        $(this).css('display', 'none !important'); // Añadir !important
+                        $(this).remove(); // Eliminar el enlace del DOM
+                    }
+                });
+
+
+                // Quitar Inventario
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Ventas');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Almacén');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Inventario');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Clientes');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Compras');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Vendedores');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Precios');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Reportes');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Reconocimientos');
+                }).remove();
+                break;
+                break;
+                // ADMINISTRADOR
+            case 1:
+                break;
+
+
+
+
+
+                // Quitar Inventario
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Ventas');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Almacén');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Inventario');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Clientes');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Compras');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Vendedores');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Precios');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Reportes');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Reconocimientos');
+                }).remove();
+                break;
+            default:
+
+
                 break;
         }
 
