@@ -42,37 +42,7 @@ class dashboardController extends Controller
 
         } else {
 
-            $products = DB::table('product as p')
-                ->select(
-                    'p.nombre as producto',
-                    'b.nombre as marca',
-                    'c.nombre as categoria',
-                    DB::raw('precio_publico.price as publico'),
-                    DB::raw('precio_frecuente.price as frecuente'),
-                    DB::raw('precio_mayoreo.price as mayoreo'),
-                    DB::raw('precio_distribuidor.price as distribuidor')
-                )
-                ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
-                ->leftJoin('category as c', 'p.categoria', '=', 'c.id')
-                ->leftJoin('product_price as precio_publico', function ($join) {
-                    $join->on('p.id', '=', 'precio_publico.idproducto')
-                        ->where('precio_publico.idprice', '=', 1);
-                })
-                ->leftJoin('product_price as precio_frecuente', function ($join) {
-                    $join->on('p.id', '=', 'precio_frecuente.idproducto')
-                        ->where('precio_frecuente.idprice', '=', 2);
-                })
-                ->leftJoin('product_price as precio_mayoreo', function ($join) {
-                    $join->on('p.id', '=', 'precio_mayoreo.idproducto')
-                        ->where('precio_mayoreo.idprice', '=', 3);
-                })
-                ->leftJoin('product_price as precio_distribuidor', function ($join) {
-                    $join->on('p.id', '=', 'precio_distribuidor.idproducto')
-                        ->where('precio_distribuidor.idprice', '=', 4);
-                })
-                ->orderBy('c.nombre', 'desc')
-                ->get();
-
+            $products = DB::select('CALL lista_precios_activos()');
             return view('welcome', ['products' => $products]);
         }
     }

@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Reporte > Inventario Lista > de precios Inventario')
+@section('title', 'Reportes > Inventario > Lista de precios')
 
 @section('content_header')
 
@@ -12,7 +12,7 @@
         <div class="card-body">
             <div class="card">
                 <div class="card-header">
-                    <h1 class="card-title" style ="font-size: 2rem">Reporte > Inventario Lista > de precios Inventario</h1>
+                    <h1 class="card-title" style ="font-size: 2rem">Reportes > Inventario > Lista de precios</h1>
                 </div>
                 <div class="card-body">
                     <table id=clientes class="table">

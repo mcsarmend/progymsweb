@@ -106,7 +106,7 @@
                     }
                 });
 
-
+                $('a[href="https://www.gprogyms.com.mx/asistenciageneral"]').remove();
                 // Quitar Inventario
                 $('li.nav-item.dropdown').filter(function() {
                     return $(this).text().trim().includes('Ventas');
@@ -154,6 +154,9 @@
                         $(this).remove(); // Eliminar el enlace del DOM
                     }
                 });
+
+
+                $('a[href="https://www.gprogyms.com.mx/asistenciageneral"]').remove();
 
                 // Quitar Inventario
                 $('li.nav-item.dropdown').filter(function() {
