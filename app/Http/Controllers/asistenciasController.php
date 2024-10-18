@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\attendance;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
 class asistenciasController extends Controller
@@ -63,35 +65,46 @@ class asistenciasController extends Controller
     {
         $now = Carbon::now();
 
-        $attendances = DB::table(DB::raw('(
-            SELECT
-                CAST(fecha_hora AS DATE) AS fecha,
-                users.name AS vendedor,
-                MIN(CASE WHEN evento = "ENTRANCE" THEN CAST(fecha_hora AS TIME) END) AS hora_entrada,
-                MAX(CASE WHEN evento = "EXIT" THEN CAST(fecha_hora AS TIME) END) AS hora_salida,
-                users.hora_entrada AS user_hora_entrada
-            FROM attendance
-            LEFT JOIN users ON users.id = attendance.id_user
-            WHERE evento IN ("ENTRANCE", "EXIT")
-            AND MONTH(fecha_hora) = ?
-            AND YEAR(fecha_hora) = ?
-            GROUP BY CAST(fecha_hora AS DATE), users.id, users.name, users.hora_entrada
-        ) AS subquery'))
-            ->select([
-                'fecha',
-                'vendedor',
-                'hora_entrada',
-                'hora_salida',
-                DB::raw('CASE WHEN hora_entrada > DATE_ADD(user_hora_entrada, INTERVAL 15 MINUTE) THEN "SI" ELSE "NO" END AS incidencia_entrada'),
-            ])
-            ->setBindings([$now->month, $now->year])
-            ->orderBy('fecha', 'asc')
-            ->orderBy('vendedor', 'asc')
+        $entradasysalidas = DB::select('CALL sp_get_asistencias_y_ausencias()');
+        $tendencias = DB::select('CALL sp_get_asistencias_y_ausencias_por_semana()');
+        $reporte = DB::select('CALL sp_asistencias_y_ausencias_rep()');
+        $empleados = User::select('users.id as id', 'users.name as nombre', 'users.email as correo', 'users.pass as contrasena', 'users.phone as telefono', 'users.role as rol', 'warehouse.nombre as sucursal')
+            ->leftJoin('warehouse', 'users.warehouse', '=', 'warehouse.id')
             ->get();
+        $totalEmpleados = \App\Models\User::whereIn('role', [3, 4])->count();
 
         $type = $this->gettype();
 
-        return response()->view('asistencias.asistenciageneral', ['type' => $type, 'asistencias' => $attendances]);
+        return response()->view('asistencias.asistenciageneral', ['type' => $type, 'entradasysalidas' => $entradasysalidas, 'totalempleados' => $totalEmpleados, 'tendencias' => $tendencias, 'empleados' => $empleados, 'reporte' => $reporte]);
+    }
+
+    public function asistencia_graficas(Request $request)
+    {
+
+        $id_empleado = Crypt::decrypt($request["id_empleado"]);
+
+        $fecha_inicio = $request->fecha_inicio;
+        $fecha_fin = $request->fecha_fin;
+        $reporte = [];
+
+        try {
+            $asistencia = [];
+            $asistencia_semana = [];
+            if ($id_empleado == "0") {
+                $asistencia = DB::select('CALL sp_get_asistencias_y_ausencias_general(?, ?, ?)', [$id_empleado, $fecha_inicio, $fecha_fin]);
+                $asistencia_semana = DB::select('CALL sp_get_asistencias_y_ausencias_por_semana_general(?, ?, ?)', [$id_empleado, $fecha_inicio, $fecha_fin]);
+                $reporte = DB::select('CALL sdp_asistencias_y_ausencias_rep_general(?, ?, ?)', [$fecha_inicio, $fecha_fin]);
+            } else {
+                $asistencia = DB::select('CALL sp_get_asistencias_y_ausencias_individual(?, ?, ?)', [$id_empleado, $fecha_inicio, $fecha_fin]);
+                $asistencia_semana = DB::select('CALL sp_get_asistencias_y_ausencias_por_semana_individual(?, ?, ?)', [$id_empleado, $fecha_inicio, $fecha_fin]);
+                $reporte = DB::select('CALL sp_asistencias_y_ausencias_rep_individual(?, ?, ?)', [$fecha_inicio, $fecha_fin, $id_empleado]);
+            }
+            return response()->json(['message' => 'Reporte generado correctamente ', 'asistencia' => $asistencia, 'asistencia_semana' => $asistencia_semana, 'reporte' => $reporte], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al reporte: ' . $th->getMessage()], 500);
+        }
+
     }
 
     public function registrarentrada(Request $request)

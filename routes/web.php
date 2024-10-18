@@ -116,6 +116,7 @@ Route::post('editarprecio', [preciosController::class, 'editarprecio'])->middlew
 Route::get('registroentrada', [asistenciasController::class, 'registroentrada'])->middleware(['auth']);
 Route::get('registrosalida', [asistenciasController::class, 'registrosalida'])->middleware(['auth']);
 Route::get('asistenciapersonal', [asistenciasController::class, 'asistenciapersonal'])->middleware(['auth']);
+Route::post('asistencia_graficas', [asistenciasController::class, 'asistencia_graficas'])->middleware(['auth']);
 Route::get('asistenciageneral', [asistenciasController::class, 'asistenciageneral'])->middleware(['auth']);
 Route::post('registrarentrada', [asistenciasController::class, 'registrarentrada'])->middleware(['auth']);
 Route::post('registrarsalida', [asistenciasController::class, 'registrarsalida'])->middleware(['auth']);

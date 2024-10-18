@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
 
@@ -260,6 +260,30 @@
             </div>
         </div>
     </section>
+
+    <div class="row">
+        <p>Todos los precios están sujetos a cambios sin previo aviso</p>
+
+        <table>
+            <tr>
+                <td>Precio público</td>
+                <td>Clientes primerizos o que no se encuentren registrados en sistema</td>
+            </tr>
+            <tr>
+                <td>Precio frecuente</td>
+                <td>Clientes con compras mayores a $1500 mensuales</td>
+            </tr>
+            <tr>
+                <td>Precio mayorista</td>
+                <td>Clientes con compras mayores a $3000 mensuales</td>
+            </tr>
+            <tr>
+                <td>Precio distribuidor</td>
+                <td>Compras en una sola exhibición de más de $3000</td>
+            </tr>
+        </table>
+    </div>
+
     <!-- RESEÑAS -->
 
 
@@ -465,15 +489,17 @@
                                 <!-- NAV TABS -->
                                 <!-- TAB PANES -->
                                 <div role="tabpanel" class="tab-pane fade in" id="sign_in">
-                                    <form action="login" method="post">
+                                    <form id="loginForm" action="{{ route('login') }}" method="post">
                                         @csrf
                                         <input type="email" class="form-control" name="email"
-                                            placeholder="Email" required>
+                                            placeholder="Email" value="{{ old('email') }}" required>
                                         <input type="password" class="form-control" name="password"
                                             placeholder="Password" required>
                                         <input type="submit" class="form-control" name="submit"
                                             value="Iniciar Sesión">
                                     </form>
+
+                                    <div id="error-messages"></div>
                                 </div>
                             </div>
 
@@ -495,6 +521,35 @@
     <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function() {
+
+
+
+            $('#loginForm').submit(function(event) {
+                event.preventDefault(); // Evita el comportamiento por defecto del formulario
+                var form = $(this);
+                var url = form.attr('action');
+
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: form.serialize(),
+                    success: function(data) {
+                        // Redirigir si es exitoso
+                        window.location.href = "/dashboard";
+                    },
+                    error: function(xhr) {
+                        // Mostrar los errores
+                        var errors = xhr.responseJSON.errors;
+                        var errorMessages = '<div class="alert alert-danger"><ul>';
+                        $.each(errors, function(key, value) {
+                            errorMessages += '<li>' + value[0] + '</li>';
+                        });
+                        errorMessages += '</ul></div>';
+                        $('#error-messages').html(errorMessages);
+                    }
+                });
+            });
+
 
 
             document.addEventListener('DOMContentLoaded', (event) => {
