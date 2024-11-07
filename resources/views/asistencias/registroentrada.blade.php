@@ -54,11 +54,14 @@
 
                     },
                     success: function(response) {
-                        Swal.fire(
-                            '¡Gracias por esperar!',
-                            response.message,
-                            'success'
-                        );
+
+                        if ()
+
+                            Swal.fire(
+                                '¡Gracias por esperar!',
+                                response.message,
+                                'success'
+                            );
                     },
                     error: function(xhr) {
 

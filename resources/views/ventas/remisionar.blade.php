@@ -101,21 +101,6 @@
                         <thead>
                             <tr>
                                 <th>Codigo</th>
-                                <table id="productos" class="table" border="0.1">
-                                    <thead>
-                                        <tr>
-                                            <th>Codigo</th>
-                                            <th>Cantidad</th>
-                                            <th>Nombre</th>
-                                            <th>Precio Unitario</th>
-                                            <th>Subtotal</th>
-                                            <th>Cancelar</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-
-                                    </tbody>
-                                </table>
                                 <th>Cantidad</th>
                                 <th>Nombre</th>
                                 <th>Precio Unitario</th>
@@ -127,6 +112,7 @@
 
                         </tbody>
                     </table>
+
                 </div>
 
 
@@ -371,14 +357,14 @@
             });
             table += '</table>';
 
-            // Clonar la tabla con id="productos" y ajustarla para el PDF
+            // Clonar la tabla con id="productos" y quita ultima columna
             var $productoTableClone = $('#productos').clone();
             $productoTableClone.attr('id', 'productosClone')
             $productoTableClone.find('tr').each(function() {
                 $(this).find('td:last-child, th:last-child').remove();
             });
 
-            // Calcular la suma de la última columna
+            // Calcular la suma de la columna subtotal
             var sum = 0;
             $productoTableClone.find('tr').each(function() {
                 var $lastTd = $(this).find('td:last-child');
@@ -412,8 +398,8 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Obtener los valores necesarios para el PDF
-                    var nombreSucursal = $('#sucursal').val();
-                    var idsucursal = $('#sucursal').data('value');
+                    var nombreSucursal = $("#sucursal option:selected").text();
+                    var idsucursal = $('#sucursal').val();
                     numeroRemision = "123456789";
                     var fecha = $('#fecha').val();
                     const opciones = {

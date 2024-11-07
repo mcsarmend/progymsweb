@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\attendance;
+use App\Models\incidents;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -71,17 +72,76 @@ class asistenciasController extends Controller
         $empleados = User::select('users.id as id', 'users.name as nombre', 'users.email as correo', 'users.pass as contrasena', 'users.phone as telefono', 'users.role as rol', 'warehouse.nombre as sucursal')
             ->leftJoin('warehouse', 'users.warehouse', '=', 'warehouse.id')
             ->get();
-        $totalEmpleados = \App\Models\User::whereIn('role', [3, 4])->count();
+        $totalEmpleados = User::whereIn('role', [3, 4])->count();
 
         $type = $this->gettype();
 
         return response()->view('asistencias.asistenciageneral', ['type' => $type, 'entradasysalidas' => $entradasysalidas, 'totalempleados' => $totalEmpleados, 'tendencias' => $tendencias, 'empleados' => $empleados, 'reporte' => $reporte]);
     }
+    public function calendario()
+    {
+        $mes = Carbon::now()->month;
+        $anio = Carbon::now()->year;
+        $incidencias = DB::select('CALL sp_incidencias_por_mes(?, ?)', [$mes, $anio]);
+
+        $type = $this->gettype();
+        $empleados = User::select('id', 'name as nombre')->get();
+
+        return response()->view('asistencias.calendario', ['type' => $type, 'empleados' => $empleados, 'incidencias' => $incidencias]);
+    }
+    public function calendarioincidencias(Request $request)
+    {
+
+        $mes = $request->mes;
+        $anio = $request->anio;
+        $incidencias = DB::select('CALL sp_incidencias_por_mes(?, ?)', [$mes, $anio]);
+
+        if ($incidencias == []) {
+            $message = "Sin información en este mes";
+        } else {
+            $message = "Reporte generado correctamente";
+
+        }
+
+        return response()->json(['message' => $message, 'incidencias' => $incidencias], 200);
+
+    }
+    public function obtenerincidencia(Request $request)
+    {
+        $id = $request->id;
+
+        $incidencias = DB::table('incidents')
+            ->leftJoin('users', 'incidents.iduser', '=', 'users.id')
+            ->select('users.name as nombre', 'incidents.*')
+            ->where('users.id', $id)
+            ->get();
+
+        return response()->json($incidencias);
+    }
+    public function marcarincidencia(Request $request)
+    {
+
+        try {
+            $incident = new incidents();
+            $incident->iduser = $request->iduser;
+            $incident->fecha = $request->fecha;
+            $incident->tipo = $request->tipo;
+            $incident->descripcion = $request->descripcion;
+
+            $incident->save();
+            return response()->json(['message' => 'La incidencia ha sido marcada correctamente'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Error al reporte: ' . $th->getMessage()], 500);
+        }
+
+    }
 
     public function asistencia_graficas(Request $request)
     {
-
-        $id_empleado = Crypt::decrypt($request["id_empleado"]);
+        $id_empleado = $request["id_empleado"];
+        if ($id_empleado != "0") {
+            $id_empleado = Crypt::decrypt($id_empleado);
+        }
 
         $fecha_inicio = $request->fecha_inicio;
         $fecha_fin = $request->fecha_fin;
@@ -90,10 +150,13 @@ class asistenciasController extends Controller
         try {
             $asistencia = [];
             $asistencia_semana = [];
+
             if ($id_empleado == "0") {
-                $asistencia = DB::select('CALL sp_get_asistencias_y_ausencias_general(?, ?, ?)', [$id_empleado, $fecha_inicio, $fecha_fin]);
-                $asistencia_semana = DB::select('CALL sp_get_asistencias_y_ausencias_por_semana_general(?, ?, ?)', [$id_empleado, $fecha_inicio, $fecha_fin]);
-                $reporte = DB::select('CALL sdp_asistencias_y_ausencias_rep_general(?, ?, ?)', [$fecha_inicio, $fecha_fin]);
+
+                $asistencia = DB::select('CALL sp_get_asistencias_y_ausencias_general(?, ?)', [$fecha_inicio, $fecha_fin]);
+                $asistencia_semana = DB::select('CALL sp_get_asistencias_y_ausencias_por_semana_general(?, ?)', [$fecha_inicio, $fecha_fin]);
+                $reporte = DB::select('CALL sp_asistencias_y_ausencias_rep_general(?, ?)', [$fecha_inicio, $fecha_fin]);
+
             } else {
                 $asistencia = DB::select('CALL sp_get_asistencias_y_ausencias_individual(?, ?, ?)', [$id_empleado, $fecha_inicio, $fecha_fin]);
                 $asistencia_semana = DB::select('CALL sp_get_asistencias_y_ausencias_por_semana_individual(?, ?, ?)', [$id_empleado, $fecha_inicio, $fecha_fin]);
@@ -135,10 +198,33 @@ class asistenciasController extends Controller
             $attendance->fecha_hora = $fechaMysql;
             $attendance->dispositivo = $dispositivo;
             $attendance->evento = $evento;
+
+            $diaActual = date('j'); // Día actual del mes sin ceros iniciales
+            $mesActual = date('m'); // Mes actual con ceros iniciales
+            $anioActual = date('Y'); // Año actual
+
+            $fechaInicio = date('');
+            $fechaFin = date('');
+
+            if ($diaActual <= 15) {
+                // Si el día es menor o igual a 15, obtenemos del primer día al 15
+                $fechaInicio = "$anioActual-$mesActual-01";
+                $fechaFin = "$anioActual-$mesActual-15";
+            } else {
+                // Si el día es mayor a 15, obtenemos del 16 al último día del mes
+                $fechaInicio = "$anioActual-$mesActual-16";
+                $fechaFin = date("Y-m-t"); // Obtiene el último día del mes
+            }
+
+            $cantidadIncidencias = DB::select('CALL sp_get_incidencias_individual(?, ?, ?)', [$id, $fechaInicio, $fechaFin]);
+
             $attendance->save();
 
+            $message = "Registro realizado correctamente a las: " . $attendance->hora . ". Recuerda que llevas: ***  " . $cantidadIncidencias[0]->total_incidencias . " *** incidencias en esta quincena";
+            $cantidadDeIncidencias = intval($cantidadIncidencias[0]->total_incidencias);
+
             // Devolver una respuesta de éxito
-            return response()->json(['message' => 'Registro de entrada realizado correctamente'], 200);
+            return response()->json(['message' => $message, "cantidadIncidencias" => $cantidadDeIncidencias], 200);
         } catch (\Throwable $e) {
             // Devolver una respuesta de error
             return response()->json(['message' => 'Error al registrar entrada: ' . $e->getMessage()], 500);

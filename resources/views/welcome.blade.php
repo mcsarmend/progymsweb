@@ -45,31 +45,36 @@
     }
 
 
-    /* __________ L O G O   S L I D E R __________ */
     @keyframes scroll {
         0% {
             transform: translateX(0);
         }
 
         100% {
-            transform: translateX(calc(-1150px * 7))
+            transform: translateX(calc(-1150px * 7));
         }
     }
 
     .partners-logo-slider {
-
         margin: auto;
         overflow: hidden;
         position: relative;
         width: auto;
-
         padding: 16px 0px;
 
         .slide-track {
+            height: 600px;
             animation: scroll 40s linear infinite;
             display: flex;
             width: calc(4000px * 20);
             /* Cambia a 20 imágenes */
+            animation-play-state: running;
+            /* Asegura que la animación corra normalmente */
+        }
+
+        .slide-track:hover {
+            animation-play-state: paused;
+            /* Detiene la animación al hacer hover */
         }
 
         .sliderTitle {
@@ -83,7 +88,6 @@
         .slide {
             height: 700px;
             width: 400px;
-
         }
 
         .slide:hover {
@@ -140,97 +144,69 @@
     <section id="home" data-stellar-background-ratio="0.5">
         <div class="overlay"></div>
         <div class="container">
-            {{-- <div class="row">
-                <div class="col carousel-container">
-                    <div class="carousel-slide">
-                        <img src="assets/images/promos/01.jpeg" alt="Imagen 1">
-                        <img src="assets/images/promos/02.jpeg" alt="Imagen 2">
-                        <img src="assets/images/promos/03.jpeg" alt="Imagen 3">
-                        <img src="assets/images/promos/04.jpeg" alt="Imagen 4">
-                        <img src="assets/images/promos/05.jpeg" alt="Imagen 5">
-                        <img src="assets/images/promos/06.jpeg" alt="Imagen 6">
-                        <img src="assets/images/promos/07.jpeg" alt="Imagen 7">
-                        <img src="assets/images/promos/08.jpeg" alt="Imagen 8">
-                        <img src="assets/images/promos/09.jpeg" alt="Imagen 9">
-                        <img src="assets/images/promos/10.jpeg" alt="Imagen 10">
-                        <img src="assets/images/promos/11.jpeg" alt="Imagen 11">
-                        <img src="assets/images/promos/12.jpeg" alt="Imagen 12">
-                        <img src="assets/images/promos/13.jpeg" alt="Imagen 13">
-                        <img src="assets/images/promos/14.jpeg" alt="Imagen 14">
-                        <img src="assets/images/promos/15.jpeg" alt="Imagen 15">
-                        <img src="assets/images/promos/16.jpeg" alt="Imagen 16">
-                        <img src="assets/images/promos/17.jpeg" alt="Imagen 17">
-                        <img src="assets/images/promos/18.jpeg" alt="Imagen 18">
-                        <img src="assets/images/promos/19.jpeg" alt="Imagen 19">
-                        <img src="assets/images/promos/20.jpeg" alt="Imagen 20">
-                    </div>
-                    <span class="prev">&#10094;</span>
-                    <span class="next">&#10095;</span>
-                </div>
-            </div> --}}
             <!------------ B A N N E R ------------>
             <div class="partners-logo-slider">
                 <p class="sliderTitle">Promociones activas</p>
                 <div class="slide-track">
                     <div class="slide">
-                        <img src="assets/images/promos/01.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/01.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/02.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/02.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/03.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/03.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/04.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/04.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/05.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/05.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/06.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/06.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/07.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/07.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/08.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/08.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/09.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/09.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/10.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/10.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/11.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/11.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/12.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/12.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/13.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/13.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/14.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/14.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/15.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/15.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/16.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/16.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/17.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/18.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/18.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/19.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/19.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/20.jpeg" height="700 " width="400" alt="" />
+                        <img src="assets/images/promos/20.jpeg" height="600 " width="400" alt="" />
                     </div>
 
                 </div>
@@ -659,10 +635,7 @@
                         // Mostrar los errores
                         var errors = xhr.responseJSON.errors;
                         var errorMessages = '<div class="alert alert-danger"><ul>';
-                        $.each(errors, function(key, value) {
-                            errorMessages += '<li>' + value[0] + '</li>';
-                        });
-                        errorMessages += '</ul></div>';
+                        errorMessages += '</ul> Los datos de acceso son incorrectos</div>';
                         $('#error-messages').html(errorMessages);
                     }
                 });

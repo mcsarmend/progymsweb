@@ -314,7 +314,6 @@ return [
             'icon' => 'fas fa-shopping-cart',
             'url' => '#',
             'submenu' => [
-
                 [
                     'text' => 'Remisiones',
                     'icon' => 'fas fa-file-alt',
@@ -332,7 +331,6 @@ return [
                         ],
                     ],
                 ],
-
                 [
                     'text' => 'Pedidos',
                     'icon' => 'fas fa-shopping-cart',
@@ -345,7 +343,6 @@ return [
                         ],
                     ],
                 ],
-
             ],
         ],
         [
@@ -422,6 +419,16 @@ return [
                             'url' => 'inventariomermas',
                             'icon' => 'fas fa-trash-alt',
                         ],
+                        [
+                            'text' => 'Entrada',
+                            'url' => 'ingresoinventario',
+                            'icon' => 'fas fa-sign-in-alt',
+                        ],
+                        [
+                            'text' => 'Salida',
+                            'url' => 'salidainventario',
+                            'icon' => 'fas fa-sign-out-alt',
+                        ],
                     ],
                 ],
             ],
@@ -433,38 +440,24 @@ return [
             'url' => '#',
             'submenu' => [
                 [
-                    'text' => 'Acciones',
-                    'icon' => 'fas fa-tasks',
-                    'submenu' => [
-
-                        [
-                            'text' => 'Alta',
-                            'url' => 'altacliente',
-                            'icon' => 'fas fa-plus-square',
-                        ],
-                        [
-                            'text' => 'Baja',
-                            'url' => 'bajacliente',
-                            'icon' => 'fas fa-minus-square',
-                        ],
-                        [
-                            'text' => 'Edicion',
-                            'url' => 'edicioncliente',
-                            'icon' => 'fas fa-edit',
-                        ],
-                    ],
+                    'text' => 'Alta',
+                    'url' => 'altacliente',
+                    'icon' => 'fas fa-plus-square',
+                ],
+                [
+                    'text' => 'Baja',
+                    'url' => 'bajacliente',
+                    'icon' => 'fas fa-minus-square',
+                ],
+                [
+                    'text' => 'Edicion',
+                    'url' => 'edicioncliente',
+                    'icon' => 'fas fa-edit',
                 ],
                 [
                     'text' => 'Lista',
-                    'icon' => 'fas fa-tasks',
-                    'submenu' => [
-                        [
-                            'text' => 'Clientes',
-                            'url' => 'clientes',
-                            'icon' => 'fas fa-user-friends',
-                        ],
-
-                    ],
+                    'url' => 'clientes',
+                    'icon' => 'fas fa-user-friends',
                 ],
 
             ],
@@ -472,54 +465,31 @@ return [
         ],
 
         [
-            'text' => 'Compras',
-            'icon' => 'fas fa-shopping-bag',
+            'text' => 'Proveedores',
+            'icon' => 'fas fa-truck-loading',
             'url' => '#',
             'submenu' => [
                 [
-                    'text' => 'Compras',
-                    'icon' => 'fas fa-fw fa-file',
-                    'url' => '#',
-                    'submenu' => [
-                        [
-                            'text' => 'Alta',
-                            'icon' => 'fas fa-plus-square',
-                            'url' => 'altacompras',
-                        ],
-                        [
-                            'text' => 'Baja',
-                            'url' => 'bajacompras',
-                            'icon' => 'fas fa-minus-square',
-                        ],
-                        [
-                            'text' => 'Edición',
-                            'url' => 'edicioncompras',
-                            'icon' => 'fas fa-edit',
-                        ],
-
-                    ],
+                    'text' => 'Alta',
+                    'url' => 'altaproveedores',
+                    'icon' => 'fas fa-plus-square',
                 ],
                 [
-                    'text' => 'Proveedores',
-                    'icon' => 'fas fa-truck-loading',
-                    'submenu' => [
-                        [
-                            'text' => 'Alta',
-                            'url' => 'altaproveedores',
-                            'icon' => 'fas fa-plus-square',
-                        ],
-                        [
-                            'text' => 'Baja',
-                            'url' => 'bajaproveedores',
-                            'icon' => 'fas fa-minus-square',
-                        ],
-                        [
-                            'text' => 'Edición',
-                            'url' => 'edicionproveedores',
-                            'icon' => 'fas fa-edit',
-                        ],
-                    ],
+                    'text' => 'Baja',
+                    'url' => 'bajaproveedores',
+                    'icon' => 'fas fa-minus-square',
                 ],
+                [
+                    'text' => 'Edición',
+                    'url' => 'edicionproveedores',
+                    'icon' => 'fas fa-edit',
+                ],
+                [
+                    'text' => 'Lista',
+                    'url' => 'reporteproveedoreslista',
+                    'icon' => 'fas fa-truck-loading',
+                ],
+
             ],
         ],
 
@@ -529,11 +499,6 @@ return [
 
             'url' => '#',
             'submenu' => [
-                [
-                    'text' => 'Registro Entrada',
-                    'url' => 'registroentrada',
-                    'icon' => 'fas fa-user-tie',
-                ],
                 [
                     'text' => 'Vendedores',
                     'url' => 'vendedores',
@@ -570,6 +535,11 @@ return [
                 [
                     'text' => 'Asistencia General',
                     'url' => 'asistenciageneral',
+                    'icon' => 'fas fa-file',
+                ],
+                [
+                    'text' => 'Calendario',
+                    'url' => 'calendario',
                     'icon' => 'fas fa-file',
                 ],
             ],
@@ -650,11 +620,6 @@ return [
                     'icon' => 'fas fa-user-friends',
                     'submenu' => [
                         [
-                            'text' => 'Lista',
-                            'url' => 'reporteclienteslista',
-                            'icon' => 'fas fa-list-alt',
-                        ],
-                        [
                             'text' => 'Compras',
                             'url' => 'reporteclientescompras',
                             'icon' => 'fas fa-shopping-bag',
@@ -674,18 +639,7 @@ return [
 
                     ],
                 ],
-                [
-                    'text' => 'Proveedores',
-                    'icon' => 'fas fa-truck-loading',
-                    'submenu' => [
-                        [
-                            'text' => 'Lista',
-                            'url' => 'reporteproveedoreslista',
-                            'icon' => 'fas fa-truck-loading',
-                        ],
 
-                    ],
-                ],
             ],
         ],
         [

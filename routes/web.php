@@ -43,10 +43,11 @@ Route::get('/politicaprivacidad', [dashboardController::class, 'politicaprivacid
 Route::get('remisionar', [ventasController::class, 'remisionar'])->middleware(['auth']);
 Route::get('remisiones', [ventasController::class, 'remisiones'])->middleware(['auth']);
 Route::get('ventasreportes', [ventasController::class, 'ventasreportes'])->middleware(['auth']);
+Route::get('verproductosremision', [ventasController::class, 'verproductosremision'])->middleware(['auth']);
+
 Route::post('buscarprecio', [ventasController::class, 'buscarprecio'])->middleware(['auth']);
 Route::post('buscaridprecio', [ventasController::class, 'buscaridprecio'])->middleware(['auth']);
 Route::post('validarremision', [ventasController::class, 'validarremision'])->middleware(['auth']);
-Route::get('verproductosremision', [ventasController::class, 'verproductosremision'])->middleware(['auth']);
 Route::post('cancelarremision', [ventasController::class, 'cancelarremision'])->middleware(['auth']);
 
 //ALMACEN
@@ -70,6 +71,8 @@ Route::get('edicioninventario', [inventarioController::class, 'edicioninventario
 Route::get('traspasos', [inventarioController::class, 'traspasos'])->middleware(['auth']);
 Route::get('inventariocompras', [inventarioController::class, 'inventariocompras'])->middleware(['auth']);
 Route::get('inventariomermas', [inventarioController::class, 'inventariomermas'])->middleware(['auth']);
+Route::get('ingresoinventario', [inventarioController::class, 'ingresoinventario'])->middleware(['auth']);
+Route::get('salidainventario', [inventarioController::class, 'salidainventario'])->middleware(['auth']);
 
 Route::post('enviarmerma', [inventarioController::class, 'enviarmerma'])->middleware(['auth']);
 Route::post('enviarcompra', [inventarioController::class, 'enviarcompra'])->middleware(['auth']);
@@ -116,8 +119,12 @@ Route::post('editarprecio', [preciosController::class, 'editarprecio'])->middlew
 Route::get('registroentrada', [asistenciasController::class, 'registroentrada'])->middleware(['auth']);
 Route::get('registrosalida', [asistenciasController::class, 'registrosalida'])->middleware(['auth']);
 Route::get('asistenciapersonal', [asistenciasController::class, 'asistenciapersonal'])->middleware(['auth']);
-Route::post('asistencia_graficas', [asistenciasController::class, 'asistencia_graficas'])->middleware(['auth']);
 Route::get('asistenciageneral', [asistenciasController::class, 'asistenciageneral'])->middleware(['auth']);
+Route::get('calendario', [asistenciasController::class, 'calendario'])->middleware(['auth']);
+Route::get('obtenerincidencia', [asistenciasController::class, 'obtenerincidencia'])->middleware(['auth']);
+Route::post('calendarioincidencias', [asistenciasController::class, 'calendarioincidencias'])->middleware(['auth']);
+Route::post('marcarincidencia', [asistenciasController::class, 'marcarincidencia'])->middleware(['auth']);
+Route::post('asistencia_graficas', [asistenciasController::class, 'asistencia_graficas'])->middleware(['auth']);
 Route::post('registrarentrada', [asistenciasController::class, 'registrarentrada'])->middleware(['auth']);
 Route::post('registrarsalida', [asistenciasController::class, 'registrarsalida'])->middleware(['auth']);
 Route::post('reporteasistenciaspersonal', [asistenciasController::class, 'reporteasistenciaspersonal'])->middleware(['auth']);
@@ -144,7 +151,7 @@ Route::get('altapedidos', [pedidosController::class, 'altapedidos'])->middleware
 Route::get('tareas', [dashboardController::class, 'tareas']);
 Route::post('creartarea', [dashboardController::class, 'creartarea']);
 Route::get('tareasdelegadas', [dashboardController::class, 'tareasdelegadas']);
-Route::get('marcartarea', [dashboardController::class, 'marcartarea']);
+Route::post('marcartarea', [dashboardController::class, 'marcartarea']);
 
 // LAN DING PAGE
 Route::get('table-products', [dashboardController::class, 'get_productos']);
