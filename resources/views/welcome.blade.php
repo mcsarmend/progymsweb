@@ -51,7 +51,7 @@
         }
 
         100% {
-            transform: translateX(calc(-1150px * 7));
+            transform: translateX(calc(-1450px * 7));
         }
     }
 
@@ -66,7 +66,7 @@
             height: 600px;
             animation: scroll 40s linear infinite;
             display: flex;
-            width: calc(4000px * 20);
+            width: calc(4000px * 30);
             /* Cambia a 20 imágenes */
             animation-play-state: running;
             /* Asegura que la animación corra normalmente */
@@ -207,6 +207,24 @@
                     </div>
                     <div class="slide">
                         <img src="assets/images/promos/20.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/21.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/22.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/23.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/24.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/25.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/26.jpeg" height="600 " width="400" alt="" />
                     </div>
 
                 </div>
