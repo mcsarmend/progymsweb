@@ -74,6 +74,8 @@ Route::get('inventariomermas', [inventarioController::class, 'inventariomermas']
 Route::get('ingresoinventario', [inventarioController::class, 'ingresoinventario'])->middleware(['auth']);
 Route::get('salidainventario', [inventarioController::class, 'salidainventario'])->middleware(['auth']);
 
+Route::post('enviarsalida', [inventarioController::class, 'enviarsalida'])->middleware(['auth']);
+Route::post('enviarentrada', [inventarioController::class, 'enviarentrada'])->middleware(['auth']);
 Route::post('enviarmerma', [inventarioController::class, 'enviarmerma'])->middleware(['auth']);
 Route::post('enviarcompra', [inventarioController::class, 'enviarcompra'])->middleware(['auth']);
 Route::post('buscarpreciocompras', [inventarioController::class, 'buscarpreciocompras'])->middleware(['auth']);
@@ -121,7 +123,11 @@ Route::get('registrosalida', [asistenciasController::class, 'registrosalida'])->
 Route::get('asistenciapersonal', [asistenciasController::class, 'asistenciapersonal'])->middleware(['auth']);
 Route::get('asistenciageneral', [asistenciasController::class, 'asistenciageneral'])->middleware(['auth']);
 Route::get('calendario', [asistenciasController::class, 'calendario'])->middleware(['auth']);
+Route::get('vacaciones', [asistenciasController::class, 'vacaciones'])->middleware(['auth']);
+Route::get('getvacaciones', [asistenciasController::class, 'getvacaciones'])->middleware(['auth']);
 Route::get('obtenerincidencia', [asistenciasController::class, 'obtenerincidencia'])->middleware(['auth']);
+
+Route::post('cancelarincidencia', [asistenciasController::class, 'cancelarincidencia'])->middleware(['auth']);
 Route::post('calendarioincidencias', [asistenciasController::class, 'calendarioincidencias'])->middleware(['auth']);
 Route::post('marcarincidencia', [asistenciasController::class, 'marcarincidencia'])->middleware(['auth']);
 Route::post('asistencia_graficas', [asistenciasController::class, 'asistencia_graficas'])->middleware(['auth']);

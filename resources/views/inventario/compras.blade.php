@@ -277,14 +277,14 @@
                 }
             });
 
-            if (sum == 0) {
-                Swal.fire({
-                    title: 'No hay productos agregados',
-                    text: 'Debe agregar al menos un producto',
-                    icon: 'error'
-                });
-                return;
-            }
+            // if (sum == 0) {
+            //     Swal.fire({
+            //         title: 'No hay productos agregados',
+            //         text: 'Debe agregar al menos un producto',
+            //         icon: 'error'
+            //     });
+            //     return;
+            // }
 
 
 
@@ -306,7 +306,7 @@
                     var documento = $('#documento').val();
 
 
-                    numeroRemision = enviarcompra("SALE", datos, documento, sum, sucursal);
+                    numeroRemision = enviarcompra("PURCHASE", datos, documento, sum, sucursal);
 
                 }
             });

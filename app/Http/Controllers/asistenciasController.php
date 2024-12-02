@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\attendance;
 use App\Models\incidents;
 use App\Models\User;
+use App\Models\vacation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -89,6 +90,41 @@ class asistenciasController extends Controller
 
         return response()->view('asistencias.calendario', ['type' => $type, 'empleados' => $empleados, 'incidencias' => $incidencias]);
     }
+    public function vacaciones()
+    {
+
+        $vacaciones = DB::select('CALL obtener_vacaciones_restantes()');
+
+        $type = $this->gettype();
+        $empleados = User::select('id', 'name as nombre')->get();
+
+        return response()->view('asistencias.vacaciones', ['type' => $type, 'empleados' => $empleados, 'vacaciones' => $vacaciones]);
+    }
+    public function getvacaciones(Request $request)
+    {
+
+        try {
+            $id = $request->id;
+            $id_empleado = Crypt::decrypt($id);
+
+            $fechas = User::select('id', 'fecha_ingreso',
+                DB::raw("DATE_ADD(fecha_ingreso, INTERVAL CASE
+                            WHEN YEAR(fecha_ingreso) < YEAR(CURDATE())
+                            THEN YEAR(CURDATE()) - YEAR(fecha_ingreso)
+                            ELSE 0
+                         END YEAR) AS fecha_resultante")
+            )
+                ->get();
+            $fechaResultante = collect($fechas)->firstWhere('id', $id_empleado)['fecha_resultante'];
+
+            $vacacionesFechas = DB::select('CALL sp_vacaciones_ultimo_ano(?, ?)', [$id_empleado, $fechaResultante]);
+
+            return response()->json(['vacacionesFechas' => $vacacionesFechas], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Error al reporte: ' . $th->getMessage()], 500);
+        }
+
+    }
     public function calendarioincidencias(Request $request)
     {
 
@@ -118,6 +154,27 @@ class asistenciasController extends Controller
 
         return response()->json($incidencias);
     }
+    public function cancelarincidencia(Request $request)
+    {
+
+        try {
+            $id = $request->id;
+
+            $incident = incidents::where("id", $id)->get();
+
+            if ($incident[0]->tipo == "VACACION") {
+
+                vacation::where('id_user', $id)
+                    ->where('fecha', $incident[0]->fecha)
+                    ->delete();
+            }
+
+            incidents::findOrFail($id)->delete();
+            return response()->json(['message' => 'La incidencia ha sido eliminada correctamente'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Error al reporte: ' . $th->getMessage()], 500);
+        }
+    }
     public function marcarincidencia(Request $request)
     {
 
@@ -129,6 +186,47 @@ class asistenciasController extends Controller
             $incident->descripcion = $request->descripcion;
 
             $incident->save();
+
+            if ($request->tipo == "VACACION") {
+                $vacation = new vacation();
+                $id_empleado = $request->iduser;
+                $fechas = User::select('id', 'fecha_ingreso',
+                    DB::raw("DATE_ADD(fecha_ingreso, INTERVAL CASE
+                            WHEN YEAR(fecha_ingreso) < YEAR(CURDATE())
+                            THEN YEAR(CURDATE()) - YEAR(fecha_ingreso)
+                            ELSE 0
+                         END YEAR) AS fecha_resultante")
+                )
+                    ->get();
+                $fechaResultante = collect($fechas)->firstWhere('id', $id_empleado)['fecha_resultante'];
+
+                $vacacionesFechas = DB::select('CALL sp_vacaciones_ultimo_ano(?, ?)', [$id_empleado, $fechaResultante]);
+
+                if ($vacacionesFechas == []) {
+
+                    $vacation->id_user = $id_empleado;
+                    $vacation->fecha = $request->fecha;
+                    $vacation->no_vacacion = 1;
+                } else {
+                    $vacacionesFechasJson = $vacacionesFechas["vacacionesFechas"];
+                    // Ordenar la colección por fecha de forma descendente
+                    $vacacionReciente = $vacacionesFechasJson->sortByDesc(function ($vacacion) {
+                        return strtotime($vacacion['FechaVacacion']);
+                    })->first();
+
+                    // Obtener la fecha más reciente y el NoVacacion
+                    $fechaMasReciente = $vacacionReciente['FechaVacacion'];
+                    $noVacacion = $vacacionReciente['NoVacacion'];
+
+                    $vacation->id_user = $id_empleado;
+                    $vacation->fecha = $request->fecha;
+                    $vacation->no_vacacion = $noVacacion + 1;
+
+                }
+
+                $vacation->save();
+            }
+
             return response()->json(['message' => 'La incidencia ha sido marcada correctamente'], 200);
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Error al reporte: ' . $th->getMessage()], 500);

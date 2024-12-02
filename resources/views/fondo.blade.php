@@ -106,7 +106,11 @@
                     }
                 });
 
+
+
                 $('a[href="https://www.gprogyms.com.mx/asistenciageneral"]').remove();
+                $('a[href="https://www.gprogyms.com.mx/calendario"]').remove();
+                $('a[href="https://www.gprogyms.com.mx/vacaciones"]').remove();
                 // Quitar Inventario
                 $('li.nav-item.dropdown').filter(function() {
                     return $(this).text().trim().includes('Ventas');
@@ -128,6 +132,9 @@
                 }).remove();
                 $('li.nav-item.dropdown').filter(function() {
                     return $(this).text().trim().includes('Precios');
+                }).remove();
+                $('li.nav-item.dropdown').filter(function() {
+                    return $(this).text().trim().includes('Proveedores');
                 }).remove();
                 $('li.nav-item.dropdown').filter(function() {
                     return $(this).text().trim().includes('Reportes');
@@ -305,16 +312,16 @@
         //             return $(this).text().trim().includes('Inventario');
         //         }).remove();
         //         //Quitar Almacén
-        //         var almacenMenu = $('.nav-item.dropdown').has('.fas.fa-warehouse');
+        var almacenMenu = $('.nav-item.dropdown').has('.fas.fa-warehouse');
 
-        //         // Eliminar las secciones "Alta" y "Baja" dentro del menú "Almacén"
-        //         almacenMenu.find('.dropdown-item').each(function() {
-        //             var itemText = $(this).text().trim();
-        //             if (itemText === 'Alta' || itemText === 'Baja') {
-        //                 $(this).parent()
-        //                     .remove(); // Eliminar el elemento <li> que contiene la <a> con el texto "Alta" o "Baja"
-        //             }
-        //         });
+        // Eliminar las secciones "Alta" y "Baja" dentro del menú "Almacén"
+        almacenMenu.find('.dropdown-item').each(function() {
+            var itemText = $(this).text().trim();
+            if (itemText === 'Alta' || itemText === 'Baja') {
+                $(this).parent()
+                    .remove(); // Eliminar el elemento <li> que contiene la <a> con el texto "Alta" o "Baja"
+            }
+        });
 
 
         //         // $('li.nav-item.dropdown').filter(function() {

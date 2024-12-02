@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\supplier;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use App\Models\supplier;
 use Illuminate\Support\Facades\Crypt;
 
 class proveedoresController extends Controller
@@ -39,11 +39,12 @@ class proveedoresController extends Controller
     {
         try {
             // Crear una nueva instancia del modelo Usuario
-            $cliente = new supplier();
-            $cliente->nombre = $request->cliente;
-            $cliente->telefono = $request->telefono;
+            $proveedor = new supplier();
+            $proveedor->nombre = $request->proveedor;
+            $proveedor->telefono = $request->telefono;
+            $proveedor->clave = $request->clave;
             // Guardar el usuario en la base de datos
-            $cliente->save();
+            $proveedor->save();
             // Devolver una respuesta de éxito
             return response()->json(['message' => 'Proveedor creado correctamente'], 200);
         } catch (\Throwable $e) {
@@ -60,7 +61,7 @@ class proveedoresController extends Controller
             supplier::where('id', $idproveedor)
                 ->update([
                     'nombre' => $nuevo_nombre,
-                    'telefono' => $telefono
+                    'telefono' => $telefono,
                 ]);
             return response()->json(['message' => "Proveedor actualizado correctamente"], 200);
         } catch (\Throwable $th) {
@@ -81,9 +82,6 @@ class proveedoresController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
-
-
-
 
     public function gettype()
     {

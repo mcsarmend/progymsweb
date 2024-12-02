@@ -540,7 +540,12 @@ return [
                 [
                     'text' => 'Calendario',
                     'url' => 'calendario',
-                    'icon' => 'fas fa-file',
+                    'icon' => 'fas fa-calendar',
+                ],
+                [
+                    'text' => 'Vacaciones',
+                    'url' => 'vacaciones',
+                    'icon' => 'fas fa-sun',
                 ],
             ],
         ],

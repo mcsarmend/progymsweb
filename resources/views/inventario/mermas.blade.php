@@ -134,12 +134,12 @@
                 cancelButtonText: 'Cerrar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const idproducto = obtenerNumerosHastaGuion(result.value.producto);
-                    const cantidad = result.value.cantidad;
-                    const idsucursal = $('#sucursal').val();
-                    const idcliente = ""; // Ajusta esto según tus necesidades
+                    idproducto = obtenerNumerosHastaGuion(result.value.producto);
+                    cantidad = result.value.cantidad;
+                    idsucursal = $('#sucursal').val();
+                    idcliente = ""; // Ajusta esto según tus necesidades
 
-                    const data = {
+                    data = {
                         id_producto: idproducto,
                         idcliente: idcliente || 1,
                         cantidad: cantidad,
@@ -246,7 +246,8 @@
                 });
             }
 
-            sucursal = datosForm[1]["value"];
+
+            sucursal = $('#sucursal').val();
             datos = tableToJson("productos");
             $('#sucursal').prop('disabled', true);
             // Clonar la tabla con id="productos" y ajustarla para el PDF
@@ -268,14 +269,14 @@
                 }
             });
 
-            if (sum == 0) {
-                Swal.fire({
-                    title: 'No hay productos agregados',
-                    text: 'Debe agregar al menos un producto',
-                    icon: 'error'
-                });
-                return;
-            }
+            // if (sum == 0) {
+            //     Swal.fire({
+            //         title: 'No hay productos agregados',
+            //         text: 'Debe agregar al menos un producto',
+            //         icon: 'error'
+            //     });
+            //     return;
+            // }
 
 
 
@@ -327,9 +328,9 @@
                         text: response.message,
                         icon: 'success'
                     });
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 3000);
+                    // setTimeout(function() {
+                    //     window.location.reload();
+                    // }, 3000);
 
                 },
                 error: function(xhr, status, error) {

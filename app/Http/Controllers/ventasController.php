@@ -9,6 +9,7 @@ use App\Models\product;
 use App\Models\productprice;
 use App\Models\productwarehouse;
 use App\Models\referrals;
+use App\Models\stockMovements;
 use App\Models\warehouse;
 use Carbon\Carbon;
 use DateTime;
@@ -167,6 +168,24 @@ class ventasController extends Controller
             // Obtener el ID recién creado
             $idCreado = $remision->id;
 
+            // REGISTRAR EL MOVIMIENTO
+
+            $movimiento = new stockMovements();
+            $movimiento->movimiento = "REMISSIONISSUED";
+            $autor = Auth::user()->id;
+            $movimiento->autor = $autor;
+            $movimiento->productos = $productos;
+            $movimiento->documento = "REMISS" . $idCreado;
+            $movimiento->importe = $request->importe;
+            $now = new DateTime();
+            $fdate = $now->format('Y-m-d H:i:s');
+            $fechaMysql = $fdate;
+            $movimiento->fecha = $fechaMysql;
+            $productos = json_decode($request->productos);
+            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+            $movimiento->importe = $request->total;
+            $movimiento->save();
+
             // Devolver una respuesta de éxito con el ID
             return response()->json(['message' => 'Remisión creada correctamente', 'id' => $idCreado], 200);
         } catch (\Throwable $th) {
@@ -215,8 +234,28 @@ class ventasController extends Controller
 
             $idremision = $request->id;
             $remision = referrals::find($idremision);
+            $importe = $remision->total;
+            $productos = $remision->productos;
             $remision->estatus = "cancelada";
             $remision->save();
+
+            // REGISTRAR EL MOVIMIENTO
+
+            $movimiento = new stockMovements();
+            $movimiento->movimiento = "REMISSIONCANCELED";
+            $autor = Auth::user()->id;
+            $movimiento->autor = $autor;
+            $movimiento->productos = $productos;
+            $movimiento->documento = "REMISSCANC" . $idremision;
+            $movimiento->importe = $importe;
+            $now = new DateTime();
+            $fdate = $now->format('Y-m-d H:i:s');
+            $fechaMysql = $fdate;
+            $movimiento->fecha = $fechaMysql;
+            $productos = json_decode($request->productos);
+            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+
+            $movimiento->save();
 
             return response()->json(['message' => 'Remisión cancelada correctamente'], 200);
         } catch (\Throwable $th) {

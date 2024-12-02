@@ -268,14 +268,14 @@
                 }
             });
 
-            if (sum == 0) {
-                Swal.fire({
-                    title: 'No hay productos agregados',
-                    text: 'Debe agregar al menos un producto',
-                    icon: 'error'
-                });
-                return;
-            }
+            // if (sum == 0) {
+            //     Swal.fire({
+            //         title: 'No hay productos agregados',
+            //         text: 'Debe agregar al menos un producto',
+            //         icon: 'error'
+            //     });
+            //     return;
+            // }
 
             if ($('#almacen_origen').val() == $('#almacen_destino').val()) {
                 Swal.fire({

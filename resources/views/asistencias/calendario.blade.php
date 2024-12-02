@@ -44,7 +44,7 @@
                                     <select class="form-select" name="anio" id="anio">
                                         <option value="2024">2024</option>
                                         <option value="2025">2025</option>
-                                        <option value="2026">2025</option>
+                                        <option value="2026">2026</option>
 
                                     </select>
                                 </div>
@@ -111,6 +111,11 @@
                             <option value="PERMISO">Permiso</option>
                             <option value="VACACION">Vacación</option>
                             <option value="ENFERMEDAD">Enfermedad</option>
+                            <option value="CUMPLE">Cumpleaños</option>
+                            <option value="PRIMA_VACACIONAL">Prima Vacacional</option>
+                            <option value="CAJA_AHORRO">Caja de Ahorro</option>
+                            <option value="AGUINALDO">Aguinaldo</option>
+                            <option value="TERMINO_RELACION_LAVORAL">Termino de relacion lavoral</option>
                             <option value="OTRO">Otro</option>
                         </select>
                     </div>
@@ -219,9 +224,17 @@
                     Swal.fire({
                         title: `Detalles de la incidencia para ${incidencia[0].nombre}`,
                         html: `<strong>Fecha:</strong> ${incidencia[0].fecha}<br>
-                       <strong>Tipo:</strong> ${incidencia[0].tipo}<br>
-                       <strong>Descripción:</strong> ` + descripcion,
-                        icon: 'info'
+           <strong>Tipo:</strong> ${incidencia[0].tipo}<br>
+           <strong>Descripción:</strong> ` + descripcion,
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Cerrar',
+                        cancelButtonText: 'Cancelar incidencia',
+                    }).then((result) => {
+                        if (result.dismiss === Swal.DismissReason.cancel) {
+                            cancelarIncidencia(incidencia[0].id, incidencia[0]
+                                .fecha); // Llama a la función para cancelar
+                        }
                     });
                 },
                 error: function(err) {
@@ -331,6 +344,39 @@
             });
 
         });
+
+
+        function cancelarIncidencia(idIncidencia, fecha) {
+            $.ajax({
+                url: 'cancelarincidencia', // Cambia esto por la URL de tu endpoint
+                type: 'POST',
+                data: {
+                    id: idIncidencia,
+                    fecha: fecha
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.fire({
+                        title: 'Incidencia cancelada',
+                        text: 'La incidencia ha sido cancelada con éxito.',
+                        icon: 'success'
+                    });
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 3000);
+                    // Aquí puedes agregar lógica adicional, como recargar datos de la tabla
+                },
+                error: function(error) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Hubo un problema al cancelar la incidencia.',
+                        icon: 'error'
+                    });
+                }
+            });
+        }
 
 
 

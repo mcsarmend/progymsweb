@@ -19,6 +19,7 @@
                         <thead>
                             <tr>
                                 <th>Nombre</th>
+                                <th>Clave</th>
                                 <th>Telefono</th>
                             </tr>
                         </thead>
@@ -79,6 +80,9 @@
                 "data": proveedores,
                 "columns": [{
                         "data": "nombre"
+                    },
+                    {
+                        "data": "clave"
                     },
                     {
                         "data": "telefono"

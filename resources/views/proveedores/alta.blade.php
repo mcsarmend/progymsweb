@@ -17,10 +17,19 @@
                 @csrf
                 <div class="row">
                     <div class="col">
-                        <label for="cliente">Nombre Proveedor:</label>
+                        <label for="proveedor">Nombre Proveedor:</label>
                     </div>
                     <div class="col">
-                        <input type="text" id="cliente" name="cliente" class="form-control" required> <br><br>
+                        <input type="text" id="proveedor" name="proveedor" class="form-control" required> <br><br>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <label for="clave">Clave Proveedor:</label>
+                    </div>
+                    <div class="col">
+                        <input type="text" id="clave" name="clave" class="form-control" required> <br><br>
                     </div>
                 </div>
                 <br>
@@ -78,7 +87,9 @@
                         response.message,
                         'success'
                     );
-
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 3000);
 
                 },
                 error: function(response) {

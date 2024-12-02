@@ -55,13 +55,13 @@
                     },
                     success: function(response) {
 
-                        if ()
 
-                            Swal.fire(
-                                '¡Gracias por esperar!',
-                                response.message,
-                                'success'
-                            );
+
+                        Swal.fire(
+                            '¡Gracias por esperar!',
+                            response.message,
+                            'success'
+                        );
                     },
                     error: function(xhr) {
 

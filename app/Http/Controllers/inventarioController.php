@@ -113,6 +113,21 @@ class inventarioController extends Controller
 
         return view('inventario.edicion', ['type' => $type, 'productos' => $products, 'almacenes' => $almacenes]);
     }
+    public function ingresoinventario()
+    {
+        $type = $this->gettype();
+        $almacenes = warehouse::all();
+        $productos = product::all();
+        return view('inventario.ingreso', ['type' => $type, 'sucursales' => $almacenes, 'productos' => $productos]);
+    }
+    public function salidainventario()
+    {
+        $type = $this->gettype();
+
+        $almacenes = warehouse::all();
+        $productos = product::all();
+        return view('inventario.salida', ['type' => $type, 'sucursales' => $almacenes, 'productos' => $productos]);
+    }
 
     // OTRAS FUNCIONES
     public function altaproducto(Request $request)
@@ -273,7 +288,7 @@ class inventarioController extends Controller
 
     public function realizartraspaso(Request $request)
     {
-
+        date_default_timezone_set('America/Mexico_City');
         try {
             $productosTraspaso = 0;
             $prodcutosNoTraspaso = 0;
@@ -365,7 +380,7 @@ class inventarioController extends Controller
 
     public function enviarcompra(Request $request)
     {
-
+        date_default_timezone_set('America/Mexico_City');
         try {
             $movimiento = new stockMovements();
             $movimiento->movimiento = $request->movimiento;
@@ -392,13 +407,78 @@ class inventarioController extends Controller
                     ->first();
 
                 $CantidadDSumar = $producto->Cantidad;
-                $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
 
-                productwarehouse::where('idproducto', intVal($idproducto))
-                    ->where('idwarehouse', intVal($almacen))
-                    ->update([
+                if ($existenciasActual == "") {
+                    $nuevaexistencia = intVal($CantidadDSumar);
+                    productwarehouse::insert([
+                        'idproducto' => intval($idproducto),
+                        'idwarehouse' => intval(1),
                         'existencias' => $nuevaexistencia,
                     ]);
+                } else {
+                    $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
+                    productwarehouse::where('idproducto', intVal($idproducto))
+                        ->where('idwarehouse', intVal(1))
+                        ->update([
+                            'existencias' => $nuevaexistencia,
+                        ]);
+                }
+
+            }
+
+            return response()->json(['message' => "Entrada realizada correctamente"], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => "Error: " . $th->getMessage()], 500);
+        }
+
+    }
+    public function enviarentrada(Request $request)
+    {
+
+        try {
+            date_default_timezone_set('America/Mexico_City');
+            $movimiento = new stockMovements();
+            $movimiento->movimiento = $request->movimiento;
+            $autor = Auth::user()->id;
+            $movimiento->autor = $autor;
+            $productos = $request->productos;
+            $movimiento->documento = $request->documento;
+            $movimiento->importe = $request->importe;
+            $now = new DateTime();
+            $fdate = $now->format('Y-m-d H:i:s');
+            $fechaMysql = $fdate;
+            $movimiento->fecha = $fechaMysql;
+            $almacen = $request->sucursal;
+            $productos = json_decode($request->productos);
+            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+            $movimiento->save();
+
+            foreach ($productos as $producto) {
+                $idproducto = $producto->Codigo;
+
+                $existenciasActual = productwarehouse::select('existencias')
+                    ->where('idproducto', intVal($idproducto))
+                    ->where('idwarehouse', intVal($almacen))
+                    ->first();
+
+                $CantidadDSumar = $producto->Cantidad;
+
+                if ($existenciasActual == "") {
+                    $nuevaexistencia = intVal($CantidadDSumar);
+                    productwarehouse::insert([
+                        'idproducto' => intval($idproducto),
+                        'idwarehouse' => intval(1),
+                        'existencias' => $nuevaexistencia,
+                    ]);
+                } else {
+                    $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
+                    productwarehouse::where('idproducto', intVal($idproducto))
+                        ->where('idwarehouse', intVal(1))
+                        ->update([
+                            'existencias' => $nuevaexistencia,
+                        ]);
+                }
+
             }
 
             return response()->json(['message' => "Compra realizada correctamente"], 200);
@@ -409,7 +489,7 @@ class inventarioController extends Controller
     }
     public function enviarmerma(Request $request)
     {
-
+        date_default_timezone_set('America/Mexico_City');
         try {
             $movimiento = new stockMovements();
             $movimiento->movimiento = $request->movimiento;
@@ -446,6 +526,50 @@ class inventarioController extends Controller
             }
 
             return response()->json(['message' => "Merma realizada correctamente"], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => "Error: " . $th->getMessage()], 500);
+        }
+
+    }
+    public function enviarsalida(Request $request)
+    {
+        date_default_timezone_set('America/Mexico_City');
+        try {
+            $movimiento = new stockMovements();
+            $movimiento->movimiento = $request->movimiento;
+            $autor = Auth::user()->id;
+            $movimiento->autor = $autor;
+            $productos = $request->productos;
+            $movimiento->documento = $request->documento;
+            $movimiento->importe = $request->importe;
+            $now = new DateTime();
+            $fdate = $now->format('Y-m-d H:i:s');
+            $fechaMysql = $fdate;
+            $movimiento->fecha = $fechaMysql;
+            $almacen = $request->sucursal;
+            $productos = json_decode($request->productos);
+            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+            $movimiento->save();
+
+            foreach ($productos as $producto) {
+                $idproducto = $producto->Codigo;
+
+                $existenciasActual = productwarehouse::select('existencias')
+                    ->where('idproducto', intVal($idproducto))
+                    ->where('idwarehouse', intVal($almacen))
+                    ->first();
+
+                $CantidadDSumar = $producto->Cantidad;
+                $nuevaexistencia = $existenciasActual->existencias - intVal($CantidadDSumar);
+
+                productwarehouse::where('idproducto', intVal($idproducto))
+                    ->where('idwarehouse', intVal($almacen))
+                    ->update([
+                        'existencias' => $nuevaexistencia,
+                    ]);
+            }
+
+            return response()->json(['message' => "Salida realizada correctamente"], 200);
         } catch (\Throwable $th) {
             return response()->json(['error' => "Error: " . $th->getMessage()], 500);
         }
