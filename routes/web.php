@@ -170,14 +170,22 @@ Route::get('nuevoreconocimiento', [reconocimientosController::class, 'nuevorecon
 Route::get('reportemovimientoscompras', [reportesController::class, 'reportemovimientoscompras'])->middleware(['auth']);
 Route::get('reportemovimientostraspasos', [reportesController::class, 'reportemovimientostraspasos'])->middleware(['auth']);
 Route::get('reportemovimientosmermas', [reportesController::class, 'reportemovimientosmermas'])->middleware(['auth']);
+Route::get('reportemovimientosentradas', [reportesController::class, 'reportemovimientosentradas'])->middleware(['auth']);
+Route::get('reportemovimientossalidas', [reportesController::class, 'reportemovimientossalidas'])->middleware(['auth']);
 Route::get('reporteremisiones', [reportesController::class, 'reporteremisiones'])->middleware(['auth']);
 Route::get('reporteinventariolistaprecios', [reportesController::class, 'reporteinventariolistaprecios'])->middleware(['auth']);
 Route::get('reporteinventarioexistenciascostos', [reportesController::class, 'reporteinventarioexistenciascostos'])->middleware(['auth']);
 Route::get('reporteclienteslista', [reportesController::class, 'reporteclienteslista'])->middleware(['auth']);
 Route::get('reporteclientescompras', [reportesController::class, 'reporteclientescompras'])->middleware(['auth']);
 Route::get('reporteproveedoreslista', [reportesController::class, 'reporteproveedoreslista'])->middleware(['auth']);
+Route::get('verproductosmovimiento', [reportesController::class, 'verproductosmovimiento'])->middleware(['auth']);
 
 Route::get('generarreporteremisiones', [reportesController::class, 'generarreporteremisiones'])->middleware(['auth']);
+Route::get('generarreportecompras', [reportesController::class, 'generarreportecompras'])->middleware(['auth']);
+Route::get('generarreportetraspasos', [reportesController::class, 'generarreportetraspasos'])->middleware(['auth']);
+Route::get('generarreportemermas', [reportesController::class, 'generarreportemermas'])->middleware(['auth']);
+Route::get('generarreporteentradas', [reportesController::class, 'generarreporteentradas'])->middleware(['auth']);
+Route::get('generarreportesalidas', [reportesController::class, 'generarreportesalidas'])->middleware(['auth']);
 
 //OPCIONES
 Route::get('admin/settings', [adminsettingsController::class, 'index'])->middleware(['auth']);

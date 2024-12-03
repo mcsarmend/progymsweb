@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\clients;
 use App\Models\referrals;
+use App\Models\stockMovements;
 use App\Models\supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,6 +18,16 @@ class reportesController extends Controller
     {
         $type = $this->gettype();
         return view('reportes.movimientos.compras', ['type' => $type]);
+    }
+    public function reportemovimientosentradas()
+    {
+        $type = $this->gettype();
+        return view('reportes.movimientos.entradas', ['type' => $type]);
+    }
+    public function reportemovimientossalidas()
+    {
+        $type = $this->gettype();
+        return view('reportes.movimientos.salidas', ['type' => $type]);
     }
     public function reportemovimientostraspasos()
     {
@@ -36,7 +47,10 @@ class reportesController extends Controller
     public function reporteinventariolistaprecios()
     {
         $type = $this->gettype();
-        return view('reportes.inventario.listaprecios', ['type' => $type]);
+
+        $products = DB::select('CALL lista_precios_activos()');
+
+        return view('reportes.inventario.listaprecios', ['type' => $type, 'products' => $products]);
     }
     public function reporteinventarioexistenciascostos()
     {
@@ -64,7 +78,7 @@ class reportesController extends Controller
     {
         $proveedores = supplier::all();
         $type = $this->gettype();
-        return view('reportes.proveedores.lista', ['type' => $type, 'suppliers' => $proveedores]);
+        return view('proveedores.proveedores', ['type' => $type, 'suppliers' => $proveedores]);
     }
 
     public function generarreporteremisiones(Request $request)
@@ -98,6 +112,107 @@ class reportesController extends Controller
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
         }
     }
+    public function generarreportecompras(Request $request)
+    {
+        try {
+            $dateStart = Carbon::parse($request->dateStart)->startOfDay();
+            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+
+            $compras = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
+                ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
+                ->select('stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
+                ->where('movimiento', 'PURCHASE')
+                ->get();
+
+            return response()->json(['message' => 'Reporte Generado Correctamente', 'compras' => $compras], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+    public function generarreportetraspasos(Request $request)
+    {
+        try {
+            $dateStart = Carbon::parse($request->dateStart)->startOfDay();
+            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+
+            $traspasos = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
+                ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
+                ->select('stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
+                ->where('movimiento', 'TRANSFER')
+                ->get();
+
+            return response()->json(['message' => 'Reporte Generado Correctamente', 'traspasos' => $traspasos], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+    public function generarreportemermas(Request $request)
+    {
+        try {
+            $dateStart = Carbon::parse($request->dateStart)->startOfDay();
+            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+
+            $mermas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
+                ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
+                ->select('stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
+                ->where('movimiento', 'DECREASE')
+                ->get();
+
+            return response()->json(['message' => 'Reporte Generado Correctamente', 'mermas' => $mermas], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+    public function generarreporteentradas(Request $request)
+    {
+        try {
+            $dateStart = Carbon::parse($request->dateStart)->startOfDay();
+            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+
+            $entradas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
+                ->leftJoin('users as u', 'stockMovements.autor', '=', 'u.id')
+                ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
+                ->select('stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
+                ->where('movimiento', 'ENTRANCEMERCH')
+                ->get();
+
+            return response()->json(['message' => 'Reporte Generado Correctamente', 'entradas' => $entradas], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+    public function generarreportesalidas(Request $request)
+    {
+        try {
+            $dateStart = Carbon::parse($request->dateStart)->startOfDay();
+            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+
+            $salidas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
+                ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
+                ->select('stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
+                ->where('movimiento', 'EXITMERCH')
+                ->get();
+
+            return response()->json(['message' => 'Reporte Generado Correctamente', 'salidas' => $salidas], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+
+    public function verproductosmovimiento(Request $request)
+    {
+        $id = $request->id;
+        $movimiento = stockMovements::find($id);
+        $productos = json_decode($movimiento->productos);
+
+        return response()->json(['productos' => $productos], 200);
+    }
+
     public function gettype()
     {
         if (Auth::check()) {

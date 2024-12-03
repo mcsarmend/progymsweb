@@ -81,6 +81,10 @@
 @stop
 
 @section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script>
         let contadorFilas = 1;
@@ -307,7 +311,7 @@
                     var almacen_origen = $('#almacen_origen').val();
                     var almacen_destino = $('#almacen_destino').val();
 
-                    numeroRemision = enviartraspaso("TRASNFER", datos, documento, sum, almacen_origen,
+                    numeroRemision = enviartraspaso("TRANSFER", datos, documento, sum, almacen_origen,
                         almacen_destino);
 
                 }
@@ -334,23 +338,115 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                success: function(response) {
+                success: function(data) {
+                    msg = data.message + ": " + data.id;
+                    numeroRemision = data.id;
                     Swal.fire({
-                        title: '¡Gracias por esperar!:',
-                        text: response.message,
-                        icon: 'success'
+                        title: "Gracias por esperar, el traspaso se realizo con exito",
+                        icon: 'success',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Imprimir',
+                        width: '80%'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+
+
+                            // Crear el documento PDF
+                            var {
+                                jsPDF
+                            } = window.jspdf;
+                            var doc = new jsPDF({
+                                orientation: "portrait",
+                                unit: "mm",
+                                format: [297, 210],
+                            });
+                            var opciones = {
+                                timeZone: "America/Mexico_City",
+                                hour12: false,
+                            };
+                            var documento = $("#documento").val();
+                            var time = new Date().toLocaleString("es-MX", opciones);
+                            var alm_origen = $('#almacen_origen option:selected').text().trim();
+                            var alm_destino = $('#almacen_destino option:selected').text().trim();
+                            // Agregar contenido al PDF
+                            doc.setFontSize(12);
+                            doc.setFont("helvetica", "bold");
+                            doc.text("GRUPO PROGYMS", 30, 10);
+                            doc.text(`Documento: ${documento}`, 10, 22);
+                            doc.text(`Fecha: ${time}`, 10, 27);
+                            doc.text(`Almacén Origen: ${alm_origen}`, 10, 31);
+                            doc.text(`Almacén Destino: ${alm_destino}`, 10, 35);
+
+                            var $productoTableClone2 = $("#productos").clone();
+                            // Convertir la tabla HTML a un formato aceptable para jsPDF
+                            var res = doc.autoTableHtmlToJson($productoTableClone2[0]);
+                            // Eliminar la última columna de cada fila (contenido)
+                            res.data = res.data.map((row) => {
+                                row.pop();
+                                return row;
+                            });
+
+                            // Eliminar el encabezado de la última columna (si aplica)
+                            res.columns.pop();
+
+                            doc.autoTable({
+                                startY: 47, // Empieza después del texto introductorio
+                                tableWidth: 'wrap', // Ajuste automático al ancho disponible
+                                margin: {
+                                    left: 5,
+                                    right: 5,
+                                }, // Márgenes mínimos
+                                head: [res.columns], // Encabezados
+                                body: res.data, // Datos
+                                styles: {
+                                    fontSize: 10, // Reducir tamaño de fuente para que quepa más contenido
+                                    fontStyle: "bold",
+                                    overflow: 'linebreak', // Permite que el texto largo se ajuste en varias líneas
+                                },
+                                columnStyles: {
+                                    0: {
+                                        cellWidth: 30, // Reducir el ancho de la primera columna
+                                    },
+                                    1: {
+                                        cellWidth: 20, // Reducir el ancho de la segunda columna
+                                    },
+                                    2: {
+                                        cellWidth: 100, // Ajustar ancho de la tercera columna
+                                    },
+                                    3: {
+                                        cellWidth: 20, // Reducir el ancho de la cuarta columna
+                                    },
+                                    4: {
+                                        cellWidth: 18, // Reducir el ancho de la quinta columna
+                                    },
+                                },
+                                headStyles: {
+                                    fillColor: null,
+                                    textColor: 0,
+                                },
+                                bodyStyles: {
+                                    fillColor: "#FFFFFF",
+                                    textColor: 0,
+                                },
+                                // Opción para manejar varias páginas si la tabla es demasiado grande
+                                pageBreak: 'auto', // La tabla se ajusta automáticamente a varias páginas
+                            });
+
+
+                            // Guardar y mostrar el PDF
+                            doc.save(`traspaso_${documento}.pdf`);
+                            Swal.fire("traspaso impreso!", "", "success");
+
+                        }
                     });
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 3000);
-
-
-
                 },
+
                 error: function(xhr, status, error) {
                     Swal.fire({
                         title: 'Error:',
-                        text: xhr.responseJSON.error,
+                        text: xxhr.responseJSON.message,
                         icon: 'danger'
                     });
                 }

@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Reportes de Movimientos traspasos')
+@section('title', 'Reportes de Movimientos entradas')
 
 @section('content_header')
 
@@ -9,7 +9,7 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h1>Reportes de Movimientos traspasos</h1>
+            <h1>Reportes de Movimientos entradas</h1>
         </div>
         <div class="card-body">
             <form id="reporte">
@@ -34,7 +34,7 @@
 
             </form>
 
-            <table id="traspasos" class="table table-striped">
+            <table id="entradas" class="table table-striped">
                 <thead>
                     <tr>
                         <th>Fecha</th>
@@ -104,7 +104,7 @@
 
             // Realizar la solicitud AJAX con jQuery
             $.ajax({
-                url: '/generarreportetraspasos', // Ruta al controlador de Laravel
+                url: '/generarreporteentradas', // Ruta al controlador de Laravel
                 type: 'GET',
                 // data: datosFormulario, // Enviar los datos del formulario
                 data: datosFormulario,
@@ -116,7 +116,7 @@
                         'success'
                     );
 
-                    $('#traspasos').DataTable({
+                    $('#entradas').DataTable({
                         destroy: true,
                         scrollX: true,
                         scrollCollapse: true,
@@ -151,7 +151,7 @@
                                 columns: ':visible' // Exportar solo las columnas visibles
                             }
                         },
-                        "data": response.traspasos,
+                        "data": response.entradas,
                         "columns": [{
                                 "data": "fecha"
                             },

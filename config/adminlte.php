@@ -331,18 +331,18 @@ return [
                         ],
                     ],
                 ],
-                [
-                    'text' => 'Pedidos',
-                    'icon' => 'fas fa-shopping-cart',
-                    'url' => '#',
-                    'submenu' => [
-                        [
-                            'text' => 'Nuevo',
-                            'icon' => 'fas fa-plus-circle',
-                            'url' => 'altapedidos',
-                        ],
-                    ],
-                ],
+                // [
+                //     'text' => 'Pedidos',
+                //     'icon' => 'fas fa-shopping-cart',
+                //     'url' => '#',
+                //     'submenu' => [
+                //         [
+                //             'text' => 'Nuevo',
+                //             'icon' => 'fas fa-plus-circle',
+                //             'url' => 'altapedidos',
+                //         ],
+                //     ],
+                // ],
             ],
         ],
         [
@@ -601,6 +601,14 @@ return [
                             'text' => 'Mermas',
                             'url' => 'reportemovimientosmermas',
                             'icon' => 'fas fa-trash-alt'],
+                        [
+                            'text' => 'Entradas',
+                            'url' => 'reportemovimientosentradas',
+                            'icon' => 'fas fa-sign-in-alt'],
+                        [
+                            'text' => 'Salidas',
+                            'url' => 'reportemovimientossalidas',
+                            'icon' => 'fas fa-sign-out-alt'],
                     ],
                 ],
                 [
@@ -616,18 +624,6 @@ return [
                             'text' => 'Existencias y costos actuales',
                             'url' => 'reporteinventarioexistenciascostos',
                             'icon' => 'fas fa-boxes',
-                        ],
-
-                    ],
-                ],
-                [
-                    'text' => 'Clientes',
-                    'icon' => 'fas fa-user-friends',
-                    'submenu' => [
-                        [
-                            'text' => 'Compras',
-                            'url' => 'reporteclientescompras',
-                            'icon' => 'fas fa-shopping-bag',
                         ],
 
                     ],

@@ -25,8 +25,8 @@
 
                     <div class="col">
                         <label for="name">Codigo de Barras:</label>
-                        <input type="text" name="codigo" required minlength="10" maxlength="10" class="form-control"
-                            placeholder="10 caracteres">
+                        <input type="text" name="codigo" required minlength="12" maxlength="12" class="form-control"
+                            placeholder="">
                         <br>
 
                     </div>

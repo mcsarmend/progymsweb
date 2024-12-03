@@ -34,19 +34,14 @@
 
             </form>
 
-            <table id="remisiones" class="table table-striped">
+            <table id="compras" class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Id</th>
                         <th>Fecha</th>
-                        <th>Nota</th>
-                        <th>Forma de pago</th>
-                        <th>Almacen</th>
-                        <th>Vendedor</th>
+                        <th>Movimiento</th>
+                        <th>Autor</th>
+                        <th>Documento</th>
                         <th>Productos</th>
-                        <th>Total</th>
-                        <th>Estatus</th>
-
                     </tr>
                 </thead>
                 <tbody>
@@ -74,8 +69,6 @@
                                 <th>Codigo</th>
                                 <th>Cantidad</th>
                                 <th>Nombre</th>
-                                <th>Precio Unitario</th>
-                                <th>Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -111,7 +104,7 @@
 
             // Realizar la solicitud AJAX con jQuery
             $.ajax({
-                url: '/generarreporteremisiones', // Ruta al controlador de Laravel
+                url: '/generarreportecompras', // Ruta al controlador de Laravel
                 type: 'GET',
                 // data: datosFormulario, // Enviar los datos del formulario
                 data: datosFormulario,
@@ -123,7 +116,7 @@
                         'success'
                     );
 
-                    $('#remisiones').DataTable({
+                    $('#compras').DataTable({
                         destroy: true,
                         scrollX: true,
                         scrollCollapse: true,
@@ -158,37 +151,26 @@
                                 columns: ':visible' // Exportar solo las columnas visibles
                             }
                         },
-                        "data": response.remisiones,
+                        "data": response.compras,
                         "columns": [{
-                                "data": "id"
-                            },
-                            {
                                 "data": "fecha"
                             },
                             {
-                                "data": "nota"
+                                "data": "movimiento"
                             },
                             {
-                                "data": "forma_pago"
+                                "data": "autor"
                             },
                             {
-                                "data": "almacen"
+                                "data": "documento"
                             },
-                            {
-                                "data": "vendedor"
-                            },
+
                             {
                                 "data": "productos",
                                 "render": function(data, type, row) {
                                     return '<button onclick="ver(' + row.id +
                                         ')" class="btn btn-primary">Ver</button>';
                                 }
-                            },
-                            {
-                                "data": "total"
-                            },
-                            {
-                                "data": "estatus"
                             },
 
 
@@ -210,7 +192,7 @@
 
 
             $.ajax({
-                url: 'verproductosremision', // URL a la que se hace la solicitud
+                url: 'verproductosmovimiento', // URL a la que se hace la solicitud
                 type: 'GET', // Tipo de solicitud (GET, POST, etc.)
                 data: {
                     id: id
@@ -262,13 +244,7 @@
                             },
                             {
                                 "data": "Nombre"
-                            },
-                            {
-                                "data": "Precio Unitario"
-                            },
-                            {
-                                "data": "Subtotal"
-                            },
+                            }
                         ]
                     });
                 }
