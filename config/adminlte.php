@@ -329,6 +329,11 @@ return [
                             'icon' => 'fas fa-file-signature',
                             'url' => 'remisiones',
                         ],
+                        [
+                            'text' => 'Corte de caja',
+                            'icon' => 'fas fa-money-bill-wave',
+                            'url' => 'cortedecaja',
+                        ],
                     ],
                 ],
                 // [
@@ -343,6 +348,23 @@ return [
                 //         ],
                 //     ],
                 // ],
+            ],
+        ],
+        [
+            'text' => 'Cuentas',
+            'icon' => 'fas fa-money-bill-wave',
+            'url' => '#',
+            'submenu' => [
+                [
+                    'text' => 'CxC Cliente',
+                    'icon' => 'fas fa-dolly-flatbed',
+                    'url' => 'cxccliente',
+                ],
+                [
+                    'text' => 'CxP Cliente',
+                    'icon' => 'fas fa-file-invoice-dollar',
+                    'url' => 'cxpcliente',
+                ],
             ],
         ],
         [

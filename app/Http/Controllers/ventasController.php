@@ -39,24 +39,11 @@ class ventasController extends Controller
     {
 
         $timezone = 'America/Mexico_City';
-        $hoy = Carbon::today($timezone);
+        $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString(); // '2024-12-10 00:00:00'
+        $hoy_fin = Carbon::today($timezone)->endOfDay()->toDateTimeString(); // '2024-12-10 23:59:59'
+        $id = Auth::user()->id;
 
-        $remisiones = referrals::whereDate('fecha', $hoy)
-            ->leftJoin('warehouse as w', 'referrals.almacen', '=', 'w.id')
-            ->leftJoin('users as u', 'referrals.vendedor', '=', 'u.id')
-            ->select(
-                'referrals.id',
-                'referrals.fecha',
-                DB::raw('IFNULL(referrals.nota, "SIN NOTA") as nota'),
-                'referrals.forma_pago',
-                'referrals.cliente',
-                'referrals.productos',
-                'referrals.total',
-                'w.nombre as almacen',
-                'u.name as vendedor',
-                'referrals.estatus'
-            )
-            ->get();
+        $remisiones = DB::select('CALL obtenerremisiones(?, ?,?)', [$hoy_inicio, $hoy_fin, $id]);
 
         $type = $this->gettype();
 
@@ -202,7 +189,48 @@ class ventasController extends Controller
 
         return response()->json(['productos' => $productos], 200);
     }
+    public function cortedecaja()
+    {
+        $type = $this->gettype();
+        $timezone = 'America/Mexico_City';
+        $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString();
+        $hoy_fin = Carbon::today($timezone)->endOfDay()->toDateTimeString();
+        $id = Auth::user()->id;
 
+        $remisiones = collect(DB::select('CALL obtenerremisiones(?, ?, ?)', [$hoy_inicio, $hoy_fin, $id]));
+
+        // Define las formas de pago que siempre quieres mostrar
+        $formas_pago_base = ['efectivo', 'transferencia', 'terminal', 'clip', 'mercado_pago', 'vales'];
+
+        // Agrupar remisiones por forma de pago
+        $remisiones_por_pago = $remisiones->groupBy('forma_pago');
+
+        // Añadir formas de pago sin datos (si no existen en los resultados)
+        foreach ($formas_pago_base as $forma_pago) {
+            if (!$remisiones_por_pago->has($forma_pago)) {
+                $remisiones_por_pago[$forma_pago] = collect(); // Agregar un grupo vacío
+            }
+        }
+
+        // Calcular totales por forma de pago
+        $totales_por_pago = $remisiones_por_pago->map(function ($items) {
+            return $items->sum('total');
+        });
+
+        // Calcular el total general
+        $total_general = $totales_por_pago->sum();
+
+        return view('ventas.cortedecaja', [
+            'type' => $type,
+            'remisiones_por_pago' => $remisiones_por_pago,
+            'totales_por_pago' => $totales_por_pago,
+            'total_general' => $total_general,
+        ]);
+    }
+    public function enviarinfocortecaja(Request $request)
+    {
+        return $request;
+    }
     public function cancelarremision(Request $request)
     {
         try {
@@ -271,7 +299,6 @@ class ventasController extends Controller
             $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
 
             // Obtener remisiones en el rango de fechas
-            $remisiones = referrals::whereBetween('fecha', [$dateStart, $dateEnd])->get();
 
             $remisiones = referrals::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('warehouse as w', 'referrals.almacen', '=', 'w.id')

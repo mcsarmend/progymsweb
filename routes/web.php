@@ -4,6 +4,7 @@ use App\Http\Controllers\adminsettingsController;
 use App\Http\Controllers\asistenciasController;
 use App\Http\Controllers\clientesController;
 use App\Http\Controllers\comprasController;
+use App\Http\Controllers\cuentasController;
 use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\inventarioController;
 use App\Http\Controllers\multialmacenController;
@@ -39,12 +40,18 @@ Route::get('/politicaprivacidad', [dashboardController::class, 'politicaprivacid
 
 //Rutas
 
+//CUENTAS
+Route::get('cxccliente', [cuentasController::class, 'cxccliente'])->middleware(['auth']);
+Route::get('cxpcliente', [cuentasController::class, 'cxpcliente'])->middleware(['auth']);
+
 //REMISIONES
 Route::get('remisionar', [ventasController::class, 'remisionar'])->middleware(['auth']);
 Route::get('remisiones', [ventasController::class, 'remisiones'])->middleware(['auth']);
 Route::get('ventasreportes', [ventasController::class, 'ventasreportes'])->middleware(['auth']);
 Route::get('verproductosremision', [ventasController::class, 'verproductosremision'])->middleware(['auth']);
+Route::get('cortedecaja', [ventasController::class, 'cortedecaja'])->middleware(['auth']);
 
+Route::post('enviarinfocortecaja', [ventasController::class, 'enviarinfocortecaja'])->middleware(['auth']);
 Route::post('buscarprecio', [ventasController::class, 'buscarprecio'])->middleware(['auth']);
 Route::post('buscaridprecio', [ventasController::class, 'buscaridprecio'])->middleware(['auth']);
 Route::post('validarremision', [ventasController::class, 'validarremision'])->middleware(['auth']);

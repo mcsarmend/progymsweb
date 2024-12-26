@@ -51,7 +51,7 @@
         }
 
         100% {
-            transform: translateX(calc(-1450px * 5));
+            transform: translateX(calc(-1450px * 20));
         }
     }
 
@@ -66,7 +66,7 @@
             height: 600px;
             animation: scroll 80s linear infinite;
             display: flex;
-            width: calc(4000px * 30);
+            width: calc(4000px * 20);
             /* Cambia a 20 imágenes */
             animation-play-state: running;
             /* Asegura que la animación corra normalmente */
@@ -149,16 +149,16 @@
                 <p class="sliderTitle">Promociones activas</p>
                 <div class="slide-track">
                     <div class="slide">
-                        <img src="assets/images/promos/01.jpeg" height="600 " width="400" alt="" />
+                        <img src="assets/images/promos/01.gif" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/02.jpg" height="600 " width="400" alt="" />
+                        <img src="assets/images/promos/02.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
                         <img src="assets/images/promos/03.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
-                        <img src="assets/images/promos/04.gif" height="600 " width="400" alt="" />
+                        <img src="assets/images/promos/04.jpg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
                         <img src="assets/images/promos/05.jpeg" height="600 " width="400" alt="" />
@@ -195,6 +195,33 @@
                     </div>
                     <div class="slide">
                         <img src="assets/images/promos/16.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
+                    </div>
+                    <div class="slide">
+                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
                     </div>
                     <div class="slide">
                         <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
@@ -381,6 +408,7 @@
                 <div class="col-md-12 col-sm-12">
                     <div class="section-title">
                         <h2>Reseñas</h2>
+
                         <span class="line-bar">...</span>
                     </div>
                 </div>

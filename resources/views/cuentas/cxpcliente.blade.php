@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Remisionar')
+@section('title', 'Cuentas por cobrar Cliente')
 
 @section('content_header')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
@@ -12,12 +12,12 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h2>Remisionar</h2>
+            <h2>Cuentas por cobrar Cliente</h2>
         </div>
         <div class="card-body">
 
 
-            <form id="remisionar">
+            <form id="cxccliente">
 
                 <div class="row">
                     <div class="col"><label for="vendedor">Vendedor:</label></div>
