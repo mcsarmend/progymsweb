@@ -83,18 +83,25 @@
 
                     </div>
                 </div>
+                <br>
 
                 <div class="row">
                     <div class="col"><label for="fecha">Tipo de Precio:</label></div>
                     <div class="col"><input type="text" class="form-control" id="tipo" name = "tipo"
                             data-value="" value="" readonly></div>
-
+                    <div class="col"><label for="cantidad_abonada">Cantidad Abonada:</label></div>
+                    <div class="col">
+                        <input id="cantidad_abonada" name="cantidad_abonada" rows="3" cols="21"
+                            class="form-control" data-value="" value="" type= "number"></input>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col">
                         <div class="btn btn-primary" onclick="buscarProducto()">Agregar otro producto</div>
                     </div>
                 </div>
+
+                <br>
 
 
                 <div class="row">
@@ -332,7 +339,7 @@
         }
 
 
-        $('#remisionar').submit(function(e) {
+        $('#cxccliente').submit(function(e) {
             e.preventDefault(); // Evitar la recarga de la página
 
             // Obtener los datos del formulario y generar la tabla inicial
@@ -389,7 +396,7 @@
 
             // Mostrar el cuadro de diálogo de confirmación con SweetAlert
             Swal.fire({
-                title: '¡Se realizará una remisión con los siguientes datos!',
+                title: '¡Se realizará una cuenta por cobrar con los siguientes datos!',
                 html: table + '<br>' + productoTableHtml,
                 icon: 'warning',
                 showCancelButton: true,
@@ -485,7 +492,7 @@
             };
             var msg = "";
             $.ajax({
-                url: 'validarremision', // URL a la que se hace la solicitud
+                url: 'validarcxc', // URL a la que se hace la solicitud
                 type: 'POST', // Tipo de solicitud (GET, POST, etc.)
                 data: data,
                 dataType: 'json', // Tipo de datos esperados en la respuesta

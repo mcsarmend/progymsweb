@@ -64,7 +64,7 @@ Route::get('bajaalmacen', [multialmacenController::class, 'bajaalmacen'])->middl
 Route::get('edicionalmacen', [multialmacenController::class, 'edicionalmacen'])->middleware(['auth']);
 Route::get('multialmacenfiltros', [multialmacenController::class, 'multialmacenfiltros'])->middleware(['auth']);
 
-Route::get('detalleamacenes', [multialmacenController::class, 'detalleamacenes'])->middleware(['auth']);
+Route::get('detalleamacenes', [multialmacenController::class, 'detalleamacenes']);
 Route::get('detalleprecios', [multialmacenController::class, 'detalleprecios'])->middleware(['auth']);
 Route::get('obtenerproducto', [multialmacenController::class, 'obtenerproducto'])->middleware(['auth']);
 Route::post('crearalmacen', [multialmacenController::class, 'crearalmacen'])->middleware(['auth']);
@@ -202,7 +202,7 @@ Route::get('profile/username', [usersController::class, 'usuarios']);
 Route::post('crearusuario', [usersController::class, 'crearusuario']);
 Route::post('actualizarusuario', [usersController::class, 'actualizarusuario']);
 Route::post('actualizarext', [usersController::class, 'actualizarext']);
-Route::post('eliminar', [usersController::class, 'eliminarusuario']);
+Route::post('eliminarusuario', [usersController::class, 'eliminarusuario']);
 Route::get('obtener-tipo', [usersController::class, 'obtenerTipo']);
 
 Auth::routes();

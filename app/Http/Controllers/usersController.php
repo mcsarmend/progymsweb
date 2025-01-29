@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -24,6 +23,7 @@ class usersController extends Controller
 
         $usuarios = User::select('id', 'name')
             ->orderBy('name', 'asc')
+            ->where('status', '=', '1')
             ->get();
 
         $idssucursales = warehouse::select('id', 'nombre')
@@ -39,23 +39,24 @@ class usersController extends Controller
             // Validar los datos del formulario
 
             $request->validate([
-                'usuario' => 'required',
+                'usuario'    => 'required',
                 'contrasena' => ['required', 'string', 'min:8'],
-                'tipo' => 'required',
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'tipo'       => 'required',
+                'email'      => ['required', 'string', 'email', 'max:255', 'unique:users'],
             ]);
 
             // Crear una nueva instancia del modelo Usuario
-            $usuario = new User();
-            $usuario->name = $request->usuario;
-            $usuario->password = Hash::make($request->contrasena);
-            $usuario->pass = $request->contrasena;
-            $usuario->role = $request->tipo;
-            $usuario->email = $request->email;
-            $usuario->phone = $request->telefono;
-            $usuario->warehouse = $request->sucursal;
+            $usuario               = new User();
+            $usuario->name         = $request->usuario;
+            $usuario->password     = Hash::make($request->contrasena);
+            $usuario->pass         = $request->contrasena;
+            $usuario->role         = $request->tipo;
+            $usuario->email        = $request->email;
+            $usuario->phone        = $request->telefono;
+            $usuario->warehouse    = $request->sucursal;
             $usuario->hora_entrada = $request->hora_entrada;
-            $usuario->hora_salida = $request->hora_salida;
+            $usuario->hora_salida  = $request->hora_salida;
+            $usuario->status       = 1;
 
             // Guardar el usuario en la base de datos
             $usuario->save();
@@ -72,13 +73,14 @@ class usersController extends Controller
 
         try {
             // Encuentra el usuario por su ID
-            $usuarioEncriptado = $request->id;
+            $usuarioEncriptado      = $request->id;
             $usuarioIdDesencriptado = Crypt::decrypt($usuarioEncriptado);
-            $usuario = User::findOrFail($usuarioIdDesencriptado);
+            $usuario                = User::findOrFail($usuarioIdDesencriptado);
 
             // Actualiza los datos del usuario
             $usuario->password = Hash::make($request->contrasena);
-            $usuario->type = $request->tipo;
+            $usuario->pass     = $request->contrasena;
+            $usuario->type     = $request->tipo;
             // Otros campos que quieras actualizar
 
             $usuario->save();
@@ -95,11 +97,12 @@ class usersController extends Controller
 
         try {
             // Encuentra el usuario por su ID
-            $usuarioEncriptado = $request->id;
+            $usuarioEncriptado      = $request->id;
             $usuarioIdDesencriptado = Crypt::decrypt($usuarioEncriptado);
-            $usuario = User::findOrFail($usuarioIdDesencriptado);
+            $usuario                = User::findOrFail($usuarioIdDesencriptado);
             // Actualiza los datos del usuario
             $usuario->password = Hash::make($request->contrasena);
+            $usuario->pass     = $request->contrasena;
             $usuario->save();
             $mess = 'Usuario actualizado correctamente';
 
@@ -114,10 +117,15 @@ class usersController extends Controller
     {
 
         try {
+            $contrasena = 'Progyms123#';
             // Encuentra el usuario por su ID
-            $usuarioEncriptado = $request->id;
+            $usuarioEncriptado      = $request->id;
             $usuarioIdDesencriptado = Crypt::decrypt($usuarioEncriptado);
-            User::findOrFail($usuarioIdDesencriptado)->delete();
+            $usuario                = User::findOrFail($usuarioIdDesencriptado);
+            $usuario->password      = Hash::make($contrasena);
+            $usuario->pass          = $contrasena;
+            $usuario->status        = 0;
+            $usuario->save();
             // Eliminar usuario
 
             $mess = 'Usuario eliminado correctamente';
@@ -125,16 +133,16 @@ class usersController extends Controller
             return response()->json(['message' => $mess], 200);
         } catch (\Throwable $e) {
             // Devolver una respuesta de error
-            return response()->json(['message' => 'Error al actualizar el usuario'], 500);
+            return response()->json(['message' => 'Error al eliminar el usuario: ' . $e->getMessage()], 500);
         }
 
     }
 
     public function obtenerTipo(Request $request)
     {
-        $usuarioEncriptado = $request->id;
+        $usuarioEncriptado      = $request->id;
         $usuarioIdDesencriptado = Crypt::decrypt($usuarioEncriptado);
-        $usuario = User::find($usuarioIdDesencriptado);
+        $usuario                = User::find($usuarioIdDesencriptado);
         return response()->json(['tipo' => $usuario->type]);
     }
 

@@ -45,81 +45,79 @@
     }
 
 
-    @keyframes scroll {
-        0% {
-            transform: translateX(0);
-        }
-
-        100% {
-            transform: translateX(calc(-1450px * 20));
-        }
+    .slider {
+        position: relative;
+        width: 80%;
+        /* Ajusta el ancho del slider (80% del contenedor) */
+        max-width: 400px;
+        /* Establece un tamaño máximo más pequeño */
+        margin: 0 auto;
+        overflow: hidden;
     }
 
-    .partners-logo-slider {
-        margin: auto;
-        overflow: hidden;
-        position: relative;
-        width: auto;
-        padding: 16px 0px;
+    .slides {
+        display: flex;
+        transition: transform 0.5s ease;
+    }
 
-        .slide-track {
-            height: 600px;
-            animation: scroll 80s linear infinite;
-            display: flex;
-            width: calc(4000px * 20);
-            /* Cambia a 20 imágenes */
-            animation-play-state: running;
-            /* Asegura que la animación corra normalmente */
-        }
+    .slide {
+        width: 100%;
+        /* Asegura que las imágenes ocupen todo el ancho del slider */
+        height: auto;
+    }
 
-        .slide-track:hover {
-            animation-play-state: paused;
-            /* Detiene la animación al hacer hover */
-        }
+    button {
+        position: absolute;
 
-        .sliderTitle {
-            font-size: 36px;
-            font-weight: 400;
-            line-height: normal;
-            text-align: center;
-            color: white;
-        }
+        z-index: 10;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        font-size: 20px;
+    }
 
-        .slide {
-            height: 700px;
-            width: 400px;
-        }
+    button:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
 
-        .slide:hover {
-            filter: grayscale(0%);
-        }
+    .prev {
+        left: 10px;
+        transform: translateY(-50%);
+    }
+
+    .next {
+        right: 10px;
+        transform: translateY(-50%);
     }
 </style>
 
 <body>
 
-    <!-- PRE LOADER -->
-    <section class="preloader">
-        <div class="spinner">
-            <span class="spinner-rotate"></span>
-        </div>
-    </section>
-
+    <br><br><br><br><br>
 
     <!-- MENU -->
     <section class="navbar custom-navbar navbar-fixed-top" role="navigation">
         <div class="container">
-
             <div class="navbar-header">
+                <!-- Logo -->
+                <img src="assets/images/logoSinC.png" height="91" width="367" alt="" />
 
-
-                <!-- lOGO TEXT HERE -->
-                <a href="#" class="navbar-brand">Grupo Progyms</a>
-
+                <!-- Botón de colapso (hamburguesa) para pantallas pequeñas -->
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
             </div>
 
-            <!-- MENU LINKS -->
+            <!-- Menú de navegación -->
             <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="section-btn"><a href="#" data-toggle="modal" data-target="#modal-form">Iniciar
+                            Sesión</a></li>
+                </ul>
                 <ul class="nav navbar-nav navbar-nav-first">
                     <li><a href="#home" class="smoothScroll">Inicio</a></li>
                     <li><a href="#about" class="smoothScroll">Nosotros</a></li>
@@ -128,112 +126,163 @@
                     <li><a href="#review" class="smoothScroll">Reseñas</a></li>
                     <li><a href="#contact" class="smoothScroll">Contacto</a></li>
                 </ul>
-
-                <ul class="nav navbar-nav navbar-right">
-
-                    <li class="section-btn"><a href="#" data-toggle="modal" data-target="#modal-form">Iniciar
-                            Sesión</a></li>
-                </ul>
             </div>
-
         </div>
     </section>
 
 
+    <br><br>
     <!-- HOME -->
     <section id="home" data-stellar-background-ratio="0.5">
+        br
         <div class="overlay"></div>
         <div class="container">
-            <!------------ B A N N E R ------------>
-            <div class="partners-logo-slider">
-                <p class="sliderTitle">Promociones activas</p>
-                <div class="slide-track">
-                    <div class="slide">
-                        <img src="assets/images/promos/01.gif" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/02.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/03.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/04.jpg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/05.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/06.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/07.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/08.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/09.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/10.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/11.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/12.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/13.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/14.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/15.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/16.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
-                    </div>
-                    <div class="slide">
-                        <img src="assets/images/promos/17.jpeg" height="600 " width="400" alt="" />
-                    </div>
-
+            <div class="slider">
+                <div class="slides">
+                    <img class="slide" src="assets/images/promos/01.gif" alt="Imagen 1" height="400 " width="200">
+                    <img class="slide" src="assets/images/promos/02.jpeg" alt="Imagen 2" height="400 " width="200">
+                    <img class="slide" src="assets/images/promos/03.jpeg" alt="Imagen 3" height="400 " width="200">
+                    <img class="slide" src="assets/images/promos/04.jpg" alt="Imagen 4" height="400 " width="200">
+                    <img class="slide" src="assets/images/promos/05.jpeg" alt="Imagen 5" height="400 " width="200">
+                    <img class="slide" src="assets/images/promos/06.jpeg" alt="Imagen 6" height="400 " width="200">
+                    <img class="slide" src="assets/images/promos/07.jpeg" alt="Imagen 7" height="400 " width="200">
+                    <img class="slide" src="assets/images/promos/08.jpeg" alt="Imagen 8" height="400 "
+                        width="200">
+                    <img class="slide" src="assets/images/promos/09.jpeg" alt="Imagen 9" height="400 "
+                        width="200">
+                    <img class="slide" src="assets/images/promos/10.jpeg" alt="Imagen 10" height="400 "
+                        width="200">
+                    <img class="slide" src="assets/images/promos/11.jpeg" alt="Imagen 11" height="400 "
+                        width="200">
+                    <img class="slide" src="assets/images/promos/12.jpeg" alt="Imagen 12" height="400 "
+                        width="200">
+                    <img class="slide" src="assets/images/promos/13.jpeg" alt="Imagen 13" height="400 "
+                        width="200">
+                    <img class="slide" src="assets/images/promos/14.jpeg" alt="Imagen 14" height="400 "
+                        width="200">
+                    <img class="slide" src="assets/images/promos/15.jpeg" alt="Imagen 15" height="400 "
+                        width="200">
+                    <img class="slide"src="assets/images/promos/16.jpeg" alt="Imagen 16" height="400 "
+                        width="200">
+                    <img class="slide" src="assets/images/promos/17.jpeg" alt="Imagen 17" height="400 "
+                        width="200">
 
                 </div>
+                <button class="prev">❮</button>
+                <button class="next">❯</button>
             </div>
 
         </div>
         </div>
     </section>
+
+
+
+    <!-- PRODUCTOs -->
+
+    <section id="products" data-stellar-background-ratio="0.5">
+        <div class="container">
+            <div class="row">
+
+                <div class="col-md-12 col-sm-12">
+                    <div class="section-title">
+                        <h2>Nuestros Productos</h2>
+                        <br>
+                    </div>
+                </div>
+            </div>
+            <p>Puedes seleccionar una categoria</p>
+            <div class="col">
+                <select name="categories" categories="categories" class="form-control">
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->nombre }}">{{ $category->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <br><br>
+
+            <div class="row">
+                <table class="table table-hover" id="table-products">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Marca</th>
+                            <th>Categoria</th>
+                            <th>Público</th>
+                            <th>Frecuente</th>
+                            <th>Mayoreo</th>
+                            <th>Distribuidor</th>
+                            <th>Existencias</th>
+                            <th>Almacenes</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <br>
+
+        <div class="row">
+            <p>Todos los precios están sujetos a cambios sin previo aviso</p>
+
+            <ul>
+                <li><strong>Precio público</strong>: Clientes primerizos o que no se encuentren registrados en el
+                    sistema</li>
+                <li><strong>Precio frecuente</strong>: Clientes con compras mayores a **$1500** mensuales</li>
+                <li><strong>Precio mayorista</strong>: Clientes con compras mayores a **$3000** mensuales</li>
+                <li><strong>Precio distribuidor</strong>: Compras en una sola exhibición de más de **$3000**</li>
+            </ul>
+        </div>
+
+    </section>
+
+
+    <!-- CONTACT -->
+    <section id="contact" data-stellar-background-ratio="0.5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <div class="section-title">
+                        <h2>Contáctanos</h2>
+                        <span class="line-bar">...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215512415377" class="btn section-btn smoothScroll" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Viveros (Tlalnepantal)
+                    </a>
+                </div>
+                <br>
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215648149566" class="btn section-btn smoothScroll" target="_blank">
+                        <i class="fab fa-whatsapp"></i> San Esteban (Naucalpan)
+                    </a>
+                </div>
+                <br>
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215578397643" class="btn section-btn smoothScroll" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Town Center (Nicolás Romero)
+                    </a>
+                </div>
+                <br>
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215531216226" class="btn section-btn smoothScroll" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Plaza Coacalco
+                    </a>
+                </div>
+                <br>
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215643018711" class="btn section-btn smoothScroll" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Villas de la Hacienda (Cuautitlan Izcalli)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
 
 
 
@@ -351,51 +400,8 @@
     </section>
 
 
-    <!-- PRODUCTOs -->
-    <section id="products" data-stellar-background-ratio="0.5">
-        <div class="container">
-            <div class="row">
 
-                <div class="col-md-12 col-sm-12">
-                    <div class="section-title">
-                        <h2>Nuestros Productos</h2>
-                        <span class="line-bar">...</span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <table class="table table-hover" id="table-products">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Marca</th>
-                            <th>Categoria</th>
-                            <th>Público</th>
-                            <th>Frecuente</th>
-                            <th>Mayoreo</th>
-                            <th>Distribuidor</th>
-                            <th>Buscar Imagen</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-        </div>
-    </section>
 
-    <div class="row" style="padding-left:100px">
-
-        <div class="row">
-            <p>Todos los precios están sujetos a cambios sin previo aviso</p>
-
-            <ul>
-                <li><strong>Precio público</strong>: Clientes primerizos o que no se encuentren registrados en el
-                    sistema</li>
-                <li><strong>Precio frecuente</strong>: Clientes con compras mayores a **$1500** mensuales</li>
-                <li><strong>Precio mayorista</strong>: Clientes con compras mayores a **$3000** mensuales</li>
-                <li><strong>Precio distribuidor</strong>: Compras en una sola exhibición de más de **$3000**</li>
-            </ul>
-        </div>
-    </div>
 
     <!-- RESEÑAS -->
 
@@ -438,9 +444,9 @@
 
                             <div class="work-info">
                                 <h3>Iron Addicts</h3>
-                                <small>El personal es muy conocedor y siempre me dan buenos consejos sobre qué
-                                    productos utilizar. ¡Una tienda indispensable para cualquier amante del
-                                    fitness!</small>
+                                <small>El equipo es altamente capacitado y siempre me brinda excelentes recomendaciones
+                                    sobre los productos ideales a utilizar. ¡Un lugar imprescindible para cualquier
+                                    entusiasta del fitness!</small>
                             </div>
                         </a>
                     </div>
@@ -481,50 +487,6 @@
         </div>
     </section>
 
-    <!-- CONTACT -->
-    <section id="contact" data-stellar-background-ratio="0.5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12 col-sm-12">
-                    <div class="section-title">
-                        <h2>Contáctanos</h2>
-                        <span class="line-bar">...</span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215512415377" class="btn section-btn smoothScroll" target="_blank">
-                        <i class="fab fa-whatsapp"></i> Viveros (Tlalnepantal)
-                    </a>
-                </div>
-                <br>
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215648149566" class="btn section-btn smoothScroll" target="_blank">
-                        <i class="fab fa-whatsapp"></i> San Esteban (Naucalpan)
-                    </a>
-                </div>
-                <br>
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215578397643" class="btn section-btn smoothScroll" target="_blank">
-                        <i class="fab fa-whatsapp"></i> Town Center (Nicolás Romero)
-                    </a>
-                </div>
-                <br>
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215531216226" class="btn section-btn smoothScroll" target="_blank">
-                        <i class="fab fa-whatsapp"></i> Plaza Coacalco
-                    </a>
-                </div>
-                <br>
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215643018711" class="btn section-btn smoothScroll" target="_blank">
-                        <i class="fab fa-whatsapp"></i> Villas de la Hacienda (Cuautitlan Izcalli)
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
 
 
 
@@ -625,6 +587,36 @@
         </div>
     </section>
 
+    <div class="modal fade modal-almacenes" id="almacenes" tabindex="-1" role="dialog"
+        aria-labelledby="almacenesCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content modal-almacenes-content">
+                <div class="modal-header modal-almacenes-header">
+                    <h5 class="modal-title modal-almacenes-title" id="almacenesLongTitle">Detalle de almacenes</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body modal-almacenes-body">
+                    <table id="almacenestabla" class="table table-striped table-almacenes">
+                        <thead class="table-almacenes-header">
+                            <tr>
+
+                                <th>Almacen</th>
+                                <th>Existencias</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
     <!-- SCRIPTS -->
     <script src="js/jquery.js"></script>
     <script src="js/bootstrap.min.js"></script>
@@ -660,15 +652,38 @@
                     }
                 });
             });
+            /* SLIDE*/
+            let index = 0;
+            const slides = $(".slide");
+            const totalSlides = slides.length;
 
+            function showSlide(i) {
+                if (i >= totalSlides) {
+                    index = 0;
+                } else if (i < 0) {
+                    index = totalSlides - 1;
+                } else {
+                    index = i;
+                }
+                $(".slides").css("transform", "translateX(" + (-index * 100) + "%)");
+            }
 
-
-            document.addEventListener('DOMContentLoaded', (event) => {
-                var currentYear = new Date().getFullYear();
-                document.getElementById('current-year').textContent = currentYear;
+            $(".next").click(function() {
+                showSlide(index + 1);
             });
 
-            var products = @json($products); // Esto convierte los productos en un array de JavaScript
+            $(".prev").click(function() {
+                showSlide(index - 1);
+            });
+
+            setInterval(function() {
+                showSlide(index + 1);
+            }, 3000); // Cambia cada 3 segundos
+            /* SLIDE*/
+
+            /*TABLA PRODUCTOS*/
+
+            var products = @json($products);
 
             $('#table-products').DataTable({
                 destroy: true,
@@ -677,20 +692,14 @@
                 "language": {
                     "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
                 },
-                "buttons": [
-
-                ],
                 dom: 'Blfrtip',
-                destroy: true,
                 processing: true,
                 sort: true,
                 paging: true,
                 lengthMenu: [
                     [10, 25, 50, -1],
                     [10, 25, 50, 'All']
-                ], // Personalizar el menú de longitud de visualización
-
-
+                ],
                 "data": products,
                 "columns": [{
                         "data": "producto"
@@ -703,44 +712,112 @@
                     },
                     {
                         "data": "publico",
-                        "render": function(data, type, row) {
+                        "render": function(data) {
                             return '$' + data;
                         }
                     },
                     {
                         "data": "frecuente",
-                        "render": function(data, type, row) {
+                        "render": function(data) {
                             return '$' + data;
                         }
                     },
                     {
                         "data": "mayoreo",
-                        "render": function(data, type, row) {
+                        "render": function(data) {
                             return '$' + data;
                         }
                     },
                     {
                         "data": "distribuidor",
-                        "render": function(data, type, row) {
+                        "render": function(data) {
                             return '$' + data;
                         }
                     },
                     {
-                        "data": null,
-                        "defaultContent": "<button class='btn section-btn smoothScroll search-image'>Buscar Imagen</button>"
+                        "data": "existencias"
+                    },
+                    {
+                        "data": "codigo",
+                        "render": function(data) {
+                            return `<button class="btn btn-primary btn-sm btn-ver-almacenes" data-codigo="${data}">Ver</button>`;
+                        }
                     }
-                ]
+                ],
+                initComplete: function() {
+                    console.log("DataTable inicializado con los siguientes datos:", this.api().data()
+                        .toArray());
+                }
             });
 
-            // Event listener for the search image buttons
-            $('#table-products tbody').on('click', 'button.search-image', function() {
-                var data = $('#table-products').DataTable().row($(this).parents('tr')).data();
-                var productName = data.producto;
-                var searchUrl = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(
-                    productName);
-                window.open(searchUrl, '_blank');
+
+            $('#table-products tbody').on('click', '.btn-ver-almacenes', function() {
+                const codigo = $(this).data('codigo'); // Obtener el código del atributo data-codigo
+                veralmacenes(codigo); // Llamar a la función con el código específico
             });
+
+
+            /*TABLA PRODUCTOS*/
+
+            // Evento change en el select
+            $('select[name="categories"]').on('change', function() {
+                // Limpia el filtro de búsqueda del DataTable
+                var table = $('#table-products').DataTable();
+                // table.search('').draw(); // Limpiar el filtro de búsqueda
+
+                // Filtra los datos por la categoría seleccionada
+                var selectedValue = $(this).val();
+
+                // Aplicar el filtro a la columna correspondiente
+                table.column(2).search(selectedValue)
+                    .draw(); // Suponiendo que la columna "categoria" es la columna 2
+            });
+
+
+
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+                var currentYear = new Date().getFullYear();
+                document.getElementById('current-year').textContent = currentYear;
+            });
+
+
+
+
         });
+
+        function veralmacenes(id) {
+            $('#almacenes').modal('show');
+
+            $.ajax({
+                url: 'detalleamacenes', // URL de la solicitud
+                type: 'GET',
+                data: {
+                    id_producto: id
+                },
+                dataType: 'json',
+                success: function(data) {
+                    // Primero destruye la tabla existente
+                    $('#almacenestabla').DataTable().clear().destroy();
+
+                    // Ahora inicializa la tabla con los datos recibidos
+                    $('#almacenestabla').DataTable({
+                        destroy: true,
+                        data: data,
+                        columns: [{
+                                data: 'nombre'
+                            },
+                            {
+                                data: 'existencias'
+                            }
+                        ]
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
     </script>
 </body>
 

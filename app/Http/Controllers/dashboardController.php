@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\category;
 use App\Models\task;
 use App\Models\User;
 use Carbon\Carbon; // Add this line
@@ -41,9 +42,10 @@ class dashboardController extends Controller
             return view('home', ['type' => $type, 'tareas' => $tasks]);
 
         } else {
+            $categories = Category::select('category.*')->get();
 
             $products = DB::select('CALL lista_precios_activos()');
-            return view('welcome', ['products' => $products]);
+            return view('welcome', ['products' => $products, 'categories' => $categories]);
         }
     }
 

@@ -281,7 +281,7 @@ section {
 .custom-navbar .nav li a {
     font-size: 14px;
     font-weight: 500;
-    color: #ffffff;
+    color: #080808;
     letter-spacing: -0.5px;
     padding-right: 22px;
     padding-left: 22px;
@@ -370,10 +370,13 @@ section {
     color: #ffffff;
 }
 
+/* Estilos generales para los botones */
 .home-info .section-btn {
     background: transparent;
     border: 2px solid #f9f9f9;
     color: #f9f9f9;
+    margin: 10px; /* Espaciado entre los botones */
+    display: inline-block; /* Asegura que se puedan alinear */
 }
 
 .home-info .section-btn:hover,
@@ -383,17 +386,15 @@ section {
     color: #ffffff;
 }
 
-.home-info span {
-    display: inline-block;
-    vertical-align: middle;
-    color: #f9f9f9;
-    font-weight: 500;
-    margin-left: 20px;
+/* Contenedor de los botones (modo horizontal por defecto) */
+#contact .row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Centra los botones horizontalmente */
+    gap: 10px; /* Espaciado entre los botones */
 }
 
-.home-info span small {
-    display: block;
-}
+/* En pantallas pequeñas (celulares), los botones se apilan en vertical */
 
 /*---------------------------------------
       ABOUT
@@ -846,6 +847,54 @@ footer span,
 /*---------------------------------------
       MODAL FORM
   -----------------------------------------*/
+
+/* General */
+.modal-almacenes .modal-content {
+    background-color: #f8f9fa;
+    color: #343a40;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.modal-almacenes-header,
+.modal-almacenes-footer {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+/* Título */
+.modal-almacenes-title {
+    font-weight: bold;
+    color: #495057;
+}
+
+/* Botón de cierre */
+.btn-almacenes-close {
+    background-color: #f8f9fa;
+    color: #343a40;
+    border: 1px solid #dee2e6;
+}
+
+.btn-almacenes-close:hover {
+    background-color: #e2e6ea;
+}
+
+/* Tabla */
+.table-almacenes {
+    background-color: #ffffff;
+}
+
+.table-almacenes-header {
+    background-color: #e9ecef;
+}
+
+.table-almacenes tbody tr:nth-of-type(odd) {
+    background-color: #f1f3f5;
+}
+
+.table-almacenes tbody tr:hover {
+    background-color: #e2e6ea;
+}
 
 @media (min-width: 992px) {
     .modal-dialog {
