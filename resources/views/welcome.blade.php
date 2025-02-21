@@ -46,12 +46,9 @@
 
 
     .slider {
-        position: relative;
-        width: 80%;
-        /* Ajusta el ancho del slider (80% del contenedor) */
-        max-width: 400px;
-        /* Establece un tamaño máximo más pequeño */
-        margin: 0 auto;
+
+        width: 98%;
+
         overflow: hidden;
     }
 
@@ -84,12 +81,12 @@
 
     .prev {
         left: 10px;
-        transform: translateY(-50%);
+        transform: translateY(-230%);
     }
 
     .next {
         right: 10px;
-        transform: translateY(-50%);
+        transform: translateY(-230%);
     }
 </style>
 
@@ -139,33 +136,10 @@
         <div class="container">
             <div class="slider">
                 <div class="slides">
-                    <img class="slide" src="assets/images/promos/01.gif" alt="Imagen 1" height="400 " width="200">
-                    <img class="slide" src="assets/images/promos/02.jpeg" alt="Imagen 2" height="400 " width="200">
-                    <img class="slide" src="assets/images/promos/03.jpeg" alt="Imagen 3" height="400 " width="200">
-                    <img class="slide" src="assets/images/promos/04.jpg" alt="Imagen 4" height="400 " width="200">
-                    <img class="slide" src="assets/images/promos/05.jpeg" alt="Imagen 5" height="400 " width="200">
-                    <img class="slide" src="assets/images/promos/06.jpeg" alt="Imagen 6" height="400 " width="200">
-                    <img class="slide" src="assets/images/promos/07.jpeg" alt="Imagen 7" height="400 " width="200">
-                    <img class="slide" src="assets/images/promos/08.jpeg" alt="Imagen 8" height="400 "
-                        width="200">
-                    <img class="slide" src="assets/images/promos/09.jpeg" alt="Imagen 9" height="400 "
-                        width="200">
-                    <img class="slide" src="assets/images/promos/10.jpeg" alt="Imagen 10" height="400 "
-                        width="200">
-                    <img class="slide" src="assets/images/promos/11.jpeg" alt="Imagen 11" height="400 "
-                        width="200">
-                    <img class="slide" src="assets/images/promos/12.jpeg" alt="Imagen 12" height="400 "
-                        width="200">
-                    <img class="slide" src="assets/images/promos/13.jpeg" alt="Imagen 13" height="400 "
-                        width="200">
-                    <img class="slide" src="assets/images/promos/14.jpeg" alt="Imagen 14" height="400 "
-                        width="200">
-                    <img class="slide" src="assets/images/promos/15.jpeg" alt="Imagen 15" height="400 "
-                        width="200">
-                    <img class="slide"src="assets/images/promos/16.jpeg" alt="Imagen 16" height="400 "
-                        width="200">
-                    <img class="slide" src="assets/images/promos/17.jpeg" alt="Imagen 17" height="400 "
-                        width="200">
+
+                    <img class="slide" src="assets/images/promos/02.jpeg" alt="Imagen 1">
+                    <img class="slide" src="assets/images/promos/02.jpeg" alt="Imagen 2">
+
 
                 </div>
                 <button class="prev">❮</button>
@@ -186,14 +160,15 @@
 
                 <div class="col-md-12 col-sm-12">
                     <div class="section-title">
-                        <h2>Nuestros Productos</h2>
-                        <br>
+                        <h2>Catálogo</h2>
                     </div>
                 </div>
             </div>
-            <p>Puedes seleccionar una categoria</p>
+            <br>
+            <p>Selecciona una categoria para filtrar</p>
             <div class="col">
                 <select name="categories" categories="categories" class="form-control">
+                    <option value="">Ninguna</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->nombre }}">{{ $category->nombre }}</option>
                     @endforeach
@@ -215,6 +190,7 @@
                             <th>Distribuidor</th>
                             <th>Existencias</th>
                             <th>Almacenes</th>
+                            <th>Ver imagen</th>
                         </tr>
                     </thead>
                 </table>
@@ -615,6 +591,26 @@
         </div>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-almacenes-header">
+                    <h5 class="modal-title modal-almacenes-title" id="almacenesLongTitle">Imagen Descriptiva</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="assets/images/productos/11120003.png" alt="Imagen de ejemplo" class="img-fluid"
+                        width="350" height="350" style="object-fit: contain;">
+                    <p class="mensaje-error" style="display: none; color: red; font-weight: bold;">Imagen no
+                        disponible</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
 
     <!-- SCRIPTS -->
@@ -737,12 +733,25 @@
                     {
                         "data": "existencias"
                     },
+                    // Almacenes
                     {
                         "data": "codigo",
                         "render": function(data) {
                             return `<button class="btn btn-primary btn-sm btn-ver-almacenes" data-codigo="${data}">Ver</button>`;
                         }
+                    },
+                    // Imagenes
+                    {
+                        "data": "codigo",
+                        "render": function(data) {
+                            if (data === undefined || data === null) {
+                                return '';
+                            }
+                            return `<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#imagenModal" data-codigo="${data}">Ver Imagen</button>`;
+                        }
                     }
+
+
                 ],
                 initComplete: function() {
                     console.log("DataTable inicializado con los siguientes datos:", this.api().data()
@@ -755,6 +764,28 @@
                 const codigo = $(this).data('codigo'); // Obtener el código del atributo data-codigo
                 veralmacenes(codigo); // Llamar a la función con el código específico
             });
+
+            $('#imagenModal').on('show.bs.modal', function(event) {
+                var button = $(event.relatedTarget); // Botón que abrió el modal
+                var codigo = button.data('codigo'); // Extrae el valor de data-codigo
+
+                var modal = $(this);
+                var img = modal.find('img');
+
+                // Actualiza el src de la imagen
+                img.attr('src', 'assets/images/productos/' + codigo + '.png').show();
+
+                // Oculta el mensaje de "Imagen no disponible" inicialmente
+                modal.find('.mensaje-error').hide();
+
+                // Si la imagen no carga, muestra el mensaje
+                img.on('error', function() {
+                    img.hide(); // Oculta la imagen
+                    modal.find('.mensaje-error').show(); // Muestra el mensaje de error
+                });
+            });
+
+
 
 
             /*TABLA PRODUCTOS*/

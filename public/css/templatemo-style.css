@@ -349,7 +349,7 @@ section {
 
 #home {
     background: url("../assets/images/home-bg.jpg") no-repeat center center;
-    background-size: cover;
+    background-size: 80%;
     vertical-align: middle;
     display: -webkit-box;
     display: -webkit-flex;
@@ -359,10 +359,9 @@ section {
     -webkit-align-items: center;
     -ms-flex-align: center;
     align-items: center;
-    min-height: 100vh;
+
     position: relative;
     overflow: hidden;
-    padding-top: 10em;
     text-align: left;
 }
 
@@ -1084,6 +1083,9 @@ footer span,
 }
 
 @media only screen and (min-width: 640px) and (max-width: 767px) {
+    #home {
+        background-size: cover; /* Se adapta a pantallas medianas */
+    }
     #blog-header {
         height: 100vh;
     }
@@ -1099,6 +1101,9 @@ footer span,
 }
 
 @media screen and (max-width: 767px) {
+    #home {
+        background-size: cover; /* Se adapta a pantallas medianas */
+    }
     .custom-navbar {
         background: #ffffff;
         -webkit-box-shadow: 0 1px 30px rgba(0, 0, 0, 0.1);
@@ -1165,6 +1170,9 @@ footer span,
 }
 
 @media screen and (max-width: 639px) {
+    #home {
+        background-size: cover; /* Se adapta a pantallas medianas */
+    }
     h1 {
         font-size: 2em;
     }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\category;
@@ -31,7 +30,7 @@ class dashboardController extends Controller
     {
         if (Auth::check()) {
 
-            $type = Auth::user()->role;
+            $type   = Auth::user()->role;
             $iduser = Auth::user()->id;
 
             $tasks = Task::where('objetivo', $iduser)
@@ -40,19 +39,18 @@ class dashboardController extends Controller
                 ->get();
 
             return view('home', ['type' => $type, 'tareas' => $tasks]);
-
         } else {
             $categories = Category::select('category.*')->get();
 
             $products = DB::select('CALL lista_precios_activos()');
             return view('welcome', ['products' => $products, 'categories' => $categories]);
+
         }
     }
-
     public function checkDashboard()
     {
 
-        $type = Auth::user()->role;
+        $type   = Auth::user()->role;
         $iduser = Auth::user()->id;
 
         $tasks = Task::leftJoin('users', 'task.autor', '=', 'users.id')
@@ -96,7 +94,7 @@ class dashboardController extends Controller
     {
         try {
             $timezone = 'America/Mexico_City';
-            $hoy = Carbon::now($timezone)->format('Y-m-d H:i:s');
+            $hoy      = Carbon::now($timezone)->format('Y-m-d H:i:s');
             // Create a new instance of the notification model
             $tarea = new task();
 
@@ -117,11 +115,11 @@ class dashboardController extends Controller
                 return response()->json(['message' => 'Invalid date format for fechafin'], 400);
             }
 
-            $tarea->asunto = $request->asunto;
+            $tarea->asunto      = $request->asunto;
             $tarea->descripcion = $request->descripcion;
             $tarea->fechaaccion = $request->fechaaccion;
-            $tarea->autor = Auth::user()->id;
-            $tarea->objetivo = Crypt::decrypt($request->usuario);
+            $tarea->autor       = Auth::user()->id;
+            $tarea->objetivo    = Crypt::decrypt($request->usuario);
 
             // Save the notification in the database
             $tarea->save();
@@ -140,7 +138,7 @@ class dashboardController extends Controller
 
             // Obtener la fecha y hora actual en la zona horaria especificada (Mexico City)
             $timezone = 'America/Mexico_City';
-            $hoy = Carbon::now($timezone)->format('Y-m-d H:i:s');
+            $hoy      = Carbon::now($timezone)->format('Y-m-d H:i:s');
 
             // Actualizar la tarea con la fecha y hora actual
             task::where('id', $idtask)
