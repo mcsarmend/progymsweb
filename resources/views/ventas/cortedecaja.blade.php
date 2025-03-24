@@ -73,48 +73,51 @@
                             <hr style="border: 1px solid #000;">
                         </div>
                         @foreach ($remisiones_por_pago as $forma_pago => $remisiones)
-                            <h3>Forma de Pago: {{ ucfirst($forma_pago) }}</h3>
-                            <table border="1" style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Fecha</th>
-                                        <th>Cliente</th>
-                                        <th>Total</th>
-                                        <th>Vendedor</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($remisiones as $remision)
+                            @if ($totales_por_pago[$forma_pago] > 0)
+                                <h3>Forma de Pago: {{ ucfirst($forma_pago) }}</h3>
+                                <table border="1" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
                                         <tr>
-                                            <td>{{ $remision->id }}</td>
-                                            <td>{{ $remision->fecha }}</td>
-                                            <td>{{ $remision->cliente }}</td>
-                                            <td>${{ number_format($remision->total, 2) }}</td>
-                                            <td>{{ $remision->vendedor }}</td>
+                                            <th>ID</th>
+                                            <th>Fecha</th>
+                                            <th>Cliente</th>
+                                            <th>Total</th>
+                                            <th>Vendedor</th>
                                         </tr>
-                                    @empty
+                                    </thead>
+                                    <tbody>
+                                        @forelse($remisiones as $remision)
+                                            <tr>
+                                                <td>{{ $remision->id }}</td>
+                                                <td>{{ $remision->fecha }}</td>
+                                                <td>{{ $remision->cliente }}</td>
+                                                <td>${{ number_format($remision->total, 2) }}</td>
+                                                <td>{{ $remision->vendedor }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" style="text-align: center;">
+                                                    Sin datos para esta forma de pago
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                    <tfoot>
                                         <tr>
-                                            <td colspan="5" style="text-align: center;">
-                                                Sin datos para esta forma de pago
+                                            <td colspan="3">
+                                                <strong>Total por {{ ucfirst($forma_pago) }}</strong>
+                                            </td>
+                                            <td colspan="2"
+                                                style="background-color: #d4edda; color: #155724; text-align: center;">
+                                                <strong>${{ number_format($totales_por_pago[$forma_pago], 2) }}</strong>
                                             </td>
                                         </tr>
-                                    @endforelse
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="3">
-                                            <strong>Total por {{ ucfirst($forma_pago) }}</strong>
-                                        </td>
-                                        <td colspan="2"
-                                            style="background-color: #d4edda; color: #155724; text-align: center;">
-                                            <strong>${{ number_format($totales_por_pago[$forma_pago], 2) }}</strong>
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                            <br>
+                                    </tfoot>
+                                </table>
+                                <br>
+                            @endif
                         @endforeach
+
                         <button type="button" class="btn btn-primary" onclick="sendDataAsJson()">Enviar como JSON</button>
                 </form>
             </div>
@@ -281,62 +284,79 @@
         }
 
         function sendDataAsJson() {
-            const formData = {};
 
-            // Iterar sobre cada contenedor de conceptos
-            document.querySelectorAll('.concept-container').forEach(container => {
-                const conceptId = container.id; // ID del contenedor
-                const inputs = [];
+            let data = {
+                total_general: parseFloat($("#total-general").text().replace("$", "").trim()) || 0,
+                total_efectivo_entregar: parseFloat($("#total-efectivo-entregar").text().replace("$", "").trim()) || 0,
+                inputs_adicionales: {},
+                formas_pago: []
+            };
 
-                // Recorrer los input-groups dentro del contenedor
-                container.querySelectorAll('.input-group').forEach(group => {
-                    const monto = group.querySelector('input[type="number"]')?.value || null;
-                    const concepto = group.querySelector('input[type="text"]')?.value || null;
+            // Recopilar los datos de los inputs adicionales (CXC, REMESA RECIBIDA, etc.)
+            $(".concept-container").each(function() {
+                let conceptId = $(this).attr('id').replace('-container', '');
+                let inputs = [];
+                $(this).find(".inputs-container input").each(function() {
+                    inputs.push(parseFloat($(this).val()) ||
+                        0); // Obtener el valor del input, por si está vacío lo consideramos como 0
+                });
+                data.inputs_adicionales[conceptId] = inputs;
+            });
 
-                    // Validar si ambos campos están llenos antes de agregar al array
-                    if (monto && concepto) {
-                        inputs.push({
-                            monto,
-                            concepto
-                        });
-                    }
+            // Obtener las formas de pago
+            $("h3:contains('Forma de Pago:')").each(function() {
+                let formaPago = $(this).text().replace("Forma de Pago: ", "").trim();
+                let totalFormaPago = parseFloat($(this).next("table").find("tfoot td strong").text().replace("$",
+                    "").trim()) || 0;
+                let remisiones = [];
+
+                // Recopilar las remisiones dentro de esta forma de pago
+                $(this).next("table").find("tbody tr").each(function() {
+                    let celdas = $(this).find("td");
+                    remisiones.push({
+                        id: $(celdas[0]).text().trim(),
+                        fecha: $(celdas[1]).text().trim(),
+                        cliente: $(celdas[2]).text().trim(),
+                        total: parseFloat($(celdas[3]).text().replace("$", "").trim()),
+                        vendedor: $(celdas[4]).text().trim()
+                    });
                 });
 
-                // Agregar al objeto formData solo si hay inputs válidos
-                if (inputs.length > 0) {
-                    formData[conceptId] = inputs;
-                }
+                data.formas_pago.push({
+                    forma_pago: formaPago,
+                    remisiones: remisiones,
+                    total: totalFormaPago
+                });
             });
 
-            // Incluir los valores generales si se necesitan
-            formData.totalGeneral = '{{ $total_general }}';
 
-            console.log("Datos a enviar:", formData);
 
-            // Enviar los datos como JSON mediante Ajax
-            $.ajax({
-                url: '/enviarinfocortecaja', // Ajusta la ruta al endpoint adecuado
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(formData),
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                },
-                success: function(response) {
-                    Swal.fire(
-                        '¡Datos enviados!',
-                        'Se ha procesado correctamente la información.',
-                        'success'
-                    );
-                },
-                error: function(response) {
-                    Swal.fire(
-                        '¡Error!',
-                        'Hubo un problema al procesar la información.',
-                        'error'
-                    );
-                }
-            });
+            console.log("Datos a enviar:", data);
+
+            // // Enviar los datos como JSON mediante Ajax
+            // $.ajax({
+            //     url: '/enviarinfocortecaja', // Ajusta la ruta al endpoint adecuado
+            //     type: 'POST',
+            //     contentType: 'application/json',
+            //     data: JSON.stringify(formData),
+            //     headers: {
+            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            //     },
+            //     success: function(response) {
+            //         Swal.fire(
+            //             '¡Datos enviados!',
+            //             'Se ha procesado correctamente la información.',
+            //             'success'
+            //         );
+            //     },
+            //     error: function(response) {
+            //         Swal.fire(
+            //             '¡Error!',
+            //             'Hubo un problema al procesar la información.',
+            //             'error'
+            //         );
+            //     }
+            // });
         }
 
 

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,6 +23,7 @@ class referrals extends Model
         'cliente',
         'productos',
         'total',
-        'estatus'
+        'estatus',
+        'tipo_de_precio',
     ];
 }

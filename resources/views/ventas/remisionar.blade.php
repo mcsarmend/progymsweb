@@ -84,12 +84,34 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col"><label for="fecha">Tipo de Precio:</label></div>
-                    <div class="col"><input type="text" class="form-control" id="tipo" name = "tipo"
-                            data-value="" value="" readonly></div>
 
-                </div>
+                @if ($type == 4)
+                    <div class="row">
+                        <div class="col"><label for="tipo_precio">Tipo de Precio:</label></div>
+                        <div class="col">
+                            <select name="tipo_precio" id="tipo_precio" class="form-control">
+                                <option value="1">Publico</option>
+                                <option value="2">Frecuente</option>
+                                <option value="3">Mayoreo</option>
+                                <option value="4">Distribuidor</option>
+                            </select>
+
+                        </div>
+                    </div>
+                @else()
+                    <div class="row">
+                        <div class="col"><label for="tipo_precio">Tipo de Precio:</label></div>
+                        <div class="col">
+                            <select name="tipo_precio" id="tipo_precio" class="form-control">
+                                <option value="1">Publico</option>
+                                <option value="2">Frecuente</option>
+                                <option value="3">Mayoreo</option>
+                                <option value="4">Distribuidor</option>
+                            </select>
+
+                        </div>
+                    </div>
+                @endif
                 <div class="row">
                     <div class="col">
                         <div class="btn btn-primary" onclick="buscarProducto()">Agregar otro producto</div>
@@ -149,7 +171,10 @@
         $(document).ready(function() {
             drawTriangles();
             showUsersSections();
-
+            var type = @json($type);
+            if (type == 4) {
+                $("#tipo_precio").prop("disabled", true);
+            }
 
 
             $('#fecha').val(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000 - 6 * 60 * 60000)
@@ -204,6 +229,7 @@
                         var idcliente = obtenerNumerosHastaGuion($('#cliente').val());
                         var cantidad = $('#inputCantidad').val();
                         var idsucursal = $('#sucursal').val();
+                        var idprecio = $('#tipo_precio').val();
                         if (idcliente == null) {
                             idcliente = 1;
                         }
@@ -212,7 +238,8 @@
                             id_producto: idproducto,
                             idcliente: idcliente,
                             cantidad: cantidad,
-                            sucursal: idsucursal
+                            sucursal: idsucursal,
+                            id_precio: idprecio
                         };
 
                         $.ajax({
@@ -347,6 +374,14 @@
                 });
             }
 
+
+            datos = datos.filter(item => item.key !== 'sucursal');
+            suc = $('#sucursal option:selected').text();
+            datos.push({
+                key: "nombre_sucursal",
+                value: suc
+            });
+
             // Crear la tabla HTML
             var table =
                 '<table style="width:100%; border: 1px solid black; border-collapse: collapse; font-size: 15px;">';
@@ -358,6 +393,9 @@
                     '</td></tr>';
             });
             table += '</table>';
+
+
+
 
             // Clonar la tabla con id="productos" y quita ultima columna
             var $productoTableClone = $('#productos').clone();
@@ -443,9 +481,9 @@
                 success: function(response) {
                     // Actualizar el valor del input #tipo con el valor recibido
                     if (response.nombreprecio == null) {
-                        $('#tipo').val("Publico");
+                        $('#tipo_precio').val("Publico");
                     } else {
-                        $('#tipo').val(response.nombreprecio);
+                        $('#tipo_precio').val(response.idprecio);
                     }
 
                 },
@@ -472,8 +510,10 @@
             tableData.forEach(element => {
                 total += parseInt(element.Subtotal);
             });
-
+            var nombreSucursal = $("#sucursal option:selected").text();
+            var tipo_precio = $("#tipo_precio").val();
             const data = {
+                nombreSucursal: nombreSucursal,
                 nota: nota,
                 fecha: hora,
                 forma_pago: forma_pago,
@@ -481,7 +521,8 @@
                 vendedor: vendedor,
                 cliente: cliente,
                 productos: jsonString,
-                total: total
+                total: total,
+                tipo_precio: tipo_precio
             };
             var msg = "";
             $.ajax({
@@ -521,7 +562,7 @@
                             doc.setFontSize(9);
                             doc.setFont('helvetica', 'bold');
                             doc.text('GRUPO PROGYMS', 30, 2);
-                            doc.text(`Sucursal: ${idsucursal}`, 29, 7);
+                            doc.text(`Sucursal: ${nombreSucursal}`, 29, 7);
                             doc.text(`Remisión No.: ${numeroRemision}`, 10, 12);
                             doc.text(`Hora.: ${hora}`, 10, 17);
                             doc.text(`Nota: ${nota}`, 10, 22);

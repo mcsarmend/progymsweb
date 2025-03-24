@@ -137,8 +137,13 @@
             <div class="slider">
                 <div class="slides">
 
-                    <img class="slide" src="assets/images/promos/02.jpeg" alt="Imagen 1">
+                    <img class="slide" src="assets/images/promos/01.jpeg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/02.jpeg" alt="Imagen 2">
+                    <img class="slide" src="assets/images/promos/03.jpeg" alt="Imagen 3">
+                    <img class="slide" src="assets/images/promos/04.jpeg" alt="Imagen 4">
+                    <img class="slide" src="assets/images/promos/05.jpeg" alt="Imagen 4">
+                    <img class="slide" src="assets/images/promos/06.jpeg" alt="Imagen 4">
+                    <img class="slide" src="assets/images/promos/07.jpeg" alt="Imagen 4">
 
 
                 </div>
@@ -199,6 +204,8 @@
         <br>
 
         <div class="row">
+            <p>Última actualización: 24-02-2025</p>
+
             <p>Todos los precios están sujetos a cambios sin previo aviso</p>
 
             <ul>
@@ -603,7 +610,7 @@
                 </div>
                 <div class="modal-body text-center">
                     <img src="assets/images/productos/11120003.png" alt="Imagen de ejemplo" class="img-fluid"
-                        width="350" height="350" style="object-fit: contain;">
+                        width="300" height="300" style="object-fit: contain;">
                     <p class="mensaje-error" style="display: none; color: red; font-weight: bold;">Imagen no
                         disponible</p>
                 </div>

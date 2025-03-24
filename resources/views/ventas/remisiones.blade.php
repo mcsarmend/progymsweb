@@ -19,11 +19,13 @@
                         <th>Fecha</th>
                         <th>Nota</th>
                         <th>Forma de pago</th>
+                        <th>Tipo de precio</th>
                         <th>Almacen</th>
                         <th>Vendedor</th>
                         <th>Productos</th>
                         <th>Total</th>
                         <th>Estatus</th>
+                        <th>Imprimir</th>
                         <th>Cancelar</th>
 
                     </tr>
@@ -84,6 +86,8 @@
 @stop
 
 @section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script>
         $(document).ready(function() {
             drawTriangles();
@@ -138,6 +142,9 @@
                         "data": "forma_pago"
                     },
                     {
+                        "data": "precio"
+                    },
+                    {
                         "data": "almacen"
                     },
                     {
@@ -155,6 +162,13 @@
                     },
                     {
                         "data": "estatus"
+                    },
+                    {
+                        "data": "imprimir",
+                        "render": function(data, type, row) {
+                            return '<button onclick="imprimir(' + JSON.stringify(row).replace(/"/g,
+                                "'") + ')" class="btn btn-primary">Imprimir</button>';
+                        }
                     },
                     {
                         "data": "cancelar",
@@ -244,6 +258,144 @@
                     });
                 }
             });
+        }
+
+
+        function imprimir(rowData) {
+            var productos = [];
+            // Crear el documento PDF
+            const {
+                jsPDF
+            } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: [400, 400]
+            });
+
+            $.ajax({
+                url: 'verproductosremision', // URL a la que se hace la solicitud
+                type: 'GET', // Tipo de solicitud (GET, POST, etc.)
+                data: {
+                    id: rowData.id
+                },
+
+                dataType: 'json', // Tipo de datos esperados en la respuesta
+                success: function(data) {
+                    productos = data;
+                }
+            });
+
+            // Extraer datos del registro (rowData)
+            var {
+                id: numeroRemision,
+                fecha,
+                nota = 'SIN NOTA',
+                forma_pago,
+                cliente,
+                almacen: nombreSucursal,
+                vendedor,
+
+                total
+            } = rowData;
+
+            // Obtener hora actual
+            const hora = new Date().toLocaleTimeString();
+
+            // Agregar contenido al PDF
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('GRUPO PROGYMS', 30, 2);
+            doc.text(`Sucursal: ${nombreSucursal}`, 29, 7);
+            doc.text(`Remisión No.: ${numeroRemision}`, 10, 12);
+            doc.text(`Hora: ${hora}`, 10, 17);
+            doc.text(`Nota: ${nota}`, 10, 22);
+            doc.text(`Forma de pago: ${forma_pago}`, 10, 27);
+            doc.text(`Almacen: ${nombreSucursal}`, 10, 32);
+            doc.text(`Vendedor: ${vendedor}`, 10, 37);
+            doc.text(`Cliente: ${cliente}`, 10, 42);
+
+            // Crear tabla temporal para los productos
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `
+        <table id="tempProductTable">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Cantidad</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${productos.map(p => `
+                                            <tr>
+                                                <td>${p.codigo || ''}</td>
+                                                <td>${p.cantidad || ''}</td>
+                                                <td>${p.descripcion || ''}</td>
+                                                <td>${p.precio ? '$' + p.precio.toFixed(2) : ''}</td>
+                                                <td>${p.total ? '$' + p.total.toFixed(2) : ''}</td>
+                                            </tr>
+                                        `).join('')}
+                <tr>
+                    <td colspan="4" style="text-align: right;">TOTAL:</td>
+                    <td>$${total ? total.toFixed(2) : '0.00'}</td>
+                </tr>
+            </tbody>
+        </table>
+    `;
+
+            // Convertir la tabla HTML a formato para jsPDF
+            const res = doc.autoTableHtmlToJson(tempDiv.querySelector('#tempProductTable'));
+            doc.autoTable(res.columns, res.data, {
+                startY: 47,
+                margin: {
+                    left: 3,
+                    right: 5
+                },
+                styles: {
+                    fontSize: 6,
+                    fontStyle: 'bold'
+                },
+                columnStyles: {
+                    0: {
+                        cellWidth: 13
+                    },
+                    1: {
+                        cellWidth: 14
+                    },
+                    2: {
+                        cellWidth: 24
+                    },
+                    3: {
+                        cellWidth: 13
+                    },
+                    4: {
+                        cellWidth: 14
+                    }
+                },
+                headStyles: {
+                    fillColor: null,
+                    textColor: 0
+                },
+                bodyStyles: {
+                    fillColor: '#FFFFFF',
+                    textColor: 0
+                }
+            });
+
+            // Pie de página
+            doc.setFontSize(6);
+            doc.text('Para cambios y devoluciones, presentar el producto SIN ABRIR', 10, doc.autoTable.previous.finalY +
+                10);
+            doc.text('con su ticket de venta dentro de los primeros 5 días hábiles', 10, doc.autoTable.previous.finalY +
+                15);
+            doc.text('después de la fecha de compra.', 10, doc.autoTable.previous.finalY + 20);
+
+            // Guardar PDF
+            doc.save(`remision_${numeroRemision}.pdf`);
+            Swal.fire('Ticket impreso!', '', 'success');
         }
 
         function cancelar_remision(id) {
