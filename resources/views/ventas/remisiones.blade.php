@@ -262,7 +262,33 @@
 
 
         function imprimir(rowData) {
-            var productos = [];
+            // Hacer la petición AJAX primero
+            $.ajax({
+                url: 'verproductosremision',
+                type: 'GET',
+                data: {
+                    id: rowData.id
+                },
+                dataType: 'json',
+                success: function(data) {
+                    const productos = data.productos.map(p => ({
+                        codigo: p.Codigo,
+                        cantidad: p.Cantidad,
+                        descripcion: p.Nombre,
+                        precio: parseFloat(p['Precio Unitario']).toFixed(2),
+                        total: parseFloat(p.Subtotal).toFixed(2)
+                    }));
+                    // Una vez que tenemos los productos, generamos el PDF
+                    generarPDF(rowData, productos);
+                },
+                error: function(error) {
+                    console.error('Error al obtener productos:', error);
+                    Swal.fire('Error', 'No se pudieron obtener los productos', 'error');
+                }
+            });
+        }
+
+        function generarPDF(rowData, productos) {
             // Crear el documento PDF
             const {
                 jsPDF
@@ -271,19 +297,6 @@
                 orientation: 'landscape',
                 unit: 'mm',
                 format: [400, 400]
-            });
-
-            $.ajax({
-                url: 'verproductosremision', // URL a la que se hace la solicitud
-                type: 'GET', // Tipo de solicitud (GET, POST, etc.)
-                data: {
-                    id: rowData.id
-                },
-
-                dataType: 'json', // Tipo de datos esperados en la respuesta
-                success: function(data) {
-                    productos = data;
-                }
             });
 
             // Extraer datos del registro (rowData)
@@ -295,12 +308,9 @@
                 cliente,
                 almacen: nombreSucursal,
                 vendedor,
-
                 total
             } = rowData;
 
-            // Obtener hora actual
-            const hora = new Date().toLocaleTimeString();
 
             // Agregar contenido al PDF
             doc.setFontSize(9);
@@ -308,10 +318,11 @@
             doc.text('GRUPO PROGYMS', 30, 2);
             doc.text(`Sucursal: ${nombreSucursal}`, 29, 7);
             doc.text(`Remisión No.: ${numeroRemision}`, 10, 12);
-            doc.text(`Hora: ${hora}`, 10, 17);
+            doc.text(`Hora: ${fecha}`, 10, 17);
             doc.text(`Nota: ${nota}`, 10, 22);
             doc.text(`Forma de pago: ${forma_pago}`, 10, 27);
             doc.text(`Almacen: ${nombreSucursal}`, 10, 32);
+            doc.setFontSize(7);
             doc.text(`Vendedor: ${vendedor}`, 10, 37);
             doc.text(`Cliente: ${cliente}`, 10, 42);
 
@@ -330,14 +341,14 @@
             </thead>
             <tbody>
                 ${productos.map(p => `
-                                            <tr>
-                                                <td>${p.codigo || ''}</td>
-                                                <td>${p.cantidad || ''}</td>
-                                                <td>${p.descripcion || ''}</td>
-                                                <td>${p.precio ? '$' + p.precio.toFixed(2) : ''}</td>
-                                                <td>${p.total ? '$' + p.total.toFixed(2) : ''}</td>
-                                            </tr>
-                                        `).join('')}
+                                                    <tr>
+                                                        <td>${p.codigo || ''}</td>
+                                                        <td>${p.cantidad || ''}</td>
+                                                        <td>${p.descripcion || ''}</td>
+                                                        <td>${p.precio ? '$' + p.precio: ''}</td>
+                                                        <td>${p.total ? '$' + p.total : ''}</td>
+                                                    </tr>
+                                                `).join('')}
                 <tr>
                     <td colspan="4" style="text-align: right;">TOTAL:</td>
                     <td>$${total ? total.toFixed(2) : '0.00'}</td>
@@ -387,10 +398,10 @@
 
             // Pie de página
             doc.setFontSize(6);
-            doc.text('Para cambios y devoluciones, presentar el producto SIN ABRIR', 10, doc.autoTable.previous.finalY +
-                10);
-            doc.text('con su ticket de venta dentro de los primeros 5 días hábiles', 10, doc.autoTable.previous.finalY +
-                15);
+            doc.text('Para cambios y devoluciones, presentar el producto SIN ABRIR', 10,
+                doc.autoTable.previous.finalY + 10);
+            doc.text('con su ticket de venta dentro de los primeros 5 días hábiles', 10,
+                doc.autoTable.previous.finalY + 15);
             doc.text('después de la fecha de compra.', 10, doc.autoTable.previous.finalY + 20);
 
             // Guardar PDF

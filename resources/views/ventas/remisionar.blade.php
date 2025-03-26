@@ -568,6 +568,7 @@
                             doc.text(`Nota: ${nota}`, 10, 22);
                             doc.text(`Forma de pago : ${forma_pago}`, 10, 27);
                             doc.text(`Almacen: ${idsucursal}`, 10, 32);
+                            doc.setFontSize(7);
                             doc.text(`Vendedor: ${vendedor}`, 10, 37);
                             doc.text(`Cliente: ${cliente}`, 10, 42);
 
