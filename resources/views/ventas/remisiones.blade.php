@@ -25,6 +25,8 @@
                         <th>Productos</th>
                         <th>Total</th>
                         <th>Estatus</th>
+                        <th>Es Reparto</th>
+                        <th>Asignado por</th>
                         <th>Imprimir</th>
                         <th>Cancelar</th>
 
@@ -162,6 +164,12 @@
                     },
                     {
                         "data": "estatus"
+                    },
+                    {
+                        "data": "reparto"
+                    },
+                    {
+                        "data": "vendedor_reparto"
                     },
                     {
                         "data": "imprimir",
@@ -341,14 +349,14 @@
             </thead>
             <tbody>
                 ${productos.map(p => `
-                                                    <tr>
-                                                        <td>${p.codigo || ''}</td>
-                                                        <td>${p.cantidad || ''}</td>
-                                                        <td>${p.descripcion || ''}</td>
-                                                        <td>${p.precio ? '$' + p.precio: ''}</td>
-                                                        <td>${p.total ? '$' + p.total : ''}</td>
-                                                    </tr>
-                                                `).join('')}
+                                                                    <tr>
+                                                                        <td>${p.codigo || ''}</td>
+                                                                        <td>${p.cantidad || ''}</td>
+                                                                        <td>${p.descripcion || ''}</td>
+                                                                        <td>${p.precio ? '$' + p.precio: ''}</td>
+                                                                        <td>${p.total ? '$' + p.total : ''}</td>
+                                                                    </tr>
+                                                                `).join('')}
                 <tr>
                     <td colspan="4" style="text-align: right;">TOTAL:</td>
                     <td>$${total ? total.toFixed(2) : '0.00'}</td>

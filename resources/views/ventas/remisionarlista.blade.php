@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Cuentas por cobrar Cliente')
+@section('title', 'Remisionar')
 
 @section('content_header')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
@@ -12,12 +12,12 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h2>Cuentas por cobrar Cliente</h2>
+            <h2>Remisionar lista especial</h2>
         </div>
         <div class="card-body">
 
 
-            <form id="cxccliente">
+            <form id="remisionar">
 
                 <div class="row">
                     <div class="col"><label for="vendedor">Vendedor:</label></div>
@@ -83,27 +83,45 @@
 
                     </div>
                 </div>
+                @if ($type != 4)
+                    <div class="row">
+                        <div class="col"><label for="reparto">Es reparto:</label></div>
+                        <div class="col">
+                            <input class="form-check-input" type="checkbox" id="reparto" name="reparto" value="1">
+                        </div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div id = "vreparto" style="display: none;">
+                            <div class="col"><label for="vendedor_reparto">Vendedor Reparto:</label></div>
+
+                            <div class="col">
+                                <select name="vendedor_reparto" id="vendedor_reparto" class="form-control">
+                                    @foreach ($vendedores as $vendedor)
+                                        <option value="{{ $vendedor->id }}">{{ $vendedor->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                @endif
+
                 <br>
 
-                <div class="row">
-                    <div class="col"><label for="fecha">Tipo de Precio:</label></div>
-                    <div class="col"><input type="text" class="form-control" id="tipo" name = "tipo"
-                            data-value="" value="" readonly></div>
-                    <div class="col"><label for="cantidad_abonada">Cantidad Abonada:</label></div>
-                    <div class="col">
-                        <input id="cantidad_abonada" name="cantidad_abonada" rows="3" cols="21"
-                            class="form-control" data-value="" value="" type= "number"></input>
-                    </div>
-                </div>
+
                 <div class="row">
                     <div class="col">
                         <div class="btn btn-primary" onclick="buscarProducto()">Agregar otro producto</div>
                     </div>
+
+
                 </div>
 
                 <br>
-
-
                 <div class="row">
 
                     <table id="productos" class="table" border="0.1">
@@ -156,11 +174,22 @@
         $(document).ready(function() {
             drawTriangles();
             showUsersSections();
-
+            var type = @json($type);
+            if (type == 4) {
+                $("#tipo_precio").prop("disabled", true);
+            }
 
 
             $('#fecha').val(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000 - 6 * 60 * 60000)
                 .toISOString().split('T')[0]);
+
+            $('#reparto').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#vreparto').show();
+                } else {
+                    $('#vreparto').hide();
+                }
+            });
 
 
         });
@@ -211,6 +240,7 @@
                         var idcliente = obtenerNumerosHastaGuion($('#cliente').val());
                         var cantidad = $('#inputCantidad').val();
                         var idsucursal = $('#sucursal').val();
+                        var idprecio = $('#tipo_precio').val();
                         if (idcliente == null) {
                             idcliente = 1;
                         }
@@ -219,7 +249,8 @@
                             id_producto: idproducto,
                             idcliente: idcliente,
                             cantidad: cantidad,
-                            sucursal: idsucursal
+                            sucursal: idsucursal,
+                            id_precio: 6
                         };
 
                         $.ajax({
@@ -339,8 +370,27 @@
         }
 
 
-        $('#cxccliente').submit(function(e) {
+        $('#remisionar').submit(function(e) {
             e.preventDefault(); // Evitar la recarga de la página
+            total_cantidad = 0;
+
+
+            $('#productos tbody tr').each(function() {
+                const cantidad = parseInt($(this).find('td:eq(1)').text()) || 0;
+                total_cantidad += cantidad;
+            });
+
+            if (total_cantidad < 12) {
+                Swal.fire({
+                    title: 'Se requiere tener al menos 12 productos',
+                    icon: 'warning'
+                });
+                return;
+            }
+
+
+
+
 
             // Obtener los datos del formulario y generar la tabla inicial
             var datosFormulario = $(this).serialize();
@@ -354,6 +404,14 @@
                 });
             }
 
+
+            datos = datos.filter(item => item.key !== 'sucursal');
+            suc = $('#sucursal option:selected').text();
+            datos.push({
+                key: "nombre_sucursal",
+                value: suc
+            });
+
             // Crear la tabla HTML
             var table =
                 '<table style="width:100%; border: 1px solid black; border-collapse: collapse; font-size: 15px;">';
@@ -365,6 +423,9 @@
                     '</td></tr>';
             });
             table += '</table>';
+
+
+
 
             // Clonar la tabla con id="productos" y quita ultima columna
             var $productoTableClone = $('#productos').clone();
@@ -396,7 +457,7 @@
 
             // Mostrar el cuadro de diálogo de confirmación con SweetAlert
             Swal.fire({
-                title: '¡Se realizará una cuenta por cobrar con los siguientes datos!',
+                title: '¡Se realizará una remisión con los siguientes datos!',
                 html: table + '<br>' + productoTableHtml,
                 icon: 'warning',
                 showCancelButton: true,
@@ -418,13 +479,15 @@
                     var hora = new Date().toLocaleString('es-MX', opciones);
                     var nota = $('#nota').val();
                     var vendedor = $('#vendedor').data('value');
-                    var cantidadTotalLetra = convertirNumeroALetras(sum);
+                    var tipo_precio = 6;
+                    var reparto = $('#reparto').val();
                     var cliente = $('#cliente').val();
+                    var cantidadTotalLetra = convertirNumeroALetras(sum);
                     var forma_pago = $('#metodo_pago').val();
                     var $productoTableClone2 = $('#productos').clone();
 
                     numeroRemision = validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago,
-                        $productoTableClone2);
+                        $productoTableClone2, tipo_precio, reparto);
 
 
                 }
@@ -432,37 +495,10 @@
         });
 
 
-        $('#cliente').on('change', function() {
-            var cliente = $(this).val();
-            var idcliente = obtenerNumerosHastaGuion(cliente);
 
-            // Hacer la llamada AJAX
-            $.ajax({
-                url: 'buscaridprecio', // Cambia esta URL a la correcta
-                type: 'POST',
-                data: {
-                    idcliente: idcliente
-                },
-                dataType: 'json',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    // Actualizar el valor del input #tipo con el valor recibido
-                    if (response.nombreprecio == null) {
-                        $('#tipo').val("Publico");
-                    } else {
-                        $('#tipo').val(response.nombreprecio);
-                    }
 
-                },
-                error: function(xhr, status, error) {
-                    console.error(error);
-                }
-            });
-        });
-
-        function validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago, numeroRemision) {
+        function validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago, numeroRemision, tipo_precio,
+            reparto) {
 
             var $productoTableClone = $('#productosClone').clone();
 
@@ -479,8 +515,10 @@
             tableData.forEach(element => {
                 total += parseInt(element.Subtotal);
             });
+            var nombreSucursal = $("#sucursal option:selected").text();
 
             const data = {
+                nombreSucursal: nombreSucursal,
                 nota: nota,
                 fecha: hora,
                 forma_pago: forma_pago,
@@ -488,11 +526,13 @@
                 vendedor: vendedor,
                 cliente: cliente,
                 productos: jsonString,
-                total: total
+                total: total,
+                tipo_precio: tipo_precio,
+                reparto: reparto
             };
             var msg = "";
             $.ajax({
-                url: 'validarcxc', // URL a la que se hace la solicitud
+                url: 'validarremision', // URL a la que se hace la solicitud
                 type: 'POST', // Tipo de solicitud (GET, POST, etc.)
                 data: data,
                 dataType: 'json', // Tipo de datos esperados en la respuesta
@@ -528,12 +568,13 @@
                             doc.setFontSize(9);
                             doc.setFont('helvetica', 'bold');
                             doc.text('GRUPO PROGYMS', 30, 2);
-                            doc.text(`Sucursal: ${idsucursal}`, 29, 7);
+                            doc.text(`Sucursal: ${nombreSucursal}`, 29, 7);
                             doc.text(`Remisión No.: ${numeroRemision}`, 10, 12);
                             doc.text(`Hora.: ${hora}`, 10, 17);
                             doc.text(`Nota: ${nota}`, 10, 22);
                             doc.text(`Forma de pago : ${forma_pago}`, 10, 27);
                             doc.text(`Almacen: ${idsucursal}`, 10, 32);
+                            doc.setFontSize(7);
                             doc.text(`Vendedor: ${vendedor}`, 10, 37);
                             doc.text(`Cliente: ${cliente}`, 10, 42);
 

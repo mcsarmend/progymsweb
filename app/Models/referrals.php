@@ -25,5 +25,8 @@ class referrals extends Model
         'total',
         'estatus',
         'tipo_de_precio',
+        'isar',
+        'reparto',
+        'vendedor_reparto',
     ];
 }

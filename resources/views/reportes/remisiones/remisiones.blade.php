@@ -190,6 +190,36 @@
                             {
                                 "data": "estatus"
                             },
+                            {
+                                "data": "reparto"
+                            },
+                            {
+                                "data": "vendedor_reparto"
+                            },
+                            {
+                                "data": "imprimir",
+                                "render": function(data, type, row) {
+                                    return '<button onclick="imprimir(' + JSON
+                                        .stringify(row).replace(/"/g,
+                                            "'") +
+                                        ')" class="btn btn-primary">Imprimir</button>';
+                                }
+                            },
+                            {
+                                "data": "cancelar",
+                                "render": function(data, type, row) {
+
+                                    if (row.estatus == "cancelada") {
+                                        return '-';
+                                    } else {
+
+                                        return '<button onclick="cancelar_remision(' +
+                                            row.id +
+                                            ')" class="btn btn-danger">Cancelar</button>';
+                                    }
+
+                                }
+                            },
 
 
                         ]

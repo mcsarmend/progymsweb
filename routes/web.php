@@ -41,15 +41,21 @@ Route::get('/politicaprivacidad', [dashboardController::class, 'politicaprivacid
 //Rutas
 
 //CUENTAS
-Route::get('cxccliente', [cuentasController::class, 'cxccliente'])->middleware(['auth']);
-Route::get('cxpcliente', [cuentasController::class, 'cxpcliente'])->middleware(['auth']);
+Route::get('crearcxc', [cuentasController::class, 'crearcxc'])->middleware(['auth']);
+Route::get('abonocxc', [cuentasController::class, 'abonocxc'])->middleware(['auth']);
+Route::get('reportecxc', [cuentasController::class, 'reportecxc'])->middleware(['auth']);
+
+Route::post('crearcxcevento', [cuentasController::class, 'crearcxcevento'])->middleware(['auth']);
+Route::post('abonocxcevento', [cuentasController::class, 'abonocxcevento'])->middleware(['auth']);
 
 //REMISIONES
 Route::get('remisionar', [ventasController::class, 'remisionar'])->middleware(['auth']);
+Route::get('remisionarlista', [ventasController::class, 'remisionarlista'])->middleware(['auth']);
 Route::get('remisiones', [ventasController::class, 'remisiones'])->middleware(['auth']);
 Route::get('ventasreportes', [ventasController::class, 'ventasreportes'])->middleware(['auth']);
 Route::get('verproductosremision', [ventasController::class, 'verproductosremision'])->middleware(['auth']);
 Route::get('cortedecaja', [ventasController::class, 'cortedecaja'])->middleware(['auth']);
+Route::get('buscarremision', [ventasController::class, 'buscarremision'])->middleware(['auth']);
 
 Route::post('enviarinfocortecaja', [ventasController::class, 'enviarinfocortecaja'])->middleware(['auth']);
 Route::post('buscarprecio', [ventasController::class, 'buscarprecio'])->middleware(['auth']);

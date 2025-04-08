@@ -30,7 +30,12 @@ BEGIN
         w.nombre AS almacen,
         u.name AS vendedor,
         r.estatus,
-        p.nombre AS precio
+        p.nombre AS precio,
+    CASE
+        WHEN r.reparto = 1 THEN 'Sí'
+        WHEN r.reparto = 0 THEN 'No'
+        ELSE 'No definido' -- Opcional para valores NULL u otros
+    END AS reparto
     FROM referrals r
     LEFT JOIN warehouse w ON r.almacen = w.id
     LEFT JOIN users u ON r.vendedor = u.id

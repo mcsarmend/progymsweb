@@ -113,6 +113,22 @@
                     </div>
                 @endif
                 <div class="row">
+                    <div class="col"><label for="reparto">Es reparto:</label></div>
+                    <div class="col">
+                        <input class="form-check-input" type="checkbox" id="reparto" name="reparto" value="1">
+                    </div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+
+                </div>
+
+                <div class="row">
                     <div class="col">
                         <div class="btn btn-primary" onclick="buscarProducto()">Agregar otro producto</div>
                     </div>

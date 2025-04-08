@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\accounts_receivable;
 use App\Models\clients;
 use App\Models\prices;
 use App\Models\product;
@@ -9,6 +10,7 @@ use App\Models\productprice;
 use App\Models\productwarehouse;
 use App\Models\referrals;
 use App\Models\stockMovements;
+use App\Models\user;
 use App\Models\warehouse;
 use Carbon\Carbon;
 use DateTime;
@@ -29,14 +31,41 @@ class ventasController extends Controller
         $idssucursales = warehouse::select('id', 'nombre')
             ->get();
 
-        $clientes  = clients::all();
-        $type      = $this->gettype();
+        $clientes   = clients::all();
+        $type       = $this->gettype();
+        $vendedores = DB::table('users')
+            ->select('id', 'name')
+            ->get();
         $productos = Product::leftJoin('product_warehouse', 'product.id', '=', 'product_warehouse.idproducto')
             ->where('product_warehouse.idwarehouse', $idsucursal)
             ->select('product.*') // Selecciona las columnas de la tabla principal
             ->get();
 
-        return view('ventas.remisionar', ['type' => $type, 'idssucursales' => $idssucursales, 'idsucursal' => $idsucursal, 'nombresucursal' => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor' => $vendedor, 'clientes' => $clientes, 'productos' => $productos]);
+        return view('ventas.remisionar', ['type' => $type, 'idssucursales' => $idssucursales, 'idsucursal' => $idsucursal, 'nombresucursal' => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor' => $vendedor, 'clientes' => $clientes, 'productos' => $productos, 'vendedores' => $vendedores]);
+    }
+    public function remisionarlista()
+    {
+        $idsucursal     = Auth::user()->warehouse;
+        $vendedor       = Auth::user()->name;
+        $idvendedor     = Auth::user()->id;
+        $nombresucursal = warehouse::select('nombre')
+            ->where('id', '=', $idsucursal)
+            ->first();
+        $idssucursales = warehouse::select('id', 'nombre')
+            ->get();
+        $vendedores = user::all();
+
+        $clientes  = clients::all();
+        $type      = $this->gettype();
+        $productos = Product::leftJoin('product_warehouse', 'product.id', '=', 'product_warehouse.idproducto')
+            ->leftJoin('product_price', 'product.id', '=', 'product_price.idproducto') // Relación correcta
+            ->where('product_warehouse.idwarehouse', $idsucursal)
+            ->where('product_price.idprice', 6) // Filtro adicional (si es necesario)
+            ->select('product.*', 'product_price.price as precio')
+            ->get();
+
+        return view('ventas.remisionarlista', ['type' => $type, 'idssucursales'        => $idssucursales, 'idsucursal' => $idsucursal,
+            'nombresucursal'                              => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor'      => $vendedor, 'clientes' => $clientes, 'productos' => $productos, 'vendedores' => $vendedores]);
     }
     public function remisiones()
     {
@@ -116,7 +145,6 @@ class ventasController extends Controller
 
     public function validarremision(Request $request)
     {
-
         try {
             // Crear una nueva instancia del modelo referrals
             $remision                 = new referrals();
@@ -132,6 +160,13 @@ class ventasController extends Controller
             $remision->total          = $request->total;
             $remision->estatus        = "emitida";
             $remision->tipo_de_precio = $request->tipo_precio;
+            if ($request->reparto == null) {
+                $remision->reparto = 0;
+
+            } else {
+                $remision->reparto          = $request->reparto;
+                $remision->vendedor_reparto = $request->vendedor_reparto;
+            }
 
             $productos           = json_decode($request->productos);
             $remision->productos = json_encode($productos); // Convertir el array de productos a JSON
@@ -195,6 +230,61 @@ class ventasController extends Controller
 
         return response()->json(['productos' => $productos], 200);
     }
+
+    public function buscarremision(Request $request)
+    {
+
+        $remision = $request->numero_remision;
+
+        try {
+            $data     = [];
+            $referral = referrals::select([
+                'r.id',
+                'r.fecha',
+                'r.nota',
+                'r.forma_pago',
+                'w.nombre as almacen',
+                'u.name as vendedor',
+                'r.cliente',
+                'r.productos',
+                'r.total',
+                'r.estatus',
+                'p.nombre as tipo_de_precio',
+                'r.total',
+            ])
+                ->from('referrals as r')
+                ->leftJoin('users as u', 'r.vendedor', '=', 'u.id')
+                ->leftJoin('warehouse as w', 'r.almacen', '=', 'w.id')
+                ->leftJoin('prices as p', 'r.tipo_de_precio', '=', 'p.id')
+                ->where('r.id', $remision)
+                ->first();
+            $datos              = json_decode($referral, true);
+            $datos['productos'] = json_decode($datos['productos'], true);
+
+            $accounts_receivable = accounts_receivable::select(['*'])
+                ->from('accounts_receivable as ar')
+                ->where('ar.remision', $remision)
+                ->first();
+
+            $datos["cxc"] = json_decode($accounts_receivable, true);
+
+            $respuesta = ['data' => $datos];
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Remisión encontrada',
+                'data'    => $respuesta,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al buscar remisión: ' . $e->getMessage(),
+                'data'    => null,
+            ], 500);
+        }
+
+    }
+
     public function cortedecaja()
     {
         $type       = $this->gettype();
