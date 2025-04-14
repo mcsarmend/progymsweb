@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\accounts_receivable;
+use App\Models\cash_closure;
 use App\Models\clients;
 use App\Models\prices;
 use App\Models\product;
@@ -147,19 +148,20 @@ class ventasController extends Controller
     {
         try {
             // Crear una nueva instancia del modelo referrals
-            $remision                 = new referrals();
-            $date                     = DateTime::createFromFormat('j/n/Y, H:i:s', $request->fecha);
-            $fechaMysql               = $date->format('Y-m-d H:i:s');
-            $remision->fecha          = $fechaMysql;
-            $remision->nota           = $request->nota;
-            $remision->forma_pago     = $request->forma_pago;
-            $remision->vendedor       = $request->vendedor;
-            $remision->cliente        = $request->cliente;
-            $almacen                  = $request->almacen;
-            $remision->almacen        = $almacen;
-            $remision->total          = $request->total;
-            $remision->estatus        = "emitida";
-            $remision->tipo_de_precio = $request->tipo_precio;
+            $remision                   = new referrals();
+            $date                       = DateTime::createFromFormat('j/n/Y, H:i:s', $request->fecha);
+            $fechaMysql                 = $date->format('Y-m-d H:i:s');
+            $remision->fecha            = $fechaMysql;
+            $remision->nota             = $request->nota;
+            $remision->forma_pago       = $request->forma_pago;
+            $remision->vendedor         = $request->vendedor;
+            $remision->cliente          = $request->cliente;
+            $almacen                    = $request->almacen;
+            $remision->almacen          = $almacen;
+            $remision->total            = $request->total;
+            $remision->estatus          = "emitida";
+            $remision->tipo_de_precio   = $request->tipo_precio;
+            $remision->vendedor_reparto = $request->vendedor_reparto;
             if ($request->reparto == null) {
                 $remision->reparto = 0;
 
@@ -308,13 +310,45 @@ class ventasController extends Controller
             }
         }
 
-        // Calcular totales por forma de pago
-        $totales_por_pago = $remisiones_por_pago->map(function ($items) {
-            return $items->sum('total');
-        });
+        $datos = json_decode($remisiones_por_pago, true);
 
-        // Calcular el total general
-        $total_general = $totales_por_pago->sum();
+        // Filtrar cada método de pago
+        $resultado = [];
+        foreach ($datos as $metodo => $ventas) {
+            // Si no hay ventas, mantener el array vacío
+            if (empty($ventas)) {
+                $resultado[$metodo] = [];
+                continue;
+            }
+
+            // Filtrar solo las ventas con estatus "emitida"
+            $ventasFiltradas = array_filter($ventas, function ($venta) {
+                return $venta['estatus'] === 'emitida';
+            });
+
+            // Reindexar el array (opcional, para que no queden huecos en los índices)
+            $resultado[$metodo] = array_values($ventasFiltradas);
+        }
+
+        //return ['remisiones_por_pago' => $remisiones_por_pago, "*************************************************************", 'resultado' => $resultado];
+        $remisiones_por_pago = $resultado;
+
+        $remisiones_por_pago = array_map(function ($metodo) {
+            return array_map(function ($remision) {
+                return (object) $remision; // Convierte cada array a objeto
+            }, $metodo);
+        }, $remisiones_por_pago);
+
+        $totales_por_pago = [
+            "efectivo"      => array_sum(array_column($remisiones_por_pago["efectivo"], "total")),
+            "transferencia" => array_sum(array_column($remisiones_por_pago["transferencia"], "total")),
+            "clip"          => array_sum(array_column($remisiones_por_pago["clip"], "total")),
+            "terminal"      => array_sum(array_column($remisiones_por_pago["terminal"], "total")),
+            "mercado_pago"  => array_sum(array_column($remisiones_por_pago["mercado_pago"], "total")),
+            "vales"         => array_sum(array_column($remisiones_por_pago["vales"], "total")),
+        ];
+
+        $total_general = array_sum($totales_por_pago);
 
         return view('ventas.cortedecaja', [
             'type'                => $type,
@@ -323,10 +357,7 @@ class ventasController extends Controller
             'total_general'       => $total_general,
         ]);
     }
-    public function enviarinfocortecaja(Request $request)
-    {
-        return $request;
-    }
+
     public function cancelarremision(Request $request)
     {
         try {
@@ -386,6 +417,44 @@ class ventasController extends Controller
             return response()->json(['message' => 'Error al cenlar la remision' . $th->getMessage()], 200);
         }
 
+    }
+
+    public function enviarinfocortecaja(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $corteCaja                          = new cash_closure();
+            $corteCaja->total_general           = (float) $request->total_general;
+            $corteCaja->total_efectivo_entregar = (float) $request->total_efectivo_entregar;
+            $corteCaja->formas_pago             = json_encode($request->formas_pago);              // Convertir a JSON
+            $corteCaja->inputs_adicionales      = json_encode($request->inputs_adicionales ?? []); // Convertir a JSON
+            $corteCaja->vendedor                = auth()->id() ?? 1;
+            $corteCaja->estado                  = 'pendiente';
+            $corteCaja->observaciones           = $request->observaciones ?? null;
+
+            // Guardar el usuario en la base de datos
+            $corteCaja->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Corte de caja registrado correctamente',
+                'data'    => $corteCaja,
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al registrar el corte de caja',
+                'error'   => $e->getMessage(),
+                'trace'   => env('APP_DEBUG') ? $e->getTrace() : null,
+            ], 500);
+        }
     }
 
     public function reporteremisiones(Request $request)

@@ -674,6 +674,11 @@ return [
                             'url'  => 'reporteremisiones',
                             'icon' => 'fas fa-file-alt',
                         ],
+                        [
+                            'text' => 'Corte de Caja',
+                            'url'  => 'reportecortecaja',
+                            'icon' => 'fas fa-money-bill-wave',
+                        ],
 
                     ],
                 ],

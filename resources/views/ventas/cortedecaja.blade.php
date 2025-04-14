@@ -28,12 +28,7 @@
                                 id="total-efectivo-entregar">
                                 <strong>$0.00</strong>
                             </p>
-                            <hr style="border: 1px solid #000;">
-                            <div class="concept-container" id="cxc-container">
-                                <div class="concept-header">CXC</div>
-                                <div class="inputs-container" id="cxc-inputs"></div>
-                                <button class="add-button" onclick="addInput('cxc-inputs')">Agregar</button>
-                            </div>
+
                             <hr style="border: 1px solid #000;">
                             <div class="concept-container" id="remesa-recibida-container">
                                 <div class="concept-header">REMESA RECIBIDA</div>
@@ -47,22 +42,10 @@
                                 <button class="add-button" onclick="addInput('remesa-entregada-inputs')">Agregar</button>
                             </div>
                             <hr style="border: 1px solid #000;">
-                            <div class="concept-container" id="abonos-cxc-container">
-                                <div class="concept-header">ABONOS A CXC EN EFECTIVO</div>
-                                <div class="inputs-container" id="abonos-cxc-inputs"></div>
-                                <button class="add-button" onclick="addInput('abonos-cxc-inputs')">Agregar</button>
-                            </div>
-                            <hr style="border: 1px solid #000;">
                             <div class="concept-container" id="otras-ventas-container">
                                 <div class="concept-header">OTRAS VENTAS</div>
                                 <div class="inputs-container" id="otras-ventas-inputs"></div>
                                 <button class="add-button" onclick="addInput('otras-ventas-inputs')">Agregar</button>
-                            </div>
-                            <hr style="border: 1px solid #000;">
-                            <div class="concept-container" id="cuentas-por-pagar-container">
-                                <div class="concept-header">CUENTAS POR PAGAR</div>
-                                <div class="inputs-container" id="cuentas-por-pagar-inputs"></div>
-                                <button class="add-button" onclick="addInput('cuentas-por-pagar-inputs')">Agregar</button>
                             </div>
                             <hr style="border: 1px solid #000;">
                             <div class="concept-container" id="gastos-en-general-container">
@@ -117,6 +100,13 @@
                                 <br>
                             @endif
                         @endforeach
+
+                        <div class="col"><label for="observaciones">Observaciones:</label></div>
+                        <div class="col">
+                            <textarea id="observaciones" name="observaciones" rows="3" cols="120" placeholder="Escribe tu texto aquí..."
+                                data-value="" value=""></textarea>
+                        </div>
+                        <br>
 
                         <button type="button" class="btn btn-primary" onclick="sendDataAsJson()">Enviar como JSON</button>
                 </form>
@@ -247,41 +237,6 @@
 
         });
 
-        function addInput(containerId) {
-            const container = document.getElementById(containerId);
-
-            // Crear un grupo para los inputs
-            const inputGroup = document.createElement('div');
-            inputGroup.classList.add('input-group');
-
-            // Crear input para el monto
-            const montoInput = document.createElement('input');
-            montoInput.type = 'number';
-            montoInput.placeholder = 'Monto';
-            montoInput.required = true;
-
-            // Crear input para el concepto
-            const conceptoInput = document.createElement('input');
-            conceptoInput.type = 'text';
-            conceptoInput.placeholder = 'Concepto';
-            conceptoInput.required = true;
-
-            // Botón para eliminar la fila
-            const removeButton = document.createElement('button');
-            removeButton.textContent = 'Eliminar';
-            removeButton.classList.add('remove-button');
-            removeButton.onclick = function() {
-                container.removeChild(inputGroup);
-            };
-
-            // Agregar inputs y botón al grupo
-            inputGroup.appendChild(montoInput);
-            inputGroup.appendChild(conceptoInput);
-            inputGroup.appendChild(removeButton);
-
-            // Agregar el grupo al contenedor
-            container.appendChild(inputGroup);
-        }
 
         function sendDataAsJson() {
 
@@ -289,7 +244,8 @@
                 total_general: parseFloat($("#total-general").text().replace("$", "").trim()) || 0,
                 total_efectivo_entregar: parseFloat($("#total-efectivo-entregar").text().replace("$", "").trim()) || 0,
                 inputs_adicionales: {},
-                formas_pago: []
+                formas_pago: [],
+                observaciones: $("#observaciones").val() || "Sin Observaciones"
             };
 
             // Recopilar los datos de los inputs adicionales (CXC, REMESA RECIBIDA, etc.)
@@ -297,8 +253,14 @@
                 let conceptId = $(this).attr('id').replace('-container', '');
                 let inputs = [];
                 $(this).find(".inputs-container input").each(function() {
-                    inputs.push(parseFloat($(this).val()) ||
-                        0); // Obtener el valor del input, por si está vacío lo consideramos como 0
+                    valor = $(this).val()
+
+                    if ($.isNumeric(valor)) {
+                        inputs.push(parseFloat($(this).val()) || 0);
+                    } else {
+                        inputs.push($(this).val() || "Sin Concepto");
+                    }
+
                 });
                 data.inputs_adicionales[conceptId] = inputs;
             });
@@ -306,8 +268,12 @@
             // Obtener las formas de pago
             $("h3:contains('Forma de Pago:')").each(function() {
                 let formaPago = $(this).text().replace("Forma de Pago: ", "").trim();
-                let totalFormaPago = parseFloat($(this).next("table").find("tfoot td strong").text().replace("$",
-                    "").trim()) || 0;
+
+                let tabla = $(this).next("table");
+                let totalTexto = tabla.find("tfoot td strong").text().trim();
+                let totalFormaPago = parseFloat(totalTexto.replace(/[^\d.]/g, '')) || 0;
+
+
                 let remisiones = [];
 
                 // Recopilar las remisiones dentro de esta forma de pago
@@ -331,32 +297,32 @@
 
 
 
-            console.log("Datos a enviar:", data);
 
-            // // Enviar los datos como JSON mediante Ajax
-            // $.ajax({
-            //     url: '/enviarinfocortecaja', // Ajusta la ruta al endpoint adecuado
-            //     type: 'POST',
-            //     contentType: 'application/json',
-            //     data: JSON.stringify(formData),
-            //     headers: {
-            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-            //     },
-            //     success: function(response) {
-            //         Swal.fire(
-            //             '¡Datos enviados!',
-            //             'Se ha procesado correctamente la información.',
-            //             'success'
-            //         );
-            //     },
-            //     error: function(response) {
-            //         Swal.fire(
-            //             '¡Error!',
-            //             'Hubo un problema al procesar la información.',
-            //             'error'
-            //         );
-            //     }
-            // });
+
+            // Enviar los datos como JSON mediante Ajax
+            $.ajax({
+                url: '/enviarinfocortecaja', // Ajusta la ruta al endpoint adecuado
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                },
+                success: function(response) {
+                    Swal.fire(
+                        '¡Datos enviados!',
+                        'Se ha procesado correctamente la información.',
+                        'success'
+                    );
+                },
+                error: function(response) {
+                    Swal.fire(
+                        '¡Error!',
+                        'Hubo un problema al procesar la información.',
+                        'error'
+                    );
+                }
+            });
         }
 
 
@@ -407,33 +373,35 @@
 
             // Variables para sumar valores
             let remesaRecibida = sumContainerInputs('remesa-recibida-container');
-            let abonosCxc = sumContainerInputs('abonos-cxc-container');
             let otrasVentas = sumContainerInputs('otras-ventas-container');
             let remesaEntregada = sumContainerInputs('remesa-entregada-container');
-            let cuentasPorPagar = sumContainerInputs('cuentas-por-pagar-container');
             let totalPorEfectivo = parseFloat('{{ $totales_por_pago['efectivo'] ?? 0 }}');
             let totalPorTransferencia = parseFloat('{{ $totales_por_pago['transferencia'] ?? 0 }}');
             let totalPorTerminal = parseFloat('{{ $totales_por_pago['terminal'] ?? 0 }}');
             let totalPorClip = parseFloat('{{ $totales_por_pago['clip'] ?? 0 }}');
             let totalPorMercadoPago = parseFloat('{{ $totales_por_pago['mercado_pago'] ?? 0 }}');
             let totalPorVales = parseFloat('{{ $totales_por_pago['vales'] ?? 0 }}');
+            let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
+
 
             // Cálculo de total general
+
             totalGeneral =
                 remesaRecibida +
-                abonosCxc +
                 otrasVentas +
                 totalPorEfectivo +
                 totalPorTransferencia +
                 totalPorTerminal +
                 totalPorClip +
                 totalPorMercadoPago +
-                totalPorVales -
-                remesaEntregada -
-                cuentasPorPagar;
+                totalPorVales;
+
+
+            total_electronico = totalPorTransferencia + totalPorTerminal + totalPorClip + totalPorMercadoPago +
+                totalPorVales
 
             // Cálculo de total efectivo
-            totalEfectivo = remesaRecibida + abonosCxc + otrasVentas + totalPorEfectivo;
+            totalEfectivo = totalGeneral - remesaEntregada - gastosEnGeneral - total_electronico;
 
             // Actualizar los valores en pantalla
             document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;

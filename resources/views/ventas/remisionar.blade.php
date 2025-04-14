@@ -112,21 +112,35 @@
                         </div>
                     </div>
                 @endif
-                <div class="row">
-                    <div class="col"><label for="reparto">Es reparto:</label></div>
-                    <div class="col">
-                        <input class="form-check-input" type="checkbox" id="reparto" name="reparto" value="1">
-                    </div>
-                    <div class="col"></div>
-                    <div class="col"></div>
-                    <div class="col"></div>
-                    <div class="col"></div>
-                    <div class="col"></div>
-                    <div class="col"></div>
-                    <div class="col"></div>
-                    <div class="col"></div>
+                @if ($type != 4)
+                    <div class="row">
+                        <div class="col"><label for="reparto">Es reparto:</label></div>
+                        <div class="col">
+                            <input class="form-check-input" type="checkbox" id="reparto" name="reparto"
+                                value="1">
+                        </div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div class="col"></div>
+                        <div id = "vreparto" style="display: none;">
+                            <div class="col"><label for="vendedor_reparto">Vendedor Reparto:</label></div>
 
-                </div>
+                            <div class="col">
+                                <select name="vendedor_reparto" id="vendedor_reparto" class="form-control">
+                                    <option value="">Selecciona un vendedor</option>
+                                    @foreach ($vendedores as $vendedor)
+                                        <option value="{{ $vendedor->id }}">{{ $vendedor->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                @endif
+
 
                 <div class="row">
                     <div class="col">
@@ -196,7 +210,13 @@
             $('#fecha').val(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000 - 6 * 60 * 60000)
                 .toISOString().split('T')[0]);
 
-
+            $('#reparto').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#vreparto').show();
+                } else {
+                    $('#vreparto').hide();
+                }
+            });
         });
 
 
@@ -244,7 +264,13 @@
                         const idproducto = obtenerNumerosHastaGuion(result.value.producto);
                         var idcliente = obtenerNumerosHastaGuion($('#cliente').val());
                         var cantidad = $('#inputCantidad').val();
-                        var idsucursal = $('#sucursal').val();
+                        var idsucursal = 0;
+                        var type = @json($type);
+                        if (type == 4) {
+                            idsucursal = parseInt($('#sucursal').data('value'));
+                        } else {
+                            idsucursal = $('#sucursal').val();
+                        }
                         var idprecio = $('#tipo_precio').val();
                         if (idcliente == null) {
                             idcliente = 1;
@@ -455,8 +481,15 @@
                 if (result.isConfirmed) {
                     // Obtener los valores necesarios para el PDF
                     var nombreSucursal = $("#sucursal option:selected").text();
-                    var idsucursal = $('#sucursal').val();
-                    numeroRemision = "123456789";
+                    var idsucursal = 0;
+                    var type = @json($type);
+                    if (type == 4) {
+                        idsucursal = parseInt($('#sucursal').data('value'));
+                    } else {
+                        idsucursal = $('#sucursal').val();
+                    }
+
+
                     var fecha = $('#fecha').val();
                     const opciones = {
                         timeZone: 'America/Mexico_City',

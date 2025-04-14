@@ -1,9 +1,7 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\clients;
-use App\Models\referrals;
 use App\Models\stockMovements;
 use App\Models\supplier;
 use Carbon\Carbon;
@@ -44,6 +42,11 @@ class reportesController extends Controller
         $type = $this->gettype();
         return view('reportes.remisiones.remisiones', ['type' => $type]);
     }
+    public function reportecortecaja()
+    {
+        $type = $this->gettype();
+        return view('reportes.remisiones.cortecaja', ['type' => $type]);
+    }
     public function reporteinventariolistaprecios()
     {
         $type = $this->gettype();
@@ -60,8 +63,8 @@ class reportesController extends Controller
 
     public function reporteclienteslista()
     {
-        $type = $this->gettype();
-        $type = $this->gettype();
+        $type    = $this->gettype();
+        $type    = $this->gettype();
         $clients = clients::select('clients.nombre', 'clients.telefono', 'warehouse.nombre as sucursal', 'prices.nombre as precio')
             ->leftJoin('warehouse', 'clients.sucursal', '=', 'warehouse.id')
             ->leftJoin('prices', 'clients.precio', '=', 'prices.id')
@@ -77,36 +80,39 @@ class reportesController extends Controller
     public function reporteproveedoreslista()
     {
         $proveedores = supplier::all();
-        $type = $this->gettype();
+        $type        = $this->gettype();
         return view('proveedores.proveedores', ['type' => $type, 'suppliers' => $proveedores]);
     }
 
     public function generarreporteremisiones(Request $request)
     {
         try {
-            $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $timezone   = 'America/Mexico_City';
+            $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString(); // '2024-12-10 00:00:00'
+            $hoy_fin    = Carbon::today($timezone)->endOfDay()->toDateTimeString();   // '2024-12-10 23:59:59'
+            $id         = Auth::user()->id;
+            $query      = 'CALL obtenerremisiones("' . $hoy_inicio . '","' . $hoy_fin . '",NULL)';
 
-            // Obtener remisiones en el rango de fechas
-            $remisiones = referrals::whereBetween('fecha', [$dateStart, $dateEnd])->get();
+            $remisiones = DB::select($query);
 
-            $remisiones = referrals::whereBetween('fecha', [$dateStart, $dateEnd])
-                ->leftJoin('warehouse as w', 'referrals.almacen', '=', 'w.id')
-                ->leftJoin('users as u', 'referrals.vendedor', '=', 'u.id')
-                ->select(
-                    'referrals.id',
-                    'referrals.fecha',
-                    DB::raw('IFNULL(referrals.nota, "SIN NOTA") as nota'),
-                    'referrals.forma_pago',
-                    'referrals.cliente',
-                    'referrals.productos',
-                    'referrals.total',
-                    'w.nombre as almacen',
-                    'u.name as vendedor',
-                    'referrals.estatus'
-                )
-                ->get();
             return response()->json(['message' => 'Reporte Generado Correctamente', 'remisiones' => $remisiones], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+    public function generarreportecortecaja(Request $request)
+    {
+        try {
+            $timezone   = 'America/Mexico_City';
+            $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString(); // '2024-12-10 00:00:00'
+            $hoy_fin    = Carbon::today($timezone)->endOfDay()->toDateTimeString();   // '2024-12-10 23:59:59'
+
+            $query = 'CALL reportecortecaja("' . $hoy_inicio . '","' . $hoy_fin . '")';
+
+            $cortecaja = DB::select($query);
+
+            return response()->json(['message' => 'Reporte Generado Correctamente', 'cortecaja' => $cortecaja], 200);
         } catch (\Throwable $th) {
 
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
@@ -116,7 +122,7 @@ class reportesController extends Controller
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $compras = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
@@ -134,7 +140,7 @@ class reportesController extends Controller
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $traspasos = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
@@ -152,7 +158,7 @@ class reportesController extends Controller
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $mermas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
@@ -170,7 +176,7 @@ class reportesController extends Controller
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $entradas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stockMovements.autor', '=', 'u.id')
@@ -189,7 +195,7 @@ class reportesController extends Controller
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $salidas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
@@ -206,9 +212,9 @@ class reportesController extends Controller
 
     public function verproductosmovimiento(Request $request)
     {
-        $id = $request->id;
+        $id         = $request->id;
         $movimiento = stockMovements::find($id);
-        $productos = json_decode($movimiento->productos);
+        $productos  = json_decode($movimiento->productos);
 
         return response()->json(['productos' => $productos], 200);
     }

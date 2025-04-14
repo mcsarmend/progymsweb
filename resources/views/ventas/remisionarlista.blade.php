@@ -98,6 +98,7 @@
 
                             <div class="col">
                                 <select name="vendedor_reparto" id="vendedor_reparto" class="form-control">
+                                    <option value="">Selecciona un vendedor</option>
                                     @foreach ($vendedores as $vendedor)
                                         <option value="{{ $vendedor->id }}">{{ $vendedor->name }}</option>
                                     @endforeach
@@ -485,9 +486,9 @@
                     var cantidadTotalLetra = convertirNumeroALetras(sum);
                     var forma_pago = $('#metodo_pago').val();
                     var $productoTableClone2 = $('#productos').clone();
-
+                    var vendedor_reparto = $("#vendedor_reparto option:selected").val();
                     numeroRemision = validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago,
-                        $productoTableClone2, tipo_precio, reparto);
+                        $productoTableClone2, tipo_precio, reparto, vendedor_reparto);
 
 
                 }
@@ -498,7 +499,7 @@
 
 
         function validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago, numeroRemision, tipo_precio,
-            reparto) {
+            reparto, vendedor_reparto) {
 
             var $productoTableClone = $('#productosClone').clone();
 
@@ -528,7 +529,8 @@
                 productos: jsonString,
                 total: total,
                 tipo_precio: tipo_precio,
-                reparto: reparto
+                reparto: reparto,
+                vendedor_reparto: vendedor_reparto
             };
             var msg = "";
             $.ajax({
