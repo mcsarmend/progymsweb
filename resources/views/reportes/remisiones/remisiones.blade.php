@@ -39,6 +39,7 @@
                     <tr>
                         <th>Id</th>
                         <th>Fecha</th>
+                        <th>Cliente</th>
                         <th>Nota</th>
                         <th>Forma de pago</th>
                         <th>Tipo de precio</th>
@@ -169,6 +170,9 @@
                             },
                             {
                                 "data": "fecha"
+                            },
+                            {
+                                "data": "cliente"
                             },
                             {
                                 "data": "nota"

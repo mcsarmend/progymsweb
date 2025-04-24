@@ -79,6 +79,12 @@
                             <input type="text" class="form-control" id="cliente" name="cliente" readonly>
                         </div>
                     </div>
+                    <div class="col-md-3" style="display: none">
+                        <div class="form-group">
+                            <label for="idcliente">idcliente:</label>
+                            <input type="text" class="form-control" id="idcliente" name="idcliente" readonly>
+                        </div>
+                    </div>
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="total">Total:</label>
@@ -185,6 +191,7 @@
                             $('#fecha').val(soloFecha);
                             $('#tipo').val(response.data.data.tipo_de_precio || '');
                             $('#cliente').val(response.data.data.cliente || '');
+                            $('#idcliente').val(response.data.data.idcliente || '');
                             $('#total').val(response.data.data.total || '');
                             $('#remision').val(numeroRemision || '');
 
@@ -265,7 +272,7 @@
                 error: function(response) {
                     Swal.fire(
                         '¡Gracias por esperar!',
-                        "Existe un error: " + response.message,
+                        "Existe un error: " + response.responseJSON.message,
                         'error'
                     )
                 }

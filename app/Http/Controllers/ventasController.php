@@ -2,7 +2,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\accounts_receivable;
 use App\Models\cash_closure;
 use App\Models\clients;
 use App\Models\prices;
@@ -148,14 +147,15 @@ class ventasController extends Controller
     {
         try {
             // Crear una nueva instancia del modelo referrals
-            $remision                   = new referrals();
-            $date                       = DateTime::createFromFormat('j/n/Y, H:i:s', $request->fecha);
-            $fechaMysql                 = $date->format('Y-m-d H:i:s');
-            $remision->fecha            = $fechaMysql;
-            $remision->nota             = $request->nota;
-            $remision->forma_pago       = $request->forma_pago;
-            $remision->vendedor         = $request->vendedor;
-            $remision->cliente          = $request->cliente;
+            $remision             = new referrals();
+            $date                 = DateTime::createFromFormat('j/n/Y, H:i:s', $request->fecha);
+            $fechaMysql           = $date->format('Y-m-d H:i:s');
+            $remision->fecha      = $fechaMysql;
+            $remision->nota       = $request->nota;
+            $remision->forma_pago = $request->forma_pago;
+            $remision->vendedor   = $request->vendedor;
+
+            $remision->cliente          = $this->extraerNumeroInicial($request->cliente);
             $almacen                    = $request->almacen;
             $remision->almacen          = $almacen;
             $remision->total            = $request->total;
@@ -247,28 +247,25 @@ class ventasController extends Controller
                 'r.forma_pago',
                 'w.nombre as almacen',
                 'u.name as vendedor',
-                'r.cliente',
+                'c.nombre as cliente',
+                'c.id as idcliente',
                 'r.productos',
                 'r.total',
                 'r.estatus',
                 'p.nombre as tipo_de_precio',
                 'r.total',
+                'ar.saldo_restante as saldo_restante',
             ])
                 ->from('referrals as r')
                 ->leftJoin('users as u', 'r.vendedor', '=', 'u.id')
+                ->leftJoin('clients as c', 'r.cliente', '=', 'c.id')
                 ->leftJoin('warehouse as w', 'r.almacen', '=', 'w.id')
                 ->leftJoin('prices as p', 'r.tipo_de_precio', '=', 'p.id')
+                ->leftJoin('accounts_receivable as ar', 'ar.remision_id', '=', 'r.id')
                 ->where('r.id', $remision)
                 ->first();
             $datos              = json_decode($referral, true);
             $datos['productos'] = json_decode($datos['productos'], true);
-
-            $accounts_receivable = accounts_receivable::select(['*'])
-                ->from('accounts_receivable as ar')
-                ->where('ar.remision', $remision)
-                ->first();
-
-            $datos["cxc"] = json_decode($accounts_receivable, true);
 
             $respuesta = ['data' => $datos];
 
@@ -495,4 +492,13 @@ class ventasController extends Controller
         }
         return $type;
     }
+
+    public function extraerNumeroInicial($cadena)
+    {
+        if (preg_match('/^(\d+)-/', $cadena, $matches)) {
+            return (int) $matches[1]; // Convertimos a entero
+        }
+        return null; // Si no encuentra el patrón
+    }
+
 }

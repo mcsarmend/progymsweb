@@ -4,10 +4,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class accounts_receivable extends Model
+class account_payment extends Model
 {
     use HasFactory;
-    protected $table = 'accounts_receivable';
+    protected $table = 'account_payments';
 
     protected $primary_key = 'id';
 
@@ -16,13 +16,9 @@ class accounts_receivable extends Model
     protected $fillable = [
         'id',
         'cliente_id',
-        'remision_id',
-        'vendedor_id',
+        'cxc_id',
         'fecha',
         'monto',
-        'saldo_restante ',
-        'estado',
+        'metodo_pago',
     ];
-
-    protected $guarded = [];
 }

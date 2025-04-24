@@ -17,6 +17,7 @@
                     <tr>
                         <th>Id</th>
                         <th>Fecha</th>
+                        <th>Cliente</th>
                         <th>Nota</th>
                         <th>Forma de pago</th>
                         <th>Tipo de precio</th>
@@ -137,6 +138,10 @@
                     {
                         "data": "fecha"
                     },
+                    {
+                        "data": "cliente"
+                    },
+
                     {
                         "data": "nota"
                     },
@@ -349,14 +354,14 @@
             </thead>
             <tbody>
                 ${productos.map(p => `
-                                                                    <tr>
-                                                                        <td>${p.codigo || ''}</td>
-                                                                        <td>${p.cantidad || ''}</td>
-                                                                        <td>${p.descripcion || ''}</td>
-                                                                        <td>${p.precio ? '$' + p.precio: ''}</td>
-                                                                        <td>${p.total ? '$' + p.total : ''}</td>
-                                                                    </tr>
-                                                                `).join('')}
+                                                                            <tr>
+                                                                                <td>${p.codigo || ''}</td>
+                                                                                <td>${p.cantidad || ''}</td>
+                                                                                <td>${p.descripcion || ''}</td>
+                                                                                <td>${p.precio ? '$' + p.precio: ''}</td>
+                                                                                <td>${p.total ? '$' + p.total : ''}</td>
+                                                                            </tr>
+                                                                        `).join('')}
                 <tr>
                     <td colspan="4" style="text-align: right;">TOTAL:</td>
                     <td>$${total ? total.toFixed(2) : '0.00'}</td>

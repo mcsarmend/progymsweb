@@ -37,6 +37,12 @@
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
+                            <label for="remision">Remision:</label>
+                            <input type="text" class="form-control" id="remision" name="remision" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
                             <label for="vendedor">Vendedor:</label>
                             <input type="text" class="form-control" id="vendedor" name="vendedor" readonly>
                         </div>
@@ -72,12 +78,19 @@
                 </div>
 
                 <div class="row mt-4">
+                    <div class="col-md-3" style="display: none">
+                        <div class="form-group">
+                            <label for="cliente_id">cliente_id:</label>
+                            <input type="text" class="form-control" id="cliente_id" name="cliente_id" readonly>
+                        </div>
+                    </div>
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="cliente">Cliente:</label>
                             <input type="text" class="form-control" id="cliente" name="cliente" readonly>
                         </div>
                     </div>
+
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="total">Total:</label>
@@ -126,8 +139,8 @@
 
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="abono">Cantidad Abonada:</label>
-                            <input type="number" class="form-control" id="abono" name="abono">
+                            <label for="monto">Cantidad Abonada:</label>
+                            <input type="number" class="form-control" id="monto" name="monto">
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -179,6 +192,7 @@
             $('#btn-buscar-remision').click(function() {
                 event.preventDefault();
                 const numeroRemision = $('#buscar_remision').val().trim();
+                $('#remision').val(numeroRemision);
 
                 if (!numeroRemision) {
                     Swal.fire('Error', 'Por favor ingrese un número de remisión válido', 'error');
@@ -212,12 +226,13 @@
                             $('#fecha').val(soloFecha);
                             $('#tipo').val(response.data.data.tipo_de_precio || '');
                             $('#cliente').val(response.data.data.cliente || '');
+                            $('#cliente_id').val(response.data.data.idcliente || '');
                             $('#total').val(response.data.data.total || '');
 
                             restante = '';
                             if (response.data.data.cxc == null) {
                                 restante = '0';
-                                $('#restante').val(response.data.data.total || '');
+                                $('#restante').val(response.data.data.saldo_restante || '');
                             } else {
 
                             }
@@ -296,7 +311,7 @@
                 error: function(response) {
                     Swal.fire(
                         '¡Gracias por esperar!',
-                        "Existe un error: " + response.message,
+                        "Existe un error: " + response.responseJSON.message,
                         'error'
                     )
                 }

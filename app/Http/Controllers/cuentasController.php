@@ -3,8 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\accounts_receivable;
-use App\Models\referrals;
-use App\Models\total_accounts_receivable;
+use App\Models\account_payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,18 +16,39 @@ class cuentasController extends Controller
     }
     public function crearcxcevento(Request $request)
     {
-
         try {
-            $referral       = referrals::find($request->remision);
-            $referral->isar = true;
-            $referral->save();
+            $remisionId = $request->remision;
+            $cxc        = accounts_receivable::where('remision_id', $remisionId)->first();
+            if ($cxc) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ya existe una cuenta por cobrar para esta remisión',
+                ], 422);
+            }
 
-            return response()->json(['message' => 'Cuenta por Cobrar creada correctamente'], 200);
-        } catch (\Throwable $th) {
+            $account                 = new accounts_receivable();
+            $account->cliente_id     = $request->idcliente;
+            $account->remision_id    = $request->remision;
+            $account->vendedor_id    = Auth::user()->id;
+            $account->fecha          = now()->format('Y-m-d H:i:s');
+            $account->monto          = $request->total;
+            $account->saldo_restante = $request->total;
+            $account->estado         = 'Pendiente';
 
-            return response()->json(['message' => 'Error al crear la CxC' . $th->getMessage()], 500);
+            $account->save();
+
+            return response()->json([
+                'success' => true,
+                'data'    => $account,
+                'message' => 'Cuenta por cobrar creada exitosamente',
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear la cuenta por cobrar: ' . $e->getMessage(),
+            ], 500);
         }
-
     }
 
     public function abonocxc()
@@ -38,28 +58,45 @@ class cuentasController extends Controller
     }
     public function abonocxcevento(Request $request)
     {
+
         try {
-            // Crear registro en accounts_receivable
-            $account = accounts_receivable::create([
-                'remision'    => $request->remision,
-                'abono'       => $request->abono,
-                'fecha_abono' => now()->format('Y-m-d H:i:s'), // Formato MySQL
-                'forma_pago'  => $request->metodo_pago,
-                'iduser'      => Auth::user()->id,
-            ]);
+            $remisionId = $request->remision;
 
-            // Sumar columnas abono y saldo_restante
-            $totalAbono    = accounts_receivable::where('remision', $request->remision)->sum('abono');
-            $totalRestante = total_accounts_receivable::where('idcliente', $request->remision)->value('total') ?? 0;
+            $cxc   = accounts_receivable::where('remision_id', $remisionId)->first();
+            $idcxc = $cxc->id;
+            if (! $idcxc) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No existe una cuenta por cobrar para esta remisión',
+                ], 422);
+            }
 
-            // Actualizar saldo restante en total_accounts_receivable
-            total_accounts_receivable::updateOrCreate(
-                ['idcliente' => $request->remision],
-                [
-                    'total'               => $totalRestante + $totalAbono,
-                    'fecha_actualizacion' => now()->format('Y-m-d H:i:s'), // Formato MySQL
-                ]
-            );
+            $account_payment              = new account_payment();
+            $account_payment->cliente_id  = $request->cliente_id;
+            $account_payment->cxc_id      = $idcxc;
+            $account_payment->fecha       = now()->format('Y-m-d H:i:s'); // Formato MySQL
+            $account_payment->monto       = $request->monto;
+            $account_payment->metodo_pago = $request->metodo_pago;
+
+            // Actualizar la cuenta por cobrar
+
+            $saldo_restante = intval($cxc->saldo_restante);
+            $monto_abono    = intval($request->monto);
+
+            $nuevosaldo = $saldo_restante - $monto_abono;
+            if ($nuevosaldo < 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El monto excede el saldo pendiente ($' . number_format($saldo_restante, 2) . ')',
+                ], 422);
+            }
+
+            $cxc->saldo_restante -= $request->monto;
+
+            $cxc->estado = ($cxc->saldo_restante <= 0) ? 'Pagada' : 'Pendiente';
+
+            $account_payment->save();
+            $cxc->save();
 
             return response()->json(['message' => 'Cuenta por Cobrar actualizada correctamente'], 200);
         } catch (\Throwable $th) {
