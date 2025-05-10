@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class SpReportecortecaja extends Migration
+class Reportecxc extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class SpReportecortecaja extends Migration
     {
         $procedure = "DROP PROCEDURE IF EXISTS reportecortecaja;  -- Elimina el procedimiento si ya existe
 
-CREATE PROCEDURE `reportecortecaja` (
+CREATE DEFINER = `root` @`localhost` PROCEDURE `reportecortecaja` (
   IN p_fecha_inicio DATE,
   IN p_fecha_fin DATE
 

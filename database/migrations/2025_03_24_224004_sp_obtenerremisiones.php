@@ -13,7 +13,7 @@ class SpObtenerremisiones extends Migration
     {
         $procedure = "DROP PROCEDURE IF EXISTS obtenerremisiones;  -- Elimina el procedimiento si ya existe
 
-CREATE DEFINER = `root` @`localhost` PROCEDURE `obtenerremisiones` (
+CREATE PROCEDURE `obtenerremisiones` (
   IN p_fecha_inicio DATE,
   IN p_fecha_fin DATE,
   IN p_iduser INT

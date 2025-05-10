@@ -219,31 +219,31 @@
                         Swal.close();
 
                         if (response.success) {
-                            // Llenar campos principales
-                            $('#vendedor').val(response.data.data.vendedor);
-                            $('#sucursal').val(response.data.data.almacen);
-                            soloFecha = response.data.data.fecha.split(' ')[0];
-                            $('#fecha').val(soloFecha);
-                            $('#tipo').val(response.data.data.tipo_de_precio || '');
-                            $('#cliente').val(response.data.data.cliente || '');
-                            $('#cliente_id').val(response.data.data.idcliente || '');
-                            $('#total').val(response.data.data.total || '');
+
 
                             restante = '';
-                            if (response.data.data.cxc == null) {
-                                restante = '0';
-                                $('#restante').val(response.data.data.saldo_restante || '');
+                            if (response.data.data.id_cxc == null) {
+
+                                Swal.fire('Error', 'No se encontró la remisión',
+                                    'error');
+
                             } else {
-
-                            }
-
-
-                            // Limpiar y llenar tabla de productos
-                            $('#productos tbody').empty();
-                            if (response.data.data.productos && response.data.data.productos
-                                .length > 0) {
-                                response.data.data.productos.forEach(producto => {
-                                    $('#productos tbody').append(`
+                                // Llenar campos principales
+                                $('#vendedor').val(response.data.data.vendedor);
+                                $('#sucursal').val(response.data.data.almacen);
+                                soloFecha = response.data.data.fecha.split(' ')[0];
+                                $('#fecha').val(soloFecha);
+                                $('#tipo').val(response.data.data.tipo_de_precio || '');
+                                $('#cliente').val(response.data.data.cliente || '');
+                                $('#cliente_id').val(response.data.data.idcliente || '');
+                                $('#total').val(response.data.data.total || '');
+                                $('#restante').val(response.data.data.saldo_restante || response
+                                    .data.data.total);
+                                $('#productos tbody').empty();
+                                if (response.data.data.productos && response.data.data.productos
+                                    .length > 0) {
+                                    response.data.data.productos.forEach(producto => {
+                                        $('#productos tbody').append(`
                                 <tr>
                                     <td>${producto.Codigo}</td>
                                     <td>${producto.Cantidad}</td>
@@ -253,10 +253,16 @@
 
                                 </tr>
                             `);
-                                });
+                                    });
+                                }
+                                Swal.fire('Éxito', 'Remisión cargada correctamente', 'success');
                             }
 
-                            Swal.fire('Éxito', 'Remisión cargada correctamente', 'success');
+
+                            // Limpiar y llenar tabla de productos
+
+
+
                         } else {
                             Swal.fire('Error', response.message || 'No se encontró la remisión',
                                 'error');
@@ -306,6 +312,9 @@
                         response.message,
                         'success'
                     );
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 3000);
 
                 },
                 error: function(response) {

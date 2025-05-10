@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\accounts_receivable;
 use App\Models\account_payment;
+use App\Models\clients;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -105,8 +106,17 @@ class cuentasController extends Controller
     }
     public function reportecxc()
     {
+
         $type = $this->gettype();
-        return view('cuentas.reportecxc', ['type' => $type]);
+
+        $clientesConSaldo = clients::select('clients.id', 'clients.nombre')
+            ->selectRaw('SUM(accounts_receivable.saldo_restante) as saldo_total')
+            ->leftJoin('accounts_receivable', 'clients.id', '=', 'accounts_receivable.cliente_id')
+            ->where('accounts_receivable.estado', 'pendiente') // Opcional: filtrar solo cuentas pendientes
+            ->groupBy('clients.id', 'clients.nombre')
+            ->get();
+
+        return view('cuentas.reportecxc', ['type' => $type, 'clientesConSaldo' => $clientesConSaldo]);
     }
     public function gettype()
     {

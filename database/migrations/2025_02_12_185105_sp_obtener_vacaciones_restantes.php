@@ -11,7 +11,7 @@ class SpObtenerVacacionesRestantes extends Migration
      */
     public function up()
     {
-        $procedure = "DROP PROCEDURE IF EXISTS `sp_asistencias_y_ausencias_rep`;
+        $procedure = "DROP PROCEDURE IF EXISTS `obtener_vacaciones_restantes`;
 CREATE PROCEDURE obtener_vacaciones_restantes()
 begin
 

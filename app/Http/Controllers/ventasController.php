@@ -255,6 +255,7 @@ class ventasController extends Controller
                 'p.nombre as tipo_de_precio',
                 'r.total',
                 'ar.saldo_restante as saldo_restante',
+                'ar.id as id_cxc',
             ])
                 ->from('referrals as r')
                 ->leftJoin('users as u', 'r.vendedor', '=', 'u.id')
