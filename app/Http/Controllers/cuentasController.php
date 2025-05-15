@@ -7,6 +7,8 @@ use App\Models\account_payment;
 use App\Models\clients;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 
 class cuentasController extends Controller
 {
@@ -19,7 +21,7 @@ class cuentasController extends Controller
     {
         try {
             $remisionId = $request->remision;
-            $cxc        = accounts_receivable::where('remision_id', $remisionId)->first();
+            $cxc = accounts_receivable::where('remision_id', $remisionId)->first();
             if ($cxc) {
                 return response()->json([
                     'success' => false,
@@ -27,20 +29,20 @@ class cuentasController extends Controller
                 ], 422);
             }
 
-            $account                 = new accounts_receivable();
-            $account->cliente_id     = $request->idcliente;
-            $account->remision_id    = $request->remision;
-            $account->vendedor_id    = Auth::user()->id;
-            $account->fecha          = now()->format('Y-m-d H:i:s');
-            $account->monto          = $request->total;
+            $account = new accounts_receivable();
+            $account->cliente_id = $request->idcliente;
+            $account->remision_id = $request->remision;
+            $account->vendedor_id = Auth::user()->id;
+            $account->fecha = now()->format('Y-m-d H:i:s');
+            $account->monto = $request->total;
             $account->saldo_restante = $request->total;
-            $account->estado         = 'Pendiente';
+            $account->estado = 'Pendiente';
 
             $account->save();
 
             return response()->json([
                 'success' => true,
-                'data'    => $account,
+                'data' => $account,
                 'message' => 'Cuenta por cobrar creada exitosamente',
             ], 201);
 
@@ -63,26 +65,26 @@ class cuentasController extends Controller
         try {
             $remisionId = $request->remision;
 
-            $cxc   = accounts_receivable::where('remision_id', $remisionId)->first();
+            $cxc = accounts_receivable::where('remision_id', $remisionId)->first();
             $idcxc = $cxc->id;
-            if (! $idcxc) {
+            if (!$idcxc) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No existe una cuenta por cobrar para esta remisión',
                 ], 422);
             }
 
-            $account_payment              = new account_payment();
-            $account_payment->cliente_id  = $request->cliente_id;
-            $account_payment->cxc_id      = $idcxc;
-            $account_payment->fecha       = now()->format('Y-m-d H:i:s'); // Formato MySQL
-            $account_payment->monto       = $request->monto;
+            $account_payment = new account_payment();
+            $account_payment->cliente_id = $request->cliente_id;
+            $account_payment->cxc_id = $idcxc;
+            $account_payment->fecha = now()->format('Y-m-d H:i:s'); // Formato MySQL
+            $account_payment->monto = $request->monto;
             $account_payment->metodo_pago = $request->metodo_pago;
 
             // Actualizar la cuenta por cobrar
 
             $saldo_restante = intval($cxc->saldo_restante);
-            $monto_abono    = intval($request->monto);
+            $monto_abono = intval($request->monto);
 
             $nuevosaldo = $saldo_restante - $monto_abono;
             if ($nuevosaldo < 0) {
@@ -117,6 +119,62 @@ class cuentasController extends Controller
             ->get();
 
         return view('cuentas.reportecxc', ['type' => $type, 'clientesConSaldo' => $clientesConSaldo]);
+    }
+
+    public function obtenerCxc($clienteId)
+    {
+        try {
+            $cuentas = accounts_receivable::select([
+                'remision_id',
+                DB::raw("DATE_FORMAT(fecha, '%d/%m/%Y') as fecha"),
+                'monto',
+                'saldo_restante',
+                DB::raw("CASE WHEN saldo_restante > 0 THEN 'Pendiente' ELSE 'Pagado' END as estado")
+            ])
+                ->where('cliente_id', $clienteId)
+                ->orderBy('fecha', 'desc')
+                ->get();
+
+            return response()->json([
+                'cuentas' => $cuentas
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las cuentas por cobrar: ' . $th->getMessage(),
+            ], 500);
+        }
+
+    }
+
+    public function obtenerPagos($clienteId)
+    {
+        try {
+
+
+            $pagos = DB::table('account_payments as p')
+                ->leftJoin('accounts_receivable as c', 'p.cxc_id', '=', 'c.id')
+                ->select([
+                    'p.id',
+                    'c.remision_id',
+                    DB::raw("DATE_FORMAT(p.fecha, '%d/%m/%Y') as fecha"),
+                    'p.monto',
+                    'p.metodo_pago',
+                    DB::raw("COALESCE(c.id, 'N/A') as cxc_id")
+                ])
+                ->where('p.cliente_id', $clienteId)
+                ->orderByDesc('p.fecha')
+                ->get();
+
+            return response()->json($pagos);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los pagos: ' . $th->getMessage(),
+            ], 500);
+        }
     }
     public function gettype()
     {

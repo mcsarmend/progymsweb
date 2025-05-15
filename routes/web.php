@@ -44,6 +44,9 @@ Route::get('/politicaprivacidad', [dashboardController::class, 'politicaprivacid
 Route::get('crearcxc', [cuentasController::class, 'crearcxc'])->middleware(['auth']);
 Route::get('abonocxc', [cuentasController::class, 'abonocxc'])->middleware(['auth']);
 Route::get('reportecxc', [cuentasController::class, 'reportecxc'])->middleware(['auth']);
+Route::get('obtener-cxc/{cliente}', [cuentasController::class, 'obtenerCxc'])->middleware(['auth']);
+Route::get('obtener-pagos/{cliente}', [cuentasController::class, 'obtenerPagos'])->middleware(['auth']);
+
 
 Route::post('crearcxcevento', [cuentasController::class, 'crearcxcevento'])->middleware(['auth']);
 Route::post('abonocxcevento', [cuentasController::class, 'abonocxcevento'])->middleware(['auth']);
