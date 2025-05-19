@@ -328,20 +328,24 @@
                     <tbody>`;
 
             // Procesar cada tipo de movimiento
-            Object.entries(jsonObject).forEach(([tipo, [monto, descripcion]]) => {
-                // Formatear el nombre del movimiento para mostrarlo más legible
-                const nombreMovimiento = tipo.split('-').map(word =>
-                    word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ');
+            Object.entries(jsonObject).forEach(([tipo, datos]) => {
+                // Verificar si hay datos para este tipo (array no vacío)
+                if (datos.length > 0) {
+                    const [monto, descripcion] = datos;
 
-                html += `
-                        <tr>
-                            <td>${nombreMovimiento}</td>
-                            <td class="text-right">$${monto.toFixed(2)}</td>
-                            <td>${descripcion}</td>
-                        </tr>`;
+                    // Formatear el nombre del movimiento para mostrarlo más legible
+                    const nombreMovimiento = tipo.split('-').map(word =>
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ');
+
+                    html += `
+                <tr>
+                    <td>${nombreMovimiento}</td>
+                    <td class="text-right">$${monto.toFixed(2)}</td>
+                    <td>${descripcion}</td>
+                </tr>`;
+                }
             });
-
 
             html += `
 

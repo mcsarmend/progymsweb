@@ -19,17 +19,19 @@ CREATE PROCEDURE `reportecortecaja` (
 
 ) BEGIN
 select
-	c.total_general,
-	c.total_efectivo_entregar,
-  c.formas_pago,
-  c.inputs_adicionales,
-  u.name as vendedor,
-  c.fecha_cierre as fecha,
-  c.observaciones
-from cash_closure as c
-	left join users as u on u.id = c.vendedor
+    c.total_general,
+    c.total_efectivo_entregar,
+    c.formas_pago,
+    c.inputs_adicionales,
+    u.name as vendedor,
+    c.fecha_cierre as fecha,
+    c.observaciones
+from
+    cash_closure as c
+    left join users as u on u.id = c.vendedor
 WHERE
-  C.fecha_cierre BETWEEN CONCAT(p_fecha_inicio, ' 00:00:00') AND CONCAT(p_fecha_fin, ' 23:59:59');
+    C.fecha_cierre BETWEEN CONCAT(p_fecha_inicio, ' 00:00:00')
+    AND CONCAT(p_fecha_fin, ' 23:59:59');
 
 END";
     }

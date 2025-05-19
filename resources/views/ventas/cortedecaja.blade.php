@@ -108,7 +108,7 @@
                         </div>
                         <br>
 
-                        <button type="button" class="btn btn-primary" onclick="sendDataAsJson()">Enviar como JSON</button>
+                        <button type="button" class="btn btn-primary" onclick="sendDataAsJson()">Realizar corte</button>
                 </form>
             </div>
         </div>

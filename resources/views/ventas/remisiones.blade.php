@@ -15,7 +15,7 @@
             <table id="remisiones" class="table">
                 <thead>
                     <tr>
-                        <th>Id</th>
+                        <th>Remisión</th>
                         <th>Fecha</th>
                         <th>Cliente</th>
                         <th>Nota</th>
