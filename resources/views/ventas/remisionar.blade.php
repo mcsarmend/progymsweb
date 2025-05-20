@@ -234,12 +234,14 @@
                     html: `
 
                 <label for="inputWithDatalist">Selecciona un producto:</label>
-                <input list="datalistOptions" id="inputWithDatalist" class="form-control col-sm-14">
+                <input list="datalistOptions" id="inputWithDatalist" class="form-control col-sm-14" oninput="actualizarExistencias()">
                 <datalist id="datalistOptions">
                     ${generateOptions()}
                 </datalist>
                 <label for="inputCantidad">Cantidad:</label>
                 <input type="number" id="inputCantidad" class="form-control col-sm-14" >
+                <label for="inputExistencias">Existencias:</label>
+                <input type="number" id="inputExistencias" class="form-control col-sm-14" readonly>
                 <br>
             `,
                     focusConfirm: false,
@@ -315,6 +317,45 @@
             }
         }
 
+
+        function actualizarExistencias() {
+            const productoInput = document.getElementById('inputWithDatalist');
+            const idProducto = obtenerNumerosHastaGuion(productoInput.value); // Usa tu función existente
+
+            if (!idProducto) return; // Si no hay ID válido, no hacer nada
+            const idsucursal = $('#sucursal').val();
+
+            const data = {
+                id_producto: idProducto,
+                sucursal: idsucursal,
+
+            };
+
+            $.ajax({
+                url: 'buscarexistencias', // URL a la que se hace la solicitud
+                type: 'POST', // Tipo de solicitud (GET, POST, etc.)
+                data: data,
+                dataType: 'json', // Tipo de datos esperados en la respuesta
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+
+                     $('#inputExistencias').val(data.existencias);
+
+
+                },
+                error: function(xhr, status, error) {
+
+                    Swal.fire({
+                        title: 'Error:',
+                        text: xhr.responseJSON.error,
+                        icon: 'warning'
+                    });
+                }
+            });
+
+        }
         // Función para generar las opciones del datalist
         function generateOptions() {
             var options = @json($productos);

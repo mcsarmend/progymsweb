@@ -142,6 +142,19 @@ class ventasController extends Controller
             'idprecio'     => $idprice,
         ]);
     }
+    public function buscarexistencias(Request $request)
+    {
+
+        $idwarehouse= $request->sucursal;
+        $idproducto = $request->id_producto;
+        $existencias = productwarehouse::where('idproducto', '=', $idproducto)
+            ->where('idwarehouse', '=', $idwarehouse)
+            ->value('existencias');
+        return response()->json([
+            'existencias' => $existencias
+        ]);
+    }
+
 
     public function validarremision(Request $request)
     {

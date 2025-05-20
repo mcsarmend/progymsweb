@@ -471,8 +471,10 @@ class inventarioController extends Controller
                         'existencias' => $nuevaexistencia,
                     ]);
                 } else {
+
                     $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
-                    productwarehouse::where('idproducto', intVal($idproducto))
+
+                    $ok = productwarehouse::where('idproducto', intVal($idproducto))
                         ->where('idwarehouse', intVal(1))
                         ->update([
                             'existencias' => $nuevaexistencia,
@@ -481,7 +483,7 @@ class inventarioController extends Controller
 
             }
 
-            return response()->json(['message' => "Compra realizada correctamente"], 200);
+            return response()->json(['message' => "Ingreso realizado correctamente" . $ok], 200);
         } catch (\Throwable $th) {
             return response()->json(['error' => "Error: " . $th->getMessage()], 500);
         }
