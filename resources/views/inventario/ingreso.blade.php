@@ -248,7 +248,7 @@
                 });
             }
 
-            sucursal = datosForm[1]["value"];
+            sucursal = datosForm[0]["value"];
             datos = tableToJson("productos");
             $('#sucursal').prop('disabled', true);
             // Clonar la tabla con id="productos" y ajustarla para el PDF
