@@ -1,3 +1,4 @@
+
 @extends('adminlte::page')
 
 @section('title', 'Remisionar')
@@ -16,8 +17,10 @@
         </div>
         <div class="card-body">
 
+        
 
             <form id="remisionar">
+                
 
                 <div class="row">
                     <div class="col"><label for="vendedor">Vendedor:</label></div>

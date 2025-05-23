@@ -23,6 +23,7 @@ class cash_closure extends Model
         'fecha_cierre',
         'estado',
         'observaciones',
+        'sucursal'
     ];
 
     protected $guarded = [];

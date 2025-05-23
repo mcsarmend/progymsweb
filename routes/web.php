@@ -183,7 +183,8 @@ Route::get('reconocimientos', [reconocimientosController::class, 'reconocimiento
 Route::get('nuevoreconocimiento', [reconocimientosController::class, 'nuevoreconocimiento']);
 
 // REPORTES
-Route::get('reportemovimientoscompras', [reportesController::class, 'reportemovimientoscompras'])->middleware(['auth']);
+Route::get( 'reporteimagendealmacen', [reportesController::class, 'reporteimagendealmacen'])->middleware(['auth']);
+Route::get( 'reportemovimientoscompras', [reportesController::class, 'reportemovimientoscompras'])->middleware(['auth']);
 Route::get('reportemovimientostraspasos', [reportesController::class, 'reportemovimientostraspasos'])->middleware(['auth']);
 Route::get('reportemovimientosmermas', [reportesController::class, 'reportemovimientosmermas'])->middleware(['auth']);
 Route::get('reportemovimientosentradas', [reportesController::class, 'reportemovimientosentradas'])->middleware(['auth']);

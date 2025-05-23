@@ -292,6 +292,7 @@ class ventasController extends Controller
         $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString();
         $hoy_fin    = Carbon::today($timezone)->endOfDay()->toDateTimeString();
         $id         = Auth::user()->id;
+        //$id         = Auth::user()->id;
 
         $remisiones = collect(DB::select('CALL obtenerremisiones(?, ?, ?)', [$hoy_inicio, $hoy_fin, $id]));
 
@@ -347,12 +348,22 @@ class ventasController extends Controller
         ];
 
         $total_general = array_sum($totales_por_pago);
-
+         $idsucursales = warehouse::select('id', 'nombre')
+            ->get();
+             $idsucursal     = Auth::user()->warehouse;
+              $sucursalauth = warehouse:: where("id",$idsucursal)
+             -> select('id', 'nombre')
+            ->first();
         return view('ventas.cortedecaja', [
             'type'                => $type,
             'remisiones_por_pago' => $remisiones_por_pago,
             'totales_por_pago'    => $totales_por_pago,
             'total_general'       => $total_general,
+            'idsucursales' => $idsucursales,
+            'idsucursal' => $idsucursal,
+            'sucursalauth' => $sucursalauth
+
+            //campo que necesito "wherehouse"
         ]);
     }
 
@@ -417,6 +428,7 @@ class ventasController extends Controller
 
     }
 
+    //recivir aqui el dato y meterlo en la tabla cashcluser
     public function enviarinfocortecaja(Request $request)
     {
         DB::beginTransaction();
@@ -431,6 +443,7 @@ class ventasController extends Controller
             $corteCaja->vendedor                = auth()->id() ?? 1;
             $corteCaja->estado                  = 'pendiente';
             $corteCaja->observaciones           = $request->observaciones ?? null;
+            $corteCaja->warehouse = $request->inputs_adicionales["idsucursal"];
 
             // Guardar el usuario en la base de datos
             $corteCaja->save();
