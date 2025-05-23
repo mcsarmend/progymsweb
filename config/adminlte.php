@@ -662,6 +662,11 @@ return [
                             'url'  => 'reporteinventarioexistenciascostos',
                             'icon' => 'fas fa-boxes',
                         ],
+                         [
+                            'text' => 'Imagen de almacen',
+                            'url'  => 'reporteimagendealmacen',
+                            'icon' => 'fas fa-list-alt',
+                        ],
 
                     ],
                 ],

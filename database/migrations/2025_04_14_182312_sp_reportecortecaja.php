@@ -25,13 +25,15 @@ select
     c.inputs_adicionales,
     u.name as vendedor,
     c.fecha_cierre as fecha,
-    c.observaciones
+    c.observaciones,
+    w.nombre  as sucursal
 from
     cash_closure as c
-    left join users as u on u.id = c.vendedor
+    left join users as u on u.id = c.vendedor 
+    left join warehouse as w on w.id = c.warehouse
 WHERE
     C.fecha_cierre BETWEEN CONCAT(p_fecha_inicio, ' 00:00:00')
-    AND CONCAT(p_fecha_fin, ' 23:59:59');
+    AND CONCAT(p_fecha_fin, ' 23:59:59')
 
 END";
     }

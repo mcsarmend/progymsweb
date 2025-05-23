@@ -60,7 +60,10 @@ class reportesController extends Controller
         $type = $this->gettype();
         return view('reportes.inventario.existencias', ['type' => $type]);
     }
-
+public function reporteimagendealmacen(){
+         $type = $this->gettype();
+        return view('reportes.inventario.imagendeinventario', ['type' => $type]);
+}
     public function reporteclienteslista()
     {
         $type = $this->gettype();
