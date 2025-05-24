@@ -117,34 +117,21 @@
                     }
                 });
 
-                $('a[href="https://www.gprogyms.com.mx/asistenciageneral"]').remove();
-                $('a[href="https://www.gprogyms.com.mx/calendario"]').remove();
-                $('a[href="https://www.gprogyms.com.mx/vacaciones"]').remove();
+                $('a.nav-link[href="https://gprogyms.com.mx/asistenciageneral"]').remove();
+                $('a.nav-link[href="https://gprogyms.com.mx/calendario"]').remove();
+                $('a.nav-link[href="https://gprogyms.com.mx/vacaciones"]').remove();
+
                 // Quitar Inventario
-                $('li.nav-item.dropdown').filter(function() {
-                    return $(this).text().trim().includes('Inventario');
-                }).remove();
-                $('li.nav-item.dropdown').filter(function() {
-                    return $(this).text().trim().includes('Clientes');
-                }).remove();
-                $('li.nav-item.dropdown').filter(function() {
-                    return $(this).text().trim().includes('Compras');
-                }).remove();
-                $('li.nav-item.dropdown').filter(function() {
-                    return $(this).text().trim().includes('Vendedores');
-                }).remove();
-                $('li.nav-item.dropdown').filter(function() {
-                    return $(this).text().trim().includes('Precios');
-                }).remove();
-                $('li.nav-item.dropdown').filter(function() {
-                    return $(this).text().trim().includes('Proveedores');
-                }).remove();
-                $('li.nav-item.dropdown').filter(function() {
-                    return $(this).text().trim().includes('Reportes');
-                }).remove();
-                $('li.nav-item.dropdown').filter(function() {
-                    return $(this).text().trim().includes('Reconocimientos');
-                }).remove();
+                $('li.nav-item.has-treeview:has(a.nav-link:contains("Inventario"))').remove();
+                $('li.nav-item.has-treeview:has(a.nav-link:contains("Compras"))').remove();
+                $('li.nav-item.has-treeview:has(a.nav-link:contains("Vendedores"))').remove();
+                $('li.nav-item.has-treeview:has(a.nav-link:contains("Precios"))').remove();
+                $('li.nav-item.has-treeview:has(a.nav-link:contains("Proveedores"))').remove();
+                $('li.nav-item.has-treeview:has(a.nav-link:contains("Reportes"))').remove();
+                $('li.nav-item.has-treeview:has(a.nav-link:contains("Reconocimientos"))').remove();
+                $('li.nav-item.has-treeview:has(a.nav-link:contains("CxC"))').remove();
+
+
                 break;
 
                 // JEFATURA
