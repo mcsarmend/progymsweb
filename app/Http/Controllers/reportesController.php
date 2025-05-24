@@ -58,7 +58,9 @@ class reportesController extends Controller
     public function reporteinventarioexistenciascostos()
     {
         $type = $this->gettype();
-        return view('reportes.inventario.existencias', ['type' => $type]);
+
+        $products = DB::select('CALL lista_existencias_activas()');
+        return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products]);
     }
 
     public function reporteclienteslista()

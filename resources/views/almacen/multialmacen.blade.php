@@ -16,26 +16,7 @@
             <div class="card">
 
                 <div class="card-body">
-                    <form id="reporte">
-                        <br>
-                        <div class="row">
-                            <div class="col">
-                                <label for="sucursal">Almacen:</label>
-                            </div>
-                            <div class="col">
-                                <select name="sucursal" id="sucursal" class="form-control">
-                                    @foreach ($warehouses as $sucursal)
-                                        <option value="{{ encrypt($sucursal->id) }}">{{ $sucursal->nombre }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <button type="submit" class="btn btn-success">Generar</button>
-                            </div>
-                        </div>
-                    </form>
+
                     <br>
                     <table id="productos" class="table">
                         <thead>
@@ -44,9 +25,18 @@
                                 <th>Nombre</th>
                                 <th>Marca</th>
                                 <th>Categoria</th>
-                                <th>Existencias</th>
-                                <th>Almacenes</th>
-                                <th>Precios</th>
+                                <th>Público</th>
+                                <th>Frecuente</th>
+                                <th>Mayoreo</th>
+                                <th>Distribuidor</th>
+                                <th>Existencias Totales</th>
+                                <th>Almacèn Principal</th>
+                                <th>Viveros</th>
+                                <th>TownCenter</th>
+                                <th>Coacalco</th>
+                                <th>Villas</th>
+                                <th>Naucalpan</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -62,67 +52,6 @@
 
 
 
-    <div class="modal fade" id="almacenes" tabindex="-1" role="dialog" aria-labelledby="almacenesCenterTitle"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="almacenesLongTitle">Detalle de almacenes</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table id="almacenestabla" class="table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Almacen</th>
-                                <th>Existencias</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="precios" tabindex="-1" role="dialog" aria-labelledby="preciosCenterTitle"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="preciosLongTitle">Detalle de precios</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table id="preciostabla" class="table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Tipo</th>
-                                <th>Precio</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-
-                </div>
-            </div>
-        </div>
-    </div>
 
     @include('fondo')
 @stop
@@ -173,10 +102,10 @@
                 },
                 "data": products,
                 "columns": [{
-                        "data": "id"
+                        "data": "codigo"
                     },
                     {
-                        "data": "nombre"
+                        "data": "producto"
                     },
                     {
                         "data": "marca"
@@ -184,23 +113,52 @@
                     {
                         "data": "categoria"
                     },
-                    {
-                        "data": "existencias"
-                    },
-                    {
-                        "data": "almacenes",
+                     {
+                        "data": "publico",
                         "render": function(data, type, row) {
-                            return '<button onclick="veralmacenes(' + row.id +
-                                ')" class="btn btn-primary">Ver</button>';
+                            return '$' + data;
                         }
                     },
                     {
-                        "data": "precios",
+                        "data": "frecuente",
                         "render": function(data, type, row) {
-                            return '<button onclick="verprecios(' + row.id +
-                                ')" class="btn btn-primary">Ver</button>';
+                            return '$' + data;
                         }
                     },
+                    {
+                        "data": "mayoreo",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
+                    },
+                    {
+                        "data": "distribuidor",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
+                    },
+                    {
+                        "data": "totales"
+                    },
+                    {
+                        "data": "almacen_principal"
+                    },
+                    {
+                        "data": "viveros"
+                    },
+                    {
+                        "data": "towncenter"
+                    },
+                    {
+                        "data": "coacalco"
+                    },
+                    {
+                        "data": "villas"
+                    },
+                    {
+                        "data": "naucalpan"
+                    }
+
                 ]
             });
             drawTriangles();
@@ -208,234 +166,6 @@
         });
 
 
-        function veralmacenes(id) {
-            $('#almacenes').modal('show');
 
-            $.ajax({
-                url: 'detalleamacenes', // URL a la que se hace la solicitud
-                type: 'GET', // Tipo de solicitud (GET, POST, etc.)
-                data: {
-                    id_producto: id
-                },
-                dataType: 'json', // Tipo de datos esperados en la respuesta
-                success: function(data) {
-                    $('#almacenestabla').DataTable({
-                        destroy: true,
-                        scrollX: true,
-                        scrollCollapse: true,
-                        "language": {
-                            "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
-                        },
-                        "buttons": [
-                            'copy', 'excel', 'pdf', 'print'
-                        ],
-                        dom: 'Blfrtip',
-                        destroy: true,
-                        processing: true,
-                        sort: true,
-                        paging: true,
-                        lengthMenu: [
-                            [10, 25, 50, -1],
-                            [10, 25, 50, 'All']
-                        ], // Personalizar el menú de longitud de visualización
-
-                        // Configurar las opciones de exportación
-                        // Para PDF
-                        pdf: {
-                            orientation: 'landscape', // Orientación del PDF (landscape o portrait)
-                            pageSize: 'A4', // Tamaño del papel del PDF
-                            exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
-                            }
-                        },
-                        // Para Excel
-                        excel: {
-                            exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
-                            }
-                        },
-                        "data": data,
-                        "columns": [{
-                                "data": "idproducto"
-                            },
-                            {
-                                "data": "nombre"
-                            },
-                            {
-                                "data": "existencias"
-                            }
-                        ]
-                    });
-                },
-                error: function(xhr, status, error) {
-                    // Manejar errores de la solicitud
-                    console.error(error); // Muestra el error en la consola del navegador
-                }
-            });
-        }
-
-        function verprecios(id) {
-            $('#precios').modal('show');
-
-            $.ajax({
-                url: 'detalleprecios', // URL a la que se hace la solicitud
-                type: 'GET', // Tipo de solicitud (GET, POST, etc.)
-                data: {
-                    id_producto: id
-                },
-
-                dataType: 'json', // Tipo de datos esperados en la respuesta
-                success: function(data) {
-                    $('#preciostabla').DataTable({
-                        destroy: true,
-                        scrollX: true,
-                        scrollCollapse: true,
-                        "language": {
-                            "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
-                        },
-                        "buttons": [
-                            'copy', 'excel', 'pdf', 'print'
-                        ],
-                        dom: 'Blfrtip',
-                        destroy: true,
-                        processing: true,
-                        sort: true,
-                        paging: true,
-                        lengthMenu: [
-                            [10, 25, 50, -1],
-                            [10, 25, 50, 'All']
-                        ], // Personalizar el menú de longitud de visualización
-
-                        // Configurar las opciones de exportación
-                        // Para PDF
-                        pdf: {
-                            orientation: 'landscape', // Orientación del PDF (landscape o portrait)
-                            pageSize: 'A4', // Tamaño del papel del PDF
-                            exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
-                            }
-                        },
-                        // Para Excel
-                        excel: {
-                            exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
-                            }
-                        },
-                        "data": data,
-                        "columns": [{
-                                "data": "idproducto"
-                            },
-                            {
-                                "data": "nombre"
-                            },
-                            {
-                                "data": "price"
-                            }
-                        ]
-                    });
-                },
-                error: function(xhr, status, error) {
-                    // Manejar errores de la solicitud
-                    console.error(error); // Muestra el error en la consola del navegador
-                }
-            });
-        }
-
-        $('#reporte').submit(function(e) {
-            e.preventDefault(); // Evitar la recarga de la página
-
-            // Obtener los datos del formulario
-            var datosFormulario = $(this).serialize();
-
-            // Realizar la solicitud AJAX con jQuery
-            $.ajax({
-                url: '/multialmacenfiltros', // Ruta al controlador de Laravel
-                type: 'GET',
-                // data: datosFormulario, // Enviar los datos del formulario
-                data: datosFormulario,
-
-                success: function(response) {
-                    Swal.fire(
-                        '¡Gracias por esperar!',
-                        response.message,
-                        'success'
-                    );
-
-                    $('#productos').DataTable({
-                        destroy: true,
-                        scrollX: true,
-                        scrollCollapse: true,
-                        "language": {
-                            "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
-                        },
-                        "buttons": [
-                            'copy', 'excel', 'pdf', 'print'
-                        ],
-                        dom: 'Blfrtip',
-                        processing: true,
-                        sort: true,
-                        paging: true,
-                        lengthMenu: [
-                            [10, 25, 50, -1],
-                            [10, 25, 50, 'All']
-                        ], // Personalizar el menú de longitud de visualización
-
-                        // Configurar las opciones de exportación
-                        // Para PDF
-                        pdf: {
-                            orientation: 'landscape', // Orientación del PDF (landscape o portrait)
-                            pageSize: 'A4', // Tamaño del papel del PDF
-                            exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
-                            }
-                        },
-                        // Para Excel
-                        excel: {
-                            exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
-                            }
-                        },
-                        "data": response,
-                        "columns": [{
-                                "data": "id"
-                            },
-                            {
-                                "data": "nombre"
-                            },
-                            {
-                                "data": "marca"
-                            },
-                            {
-                                "data": "categoria"
-                            },
-                            {
-                                "data": "existencias"
-                            },
-                            {
-                                "data": "almacenes",
-                                "render": function(data, type, row) {
-                                    return '<button onclick="veralmacenes(' + row.id +
-                                        ')" class="btn btn-primary">Ver</button>';
-                                }
-                            },
-                            {
-                                "data": "precios",
-                                "render": function(data, type, row) {
-                                    return '<button onclick="verprecios(' + row.id +
-                                        ')" class="btn btn-primary">Ver</button>';
-                                }
-                            },
-                        ]
-                    });
-                },
-                error: function(response) {
-                    Swal.fire(
-                        '¡Gracias por esperar!',
-                        "Existe un error: " + response.message,
-                        'error'
-                    )
-                }
-            });
-        });
-    </script>
+         </script>
 @stop

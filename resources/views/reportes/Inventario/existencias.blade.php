@@ -15,13 +15,20 @@
                     <h1 class="card-title" style ="font-size: 2rem">Reporte > Inventario > Existencias y Costos</h1>
                 </div>
                 <div class="card-body">
-                    <table id=clientes class="table">
+                    <table id=table-products class="table">
                         <thead>
                             <tr>
-                                <th>Nombre</th>
-                                <th>Telefono</th>
-                                <th>Sucursal</th>
-                                <th>Precio</th>
+                                <th>Codigo</th>
+                                <th>Producto</th>
+                                <th>Marca</th>
+                                <th>Categoria</th>
+                                <th>Existencias Totales</th>
+                                <th>Almacèn Principal</th>
+                                <th>Viveros</th>
+                                <th>TownCenter</th>
+                                <th>Coacalco</th>
+                                <th>Villas</th>
+                                <th>Naucalpan</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -42,57 +49,68 @@
 @section('js')
     <script>
         $(document).ready(function() {
+            var products = @json($products);
+            $('#table-products').DataTable({
+                destroy: true,
+                scrollX: true,
+                scrollCollapse: true,
+                "language": {
+                    "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
+                },
+                "buttons": [
 
-            // $('#clientes').DataTable({
-            //     destroy: true,
-            //     scrollX: true,
-            //     scrollCollapse: true,
-            //     "language": {
-            //         "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
-            //     },
-            //     "buttons": [
-            //         'copy', 'excel', 'pdf', 'print'
-            //     ],
-            //     dom: 'Blfrtip',
-            //     destroy: true,
-            //     processing: true,
-            //     sort: true,
-            //     paging: true,
-            //     lengthMenu: [
-            //         [10, 25, 50, -1],
-            //         [10, 25, 50, 'All']
-            //     ], // Personalizar el menú de longitud de visualización
+                ],
+                dom: 'Blfrtip',
+                destroy: true,
+                processing: true,
+                sort: true,
+                paging: true,
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, 'All']
+                ], // Personalizar el menú de longitud de visualización
 
-            //     // Configurar las opciones de exportación
-            //     // Para PDF
-            //     pdf: {
-            //         orientation: 'landscape', // Orientación del PDF (landscape o portrait)
-            //         pageSize: 'A4', // Tamaño del papel del PDF
-            //         exportOptions: {
-            //             columns: ':visible' // Exportar solo las columnas visibles
-            //         }
-            //     },
-            //     // Para Excel
-            //     excel: {
-            //         exportOptions: {
-            //             columns: ':visible' // Exportar solo las columnas visibles
-            //         }
-            //     },
-            //     "data": clientes,
-            //     "columns": [{
-            //             "data": "nombre"
-            //         },
-            //         {
-            //             "data": "telefono"
-            //         },
-            //         {
-            //             "data": "sucursal"
-            //         },
-            //         {
-            //             "data": "precio"
-            //         }
-            //     ]
-            // });
+
+                "data": products,
+                columns: [{
+                        data: 'codigo'
+                    },
+                    {
+                        data: 'producto'
+                    },
+                    {
+                        data: 'marca'
+                    },
+                    {
+                        data: 'categoria'
+                    },
+                    {
+                        data: 'totales'
+                    },
+                    {
+                        data: 'almacen_principal'
+                    },
+                    {
+                        data: 'viveros'
+                    },
+                    {
+                        data: 'towncenter'
+                    },
+                    {
+                        data: 'coacalco'
+                    },
+                    {
+                        data: 'villas'
+                    },
+                    {
+                        data: 'naucalpan'
+                    }
+                ],
+                order: [
+                    [0, "asc"]
+                ],
+                pageLength: 50,
+            });
             drawTriangles();
             showUsersSections();
         });

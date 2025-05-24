@@ -16,7 +16,7 @@ return [
 
     'title'                                   => '',
     'title_prefix'                            => '',
-    'title_postfix'                           => '| Hermes Net',
+    'title_postfix'                           => '| SELI Net',
 
     /*
     |--------------------------------------------------------------------------
@@ -63,7 +63,7 @@ return [
     |
      */
 
-    'logo'                                    => '<b>HERMES</b>Net',
+    'logo'                                    => '<b>SELI</b>Net',
     'logo_img'                                => 'assets/images/logo.png',
     'logo_img_class'                          => 'brand-image img-circle elevation-3',
     'logo_img_xl'                             => null,
