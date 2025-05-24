@@ -216,8 +216,10 @@
             $('#reparto').change(function() {
                 if ($(this).is(':checked')) {
                     $('#vreparto').show();
+                    $('#vendedor_reparto').prop('required', true);
                 } else {
                     $('#vreparto').hide();
+                    $('#vendedor_reparto').prop('required', false);
                 }
             });
         });
@@ -344,7 +346,7 @@
                 },
                 success: function(data) {
 
-                     $('#inputExistencias').val(data.existencias);
+                    $('#inputExistencias').val(data.existencias);
 
 
                 },

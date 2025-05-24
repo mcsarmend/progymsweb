@@ -140,10 +140,15 @@
                     <img class="slide" src="assets/images/promos/01.jpeg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/02.jpeg" alt="Imagen 2">
                     <img class="slide" src="assets/images/promos/03.jpeg" alt="Imagen 3">
-                    <img class="slide" src="assets/images/promos/04.jpeg" alt="Imagen 4">
-                    <img class="slide" src="assets/images/promos/05.jpeg" alt="Imagen 4">
-                    <img class="slide" src="assets/images/promos/06.jpeg" alt="Imagen 4">
-                    <img class="slide" src="assets/images/promos/07.jpeg" alt="Imagen 4">
+                    <img class="slide" src="assets/images/promos/05.jpeg" alt="Imagen 5">
+                    <img class="slide" src="assets/images/promos/06.jpeg" alt="Imagen 6">
+                    <img class="slide" src="assets/images/promos/07.jpeg" alt="Imagen 7">
+                    <img class="slide" src="assets/images/promos/08.jpeg" alt="Imagen 8">
+                    <img class="slide" src="assets/images/promos/09.jpeg" alt="Imagen 9">
+                    <img class="slide" src="assets/images/promos/10.jpeg" alt="Imagen 10">
+                    <img class="slide" src="assets/images/promos/11.jpeg" alt="Imagen 11">
+                    <img class="slide" src="assets/images/promos/12.jpeg" alt="Imagen 12">
+                    <img class="slide" src="assets/images/promos/13.jpeg" alt="Imagen 13">
 
 
                 </div>
