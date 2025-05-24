@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
 class vendedorController extends Controller
 {
@@ -33,7 +34,15 @@ class vendedorController extends Controller
     }
     public function vendedores()
     {
-        $users = User::select('users.name as nombre', 'users.email as correo', 'users.pass as contrasena', 'users.phone as telefono', 'users.role as rol', 'warehouse.nombre as sucursal')
+        $users = User::select(
+            'users.name as nombre',
+            'users.email as correo',
+            'users.pass as contrasena',
+            'users.phone as telefono',
+            'users.role as rol',
+            'warehouse.nombre as sucursal',
+            DB::raw('CASE WHEN users.status = 1 THEN "Activo" ELSE "Inactivo" END as estatus')
+        )
             ->leftJoin('warehouse', 'users.warehouse', '=', 'warehouse.id')
             ->get();
         $type = $this->gettype();

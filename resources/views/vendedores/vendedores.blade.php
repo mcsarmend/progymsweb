@@ -24,6 +24,7 @@
                                 <th>Telefono</th>
                                 <th>Rol</th>
                                 <th>Sucursal</th>
+                                <th>Estatus</th>
 
                             </tr>
                         </thead>
@@ -98,6 +99,9 @@
                     },
                     {
                         "data": "sucursal"
+                    },
+                    {
+                        "data": "estatus"
                     }
                 ]
             });

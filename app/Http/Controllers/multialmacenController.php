@@ -17,22 +17,9 @@ class multialmacenController extends Controller
     public function multialmacen()
     {
         $type = $this->gettype();
-        $products = DB::table('product as p')
-            ->select(
-                'p.id',
-                'p.nombre',
-                'b.nombre as marca',
-                'c.nombre as categoria',
-                DB::raw('SUM(pw.existencias) as existencias')
-            )
-            ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
-            ->leftJoin('category as c', 'p.categoria', '=', 'c.id')
-            ->leftJoin('product_warehouse as pw', 'p.id', '=', 'pw.idproducto')
-            ->groupBy('p.id', 'p.nombre', 'b.nombre', 'c.nombre')
-            ->get();
-        $almacenes = warehouse::all();
+        $products = DB::select('CALL sp_multialmacen()');
 
-        return view('almacen.multialmacen', ['type' => $type, 'products' => $products, 'warehouses' => $almacenes]);
+        return view('almacen.multialmacen', ['type' => $type, 'products' => $products]);
     }
     public function altalmacen()
     {
