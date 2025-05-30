@@ -86,7 +86,7 @@
 
     function showUsersSections() {
 
-        var type = @json($type);
+        var type = parseInt( @json($type) );
         switch (type) {
 
             // VENDEDOR
