@@ -76,6 +76,10 @@
                     'copy', 'excel', 'pdf', 'print'
                 ],
                 dom: 'Blfrtip',
+                createdRow: function(row, data, dataIndex) {
+                    $(row).css('font-size', '12px');
+                    $(row).addClass(dataIndex % 2 === 0 ? 'bg-white' : 'bg-secondary text-white');
+                },
                 destroy: true,
                 processing: true,
                 sort: true,
@@ -113,7 +117,7 @@
                     {
                         "data": "categoria"
                     },
-                     {
+                    {
                         "data": "publico",
                         "render": function(data, type, row) {
                             return '$' + data;
@@ -164,8 +168,5 @@
             drawTriangles();
             showUsersSections();
         });
-
-
-
-         </script>
+    </script>
 @stop
