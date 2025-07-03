@@ -91,6 +91,7 @@ Route::get('inventariomermas', [inventarioController::class, 'inventariomermas']
 Route::get('ingresoinventario', [inventarioController::class, 'ingresoinventario'])->middleware(['auth']);
 Route::get('salidainventario', [inventarioController::class, 'salidainventario'])->middleware(['auth']);
 
+Route::post('productosinventario', [inventarioController::class, 'productosinventario'])->middleware(['auth']);
 Route::post('enviarsalida', [inventarioController::class, 'enviarsalida'])->middleware(['auth']);
 Route::post('enviarentrada', [inventarioController::class, 'enviarentrada'])->middleware(['auth']);
 Route::post('enviarmerma', [inventarioController::class, 'enviarmerma'])->middleware(['auth']);

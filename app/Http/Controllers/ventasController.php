@@ -37,9 +37,11 @@ class ventasController extends Controller
             ->select('id', 'name')
             ->get();
         $productos = Product::leftJoin('product_warehouse', 'product.id', '=', 'product_warehouse.idproducto')
+            ->leftJoin('brand', 'product.marca', '=', 'brand.id')
             ->where('product_warehouse.idwarehouse', $idsucursal)
-            ->select('product.*') // Selecciona las columnas de la tabla principal
+            ->select('product.*', 'brand.nombre as nombre_marca') // Selecciona las columnas de la tabla principal y el nombre de la marca
             ->get();
+
 
         return view('ventas.remisionar', ['type' => $type, 'idssucursales' => $idssucursales, 'idsucursal' => $idsucursal, 'nombresucursal' => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor' => $vendedor, 'clientes' => $clientes, 'productos' => $productos, 'vendedores' => $vendedores]);
     }
@@ -57,15 +59,9 @@ class ventasController extends Controller
 
         $clientes  = clients::all();
         $type      = $this->gettype();
-        $productos = Product::leftJoin('product_warehouse', 'product.id', '=', 'product_warehouse.idproducto')
-            ->leftJoin('product_price', 'product.id', '=', 'product_price.idproducto') // Relación correcta
-            ->where('product_warehouse.idwarehouse', $idsucursal)
-            ->where('product_price.idprice', 6) // Filtro adicional (si es necesario)
-            ->select('product.*', 'product_price.price as precio')
-            ->get();
 
         return view('ventas.remisionarlista', ['type' => $type, 'idssucursales'        => $idssucursales, 'idsucursal' => $idsucursal,
-            'nombresucursal'                              => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor'      => $vendedor, 'clientes' => $clientes, 'productos' => $productos, 'vendedores' => $vendedores]);
+            'nombresucursal'                              => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor'      => $vendedor, 'clientes' => $clientes, 'vendedores' => $vendedores]);
     }
     public function remisiones()
     {

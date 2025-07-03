@@ -231,14 +231,15 @@
                 });
                 return;
             } else {
-                Swal.fire({
-                    title: 'Productos',
-                    html: `
+                generateOptions().then(optionsHtml => {
+                    Swal.fire({
+                        title: 'Productos',
+                        html: `
 
                 <label for="inputWithDatalist">Selecciona un producto:</label>
                 <input list="datalistOptions" id="inputWithDatalist" class="form-control col-sm-14" oninput="actualizarExistencias()">
                 <datalist id="datalistOptions">
-                    ${generateOptions()}
+                     ${optionsHtml}
                 </datalist>
                 <label for="inputCantidad">Cantidad:</label>
                 <input type="number" id="inputCantidad" class="form-control col-sm-14" >
@@ -246,75 +247,84 @@
                 <input type="number" id="inputExistencias" class="form-control col-sm-14" readonly>
                 <br>
             `,
-                    focusConfirm: false,
-                    preConfirm: () => {
-                        const cantidad = document.getElementById('inputCantidad').value;
-                        const producto = document.getElementById('inputWithDatalist').value;
+                        focusConfirm: false,
+                        preConfirm: () => {
+                            const cantidad = document.getElementById('inputCantidad').value;
+                            const producto = document.getElementById('inputWithDatalist').value;
 
-                        if (cantidad === "" || producto === "") {
-                            Swal.showValidationMessage('Debes llenar ambos campos');
-                        }
+                            if (cantidad === "" || producto === "") {
+                                Swal.showValidationMessage('Debes llenar ambos campos');
+                            }
 
-                        return {
-                            cantidad: cantidad,
-                            producto: producto
-                        };
-                    },
-                    showCancelButton: true,
-                    confirmButtonText: 'Siguiente',
-                    cancelButtonText: 'Cerrar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const idproducto = obtenerNumerosHastaGuion(result.value.producto);
-                        var idcliente = obtenerNumerosHastaGuion($('#cliente').val());
-                        var cantidad = $('#inputCantidad').val();
-                        var idsucursal = 0;
-                        var type = @json($type);
-                        if (type == 4) {
-                            idsucursal = parseInt($('#sucursal').data('value'));
-                        } else {
-                            idsucursal = $('#sucursal').val();
-                        }
-                        var idprecio = $('#tipo_precio').val();
-                        if (idcliente == null) {
-                            idcliente = 1;
-                        }
-
-                        const data = {
-                            id_producto: idproducto,
-                            idcliente: idcliente,
-                            cantidad: cantidad,
-                            sucursal: idsucursal,
-                            id_precio: idprecio
-                        };
-
-                        $.ajax({
-                            url: 'buscarprecio', // URL a la que se hace la solicitud
-                            type: 'POST', // Tipo de solicitud (GET, POST, etc.)
-                            data: data,
-                            dataType: 'json', // Tipo de datos esperados en la respuesta
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(data) {
-
-                                agregarFila(data.idproducto, data.cantidad, data.subtotal, data.nombre,
-                                    data.precio);
-
-
-                            },
-                            error: function(xhr, status, error) {
-
+                            return {
+                                cantidad: cantidad,
+                                producto: producto
+                            };
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: 'Siguiente',
+                        cancelButtonText: 'Cerrar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            if ($('#inputCantidad').val() > $('#inputExistencias').val()) {
                                 Swal.fire({
-                                    title: 'Error:',
-                                    text: xhr.responseJSON.error,
+                                    title: '¡Debes ingresar una cantidad menor o igual a las existencias!',
                                     icon: 'warning'
                                 });
+                                return;
                             }
-                        });
+                            const idproducto = obtenerNumerosHastaGuion(result.value.producto);
+                            var idcliente = obtenerNumerosHastaGuion($('#cliente').val());
+                            var cantidad = $('#inputCantidad').val();
+                            var idsucursal = 0;
+                            var type = @json($type);
+                            if (type == 4) {
+                                idsucursal = parseInt($('#sucursal').data('value'));
+                            } else {
+                                idsucursal = $('#sucursal').val();
+                            }
+                            var idprecio = $('#tipo_precio').val();
+                            if (idcliente == null) {
+                                idcliente = 1;
+                            }
+
+                            const data = {
+                                id_producto: idproducto,
+                                idcliente: idcliente,
+                                cantidad: cantidad,
+                                sucursal: idsucursal,
+                                id_precio: idprecio
+                            };
+
+                            $.ajax({
+                                url: 'buscarprecio', // URL a la que se hace la solicitud
+                                type: 'POST', // Tipo de solicitud (GET, POST, etc.)
+                                data: data,
+                                dataType: 'json', // Tipo de datos esperados en la respuesta
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                success: function(data) {
+
+                                    agregarFila(data.idproducto, data.cantidad, data.subtotal,
+                                        data.nombre,
+                                        data.precio);
 
 
-                    }
+                                },
+                                error: function(xhr, status, error) {
+
+                                    Swal.fire({
+                                        title: 'Error:',
+                                        text: xhr.responseJSON.error,
+                                        icon: 'warning'
+                                    });
+                                }
+                            });
+
+
+                        }
+                    });
                 });
             }
         }
@@ -360,12 +370,33 @@
         }
         // Función para generar las opciones del datalist
         function generateOptions() {
-            var options = @json($productos);
-            var dataList = '';
-            options.forEach(function(item) {
-                dataList += `<option value="${item.id}-${item.nombre}">`;
+            return new Promise((resolve, reject) => {
+                var sucursal = $('#sucursal').val();
+
+                $.ajax({
+                    url: 'productosinventario',
+                    type: 'POST',
+                    data: {
+                        sucursal: sucursal
+                    },
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        var dataList = '';
+                        response.productos.forEach(function(item) {
+                            dataList +=
+                                `<option value="${item.id}-${item.nombre} - ${item.nombre_marca}">`;
+                        });
+                        resolve(dataList);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        reject(error);
+                    }
+                });
             });
-            return dataList;
         }
 
         // Función para obtener números hasta el guion
@@ -502,7 +533,8 @@
             });
 
             // Añadir una nueva fila al final de la tabla con la suma
-            $productoTableClone.append('<tr><td colspan="' + ($productoTableClone.find('tr:first-child th').length -
+            $productoTableClone.append('<tr><td colspan="' + ($productoTableClone.find('tr:first-child th')
+                    .length -
                     1) +
                 '" style="border: 1px solid black; padding: 8px;">Total</td><td style="border: 1px solid black; padding: 8px;">' +
                 sum + '</td></tr>');
@@ -546,7 +578,8 @@
                     var forma_pago = $('#metodo_pago').val();
                     var $productoTableClone2 = $('#productos').clone();
 
-                    numeroRemision = validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago,
+                    numeroRemision = validarRemision(idsucursal, hora, nota, vendedor, cliente,
+                        forma_pago,
                         $productoTableClone2);
 
 
@@ -755,7 +788,8 @@
 
         function convertirNumeroALetras(num) {
             const unidades = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
-            const decenas = ["", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta",
+            const decenas = ["", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta",
+                "ochenta",
                 "noventa"
             ];
             const centenas = ["", "cien", "doscientos", "trescientos", "cuatrocientos", "quinientos", "seiscientos",
@@ -778,7 +812,8 @@
                 if (num < 10) {
                     return unidades[num];
                 } else if (num >= 10 && num < 20) {
-                    const excepciones = ["diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete",
+                    const excepciones = ["diez", "once", "doce", "trece", "catorce", "quince", "dieciséis",
+                        "diecisiete",
                         "dieciocho", "diecinueve"
                     ];
                     return excepciones[num - 10];
