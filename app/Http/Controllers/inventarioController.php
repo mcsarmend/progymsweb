@@ -53,7 +53,10 @@ class inventarioController extends Controller
 
         $type = $this->gettype();
         $sucursales = warehouse::all();
-        $productos = product::all();
+        $productos = Product::leftjoin('brand as b', 'product.marca', '=', 'b.id')
+
+            ->select('product.*', 'b.nombre as nombre_marca')
+            ->get();
         $proveedores = supplier::all();
 
         return view('inventario.compras', ['type' => $type, 'productos' => $productos, 'proveedores' => $proveedores, 'sucursales' => $sucursales]);
@@ -127,6 +130,28 @@ class inventarioController extends Controller
         $almacenes = warehouse::all();
         $productos = product::all();
         return view('inventario.salida', ['type' => $type, 'sucursales' => $almacenes, 'productos' => $productos]);
+    }
+    public function productosinventario(Request $request)
+    {
+        try {
+
+            $idsucursal = $request->sucursal;
+            $productos = Product::from('product as p')
+                ->leftJoin('product_warehouse as pw', 'p.id', '=', 'pw.idproducto')
+                ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
+                ->where('pw.idwarehouse', $idsucursal)
+                ->select([
+                    'p.id',
+                    'p.nombre',
+                    'b.nombre as nombre_marca',
+                    'pw.existencias'
+                ])
+                ->get();
+
+            return response()->json(['productos' => $productos], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()], 500);
+        }
     }
 
     // OTRAS FUNCIONES

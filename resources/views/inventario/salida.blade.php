@@ -103,82 +103,156 @@
         }
 
         function buscarProducto() {
-            Swal.fire({
-                title: 'Productos',
-                html: `
+            generateOptions().then(optionsHtml => {
+                Swal.fire({
+                    title: 'Productos',
+                    html: `
                 <label for="inputWithDatalist">Selecciona un producto:</label>
-                <input list="datalistOptions" id="inputWithDatalist" class="form-control col-sm-14">
+                <input list="datalistOptions" id="inputWithDatalist" class="form-control col-sm-14" oninput="actualizarExistencias()">
                 <datalist id="datalistOptions">
-                    ${generateOptions()}
+                    ${optionsHtml}
                 </datalist>
                 <label for="inputCantidad">Cantidad:</label>
                 <input type="number" id="inputCantidad" class="form-control col-sm-14">
+                <label for="inputExistencias">Existencias:</label>
+                <input type="number" id="inputExistencias" class="form-control col-sm-14" readonly>
+
                 <br>
             `,
-                focusConfirm: false,
-                preConfirm: () => {
-                    const cantidad = document.getElementById('inputCantidad').value;
-                    const producto = document.getElementById('inputWithDatalist').value;
-                    const datalist = document.getElementById('datalistOptions');
-                    const options = Array.from(datalist.options).map(option => option.value);
-                    if (cantidad === "" || producto === "" || !options.includes(producto)) {
-                        Swal.showValidationMessage(
-                            'Debes llenar ambos campos y seleccionar un producto válido');
-                        return false;
-                    }
-                    return {
-                        cantidad: cantidad,
-                        producto: producto
-                    };
-                },
-                showCancelButton: true,
-                confirmButtonText: 'Siguiente',
-                cancelButtonText: 'Cerrar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    idproducto = obtenerNumerosHastaGuion(result.value.producto);
-                    cantidad = result.value.cantidad;
-                    idsucursal = $('#sucursal').val();
-                    idcliente = ""; // Ajusta esto según tus necesidades
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const cantidad = document.getElementById('inputCantidad').value;
+                        const producto = document.getElementById('inputWithDatalist').value;
+                        const datalist = document.getElementById('datalistOptions');
+                        const options = Array.from(datalist.options).map(option => option.value);
+                        if (cantidad === "" || producto === "" || !options.includes(producto)) {
+                            Swal.showValidationMessage(
+                                'Debes llenar ambos campos y seleccionar un producto válido');
+                            return false;
+                        }
+                        return {
+                            cantidad: cantidad,
+                            producto: producto
+                        };
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Siguiente',
+                    cancelButtonText: 'Cerrar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
 
-                    data = {
-                        id_producto: idproducto,
-                        idcliente: idcliente || 1,
-                        cantidad: cantidad,
-                        sucursal: idsucursal
-                    };
-
-                    $.ajax({
-                        url: 'buscarpreciocompras',
-                        type: 'POST',
-                        data: data,
-                        dataType: 'json',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(data) {
-                            agregarFila(data.idproducto, data.cantidad, data.nombre, data.costo);
-                        },
-                        error: function(xhr, status, error) {
+                        if ($('#inputCantidad').val() > $('#inputExistencias').val()) {
                             Swal.fire({
-                                title: 'Error:',
-                                text: xhr.responseJSON.error,
+                                title: '¡Debes ingresar una cantidad menor o igual a las existencias!',
                                 icon: 'warning'
                             });
+                            return;
                         }
-                    });
-                }
+                        idproducto = obtenerNumerosHastaGuion(result.value.producto);
+                        cantidad = result.value.cantidad;
+                        idsucursal = $('#sucursal').val();
+                        idcliente = ""; // Ajusta esto según tus necesidades
+
+                        data = {
+                            id_producto: idproducto,
+                            idcliente: idcliente || 1,
+                            cantidad: cantidad,
+                            sucursal: idsucursal
+                        };
+
+                        $.ajax({
+                            url: 'buscarpreciocompras',
+                            type: 'POST',
+                            data: data,
+                            dataType: 'json',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(data) {
+                                agregarFila(data.idproducto, data.cantidad, data.nombre, data
+                                    .costo);
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.fire({
+                                    title: 'Error:',
+                                    text: xhr.responseJSON.error,
+                                    icon: 'warning'
+                                });
+                            }
+                        });
+                    }
+                });
             });
         }
 
 
         function generateOptions() {
-            var options = @json($productos);
-            var dataList = '';
-            options.forEach(function(item) {
-                dataList += `<option value="${item.id}-${item.nombre}">`;
+            return new Promise((resolve, reject) => {
+                var sucursal = $('#sucursal').val();
+
+                $.ajax({
+                    url: 'productosinventario',
+                    type: 'POST',
+                    data: {
+                        sucursal: sucursal
+                    },
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        var dataList = '';
+                        response.productos.forEach(function(item) {
+                            dataList +=
+                                `<option value="${item.id}-${item.nombre} - ${item.nombre_marca}">`;
+                        });
+                        resolve(dataList);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        reject(error);
+                    }
+                });
             });
-            return dataList;
+        }
+
+        function actualizarExistencias() {
+            const productoInput = document.getElementById('inputWithDatalist');
+            const idProducto = obtenerNumerosHastaGuion(productoInput.value); // Usa tu función existente
+
+            if (!idProducto) return; // Si no hay ID válido, no hacer nada
+            const idsucursal = $('#sucursal').val();
+
+            const data = {
+                id_producto: idProducto,
+                sucursal: idsucursal,
+
+            };
+
+            $.ajax({
+                url: 'buscarexistencias', // URL a la que se hace la solicitud
+                type: 'POST', // Tipo de solicitud (GET, POST, etc.)
+                data: data,
+                dataType: 'json', // Tipo de datos esperados en la respuesta
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+
+                    $('#inputExistencias').val(data.existencias);
+
+
+                },
+                error: function(xhr, status, error) {
+
+                    Swal.fire({
+                        title: 'Error:',
+                        text: xhr.responseJSON.error,
+                        icon: 'warning'
+                    });
+                }
+            });
+
         }
 
         function agregarFila(codigo, cantidad, nombre, costo) {

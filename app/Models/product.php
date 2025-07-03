@@ -18,7 +18,9 @@ class product extends Model
 		'id',
 		'nombre',
 		'marca',
-		'categoria'
+		'categoria',
+        'estatus',
+        'costo_promedio',
 	];
 
 	protected $guarded =[];

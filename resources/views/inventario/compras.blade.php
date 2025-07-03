@@ -183,7 +183,7 @@
             var options = @json($productos);
             var dataList = '';
             options.forEach(function(item) {
-                dataList += `<option value="${item.id}-${item.nombre}">`;
+                dataList +=   `<option value="${item.id}-${item.nombre} -${item.nombre_marca}">`;
             });
             return dataList;
         }

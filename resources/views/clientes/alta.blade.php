@@ -84,6 +84,14 @@
 
                     </div>
                 </div>
+
+
+                <div class="row">
+                    <div class="col">
+                        campos examinar
+                    </div>
+                </div>
+
                 <br>
                 <div class="row">
                     <div class="form-check">
