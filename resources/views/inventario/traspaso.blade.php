@@ -566,5 +566,87 @@
             // Convertir datos a JSON
             return JSON.stringify(data, null, 4);
         }
+
+
+        function generarPDF() {
+            var {
+                jsPDF
+            } = window.jspdf;
+            var doc = new jsPDF({
+                orientation: "portrait",
+                unit: "mm",
+                format: [297, 210],
+            });
+            var opciones = {
+                timeZone: "America/Mexico_City",
+                hour12: false,
+            };
+            var documento = $("#documento").val();
+            var time = new Date().toLocaleString("es-MX", opciones);
+            var alm_origen = $('#almacen_origen option:selected').text().trim();
+            var alm_destino = $('#almacen_destino option:selected').text().trim();
+
+            // Agregar contenido al PDF
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("GRUPO PROGYMS", 30, 10);
+            doc.text(`Documento: ${documento}`, 10, 22);
+            doc.text(`Fecha: ${time}`, 10, 27);
+            doc.text(`Almacén Origen: ${alm_origen}`, 10, 31);
+            doc.text(`Almacén Destino: ${alm_destino}`, 10, 35);
+
+            var $productoTableClone2 = $("#productos").clone();
+            var res = doc.autoTableHtmlToJson($productoTableClone2[0]);
+            res.data = res.data.map((row) => {
+                row.pop();
+                return row;
+            });
+            res.columns.pop();
+
+            doc.autoTable({
+                startY: 47,
+                tableWidth: 'wrap',
+                margin: {
+                    left: 5,
+                    right: 5
+                },
+                head: [res.columns],
+                body: res.data,
+                styles: {
+                    fontSize: 10,
+                    fontStyle: "bold",
+                    overflow: 'linebreak',
+                },
+                columnStyles: {
+                    0: {
+                        cellWidth: 30
+                    },
+                    1: {
+                        cellWidth: 20
+                    },
+                    2: {
+                        cellWidth: 100
+                    },
+                    3: {
+                        cellWidth: 20
+                    },
+                    4: {
+                        cellWidth: 18
+                    },
+                },
+                headStyles: {
+                    fillColor: null,
+                    textColor: 0,
+                },
+                bodyStyles: {
+                    fillColor: "#FFFFFF",
+                    textColor: 0,
+                },
+                pageBreak: 'auto',
+            });
+
+            doc.save(`traspaso_${documento}.pdf`);
+            Swal.fire("traspaso impreso!", "", "success");
+        }
     </script>
 @stop

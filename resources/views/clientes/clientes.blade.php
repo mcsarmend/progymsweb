@@ -18,6 +18,7 @@
                     <table id=clientes class="table">
                         <thead>
                             <tr>
+                                <th>Id</th>
                                 <th>Nombre</th>
                                 <th>Telefono</th>
                                 <th>Sucursal</th>
@@ -98,7 +99,7 @@
                 "buttons": [
                     'copy', 'excel', 'pdf', 'print'
                 ],
-                dom: 'Blfrtip',
+
                 destroy: true,
                 processing: true,
                 sort: true,
@@ -108,23 +109,11 @@
                     [10, 25, 50, 'All']
                 ], // Personalizar el menú de longitud de visualización
 
-                // Configurar las opciones de exportación
-                // Para PDF
-                pdf: {
-                    orientation: 'landscape', // Orientación del PDF (landscape o portrait)
-                    pageSize: 'A4', // Tamaño del papel del PDF
-                    exportOptions: {
-                        columns: ':visible' // Exportar solo las columnas visibles
-                    }
-                },
-                // Para Excel
-                excel: {
-                    exportOptions: {
-                        columns: ':visible' // Exportar solo las columnas visibles
-                    }
-                },
                 "data": clientes,
                 "columns": [{
+                        "data": "id"
+                    },
+                    {
                         "data": "nombre"
                     },
                     {
