@@ -42,6 +42,7 @@
                         <th>Autor</th>
                         <th>Documento</th>
                         <th>Productos</th>
+                        <th>Imprimir</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -90,6 +91,10 @@
 @stop
 
 @section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
     <script>
         $(document).ready(function() {
             drawTriangles();
@@ -172,6 +177,13 @@
                                         ')" class="btn btn-primary">Ver</button>';
                                 }
                             },
+                            {
+                                "data": "productos",
+                                "render": function(data, type, row) {
+                                    return '<button onclick="generarpdf(' + row.id +
+                                        ')" class="btn btn-primary">Imprimir</button>';
+                                }
+                            }
 
 
                         ]
@@ -249,6 +261,109 @@
                     });
                 }
             });
+        }
+
+
+
+
+        function generarpdf(id) {
+            var info = '';
+            $.ajax({
+                url: 'verproductosmovimiento', // URL a la que se hace la solicitud
+                type: 'GET', // Tipo de solicitud (GET, POST, etc.)
+                data: {
+                    id: id
+                },
+
+                dataType: 'json', // Tipo de datos esperados en la respuesta
+                success: function(data) {
+                    info = data.movimiento;
+
+
+                    var {
+                        jsPDF
+                    } = window.jspdf;
+                    var doc = new jsPDF({
+                        orientation: "portrait",
+                        unit: "mm",
+                        format: [297, 210],
+                    });
+                    var opciones = {
+                        timeZone: "America/Mexico_City",
+                        hour12: false,
+                    };
+                    var documento = info.documento;
+                    var time = info.fecha;
+                    let productos = JSON.parse(info.productos);
+
+                    // Agregar contenido al PDF
+                    doc.setFontSize(12);
+                    doc.setFont("helvetica", "bold");
+                    doc.text("GRUPO PROGYMS", 30, 10);
+                    doc.text(`Documento: ${documento}`, 10, 22);
+                    doc.text(`Fecha: ${time}`, 10, 27);
+                    doc.text(`RFC: ASG160718HS6`, 10, 31);
+                    doc.text('Teléfono: 55 6834 1113', 10, 35);
+
+
+                    const tableData = productos.map(producto => [
+                        producto.Codigo,
+                        producto.Cantidad,
+                        producto.Nombre,
+                        producto["Costo Unitario"],
+                        producto["Costo Subtotal"]
+                    ]);
+
+                    // Crear la tabla
+                    doc.autoTable({
+                        startY: 45, // Posición después de los textos iniciales
+                        head: [
+                            ['Código', 'Cantidad', 'Descripción', 'P. Unitario', 'Subtotal']
+                        ],
+                        body: tableData,
+                        styles: {
+                            fontSize: 8,
+                            cellPadding: 2,
+                            overflow: 'linebreak'
+                        },
+                        columnStyles: {
+                            0: {
+                                cellWidth: 25
+                            }, // Código
+                            1: {
+                                cellWidth: 20
+                            }, // Cantidad
+                            2: {
+                                cellWidth: 80
+                            }, // Descripción
+                            3: {
+                                cellWidth: 25
+                            }, // P. Unitario
+                            4: {
+                                cellWidth: 25
+                            } // Subtotal
+                        },
+                        margin: {
+                            left: 10
+                        },
+                        headStyles: {
+                            fillColor: [200, 200, 200],
+                            textColor: 0,
+                            fontStyle: 'bold'
+                        },
+                        bodyStyles: {
+                            fillColor: [255, 255, 255],
+                            textColor: 0
+                        }
+                    });
+
+
+                    doc.save(`traspaso_${documento}.pdf`);
+                    Swal.fire("traspaso impreso!", "", "success");
+                }
+            });
+
+
         }
     </script>
 @stop

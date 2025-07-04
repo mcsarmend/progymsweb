@@ -8,13 +8,13 @@
 
 @section('content')
     <div class="card">
-        <div class="card-header">
-            <h1>Multialmacén</h1>
-        </div>
+
         <div class="card-body">
 
             <div class="card">
-
+                <div class="card-header">
+                    <h1>Multialmacén</h1>
+                </div>
                 <div class="card-body">
 
                     <br>
@@ -61,13 +61,16 @@
 @stop
 
 @section('js')
-
+    <script src="https://cdn.datatables.net/fixedheader/3.2.0/js/dataTables.fixedHeader.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.0/css/fixedHeader.dataTables.min.css">
     <script>
         $(document).ready(function() {
             var products = @json($products);
             $('#productos').DataTable({
                 destroy: true,
                 scrollX: true,
+                fixedHeader: true,
+                scrollY: '700px',
                 scrollCollapse: true,
                 "language": {
                     "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
@@ -80,7 +83,7 @@
                     $(row).css('font-size', '12px');
                     $(row).addClass(dataIndex % 2 === 0 ? 'bg-white' : 'bg-secondary text-white');
                 },
-                destroy: true,
+                pageLength: 50,
                 processing: true,
                 sort: true,
                 paging: true,
