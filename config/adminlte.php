@@ -655,11 +655,7 @@ return [
                     'text' => 'Inventario',
                     'icon' => 'fas fa-archive',
                     'submenu' => [
-                        [
-                            'text' => 'Lista de Precios',
-                            'url' => 'reporteinventariolistaprecios',
-                            'icon' => 'fas fa-list-alt',
-                        ],
+
                         [
                             'text' => 'Existencias y costos actuales',
                             'url' => 'reporteinventarioexistenciascostos',

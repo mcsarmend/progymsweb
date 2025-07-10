@@ -80,7 +80,7 @@
                 ],
                 dom: 'Blfrtip',
                 createdRow: function(row, data, dataIndex) {
-                    $(row).css('font-size', '12px');
+                    $(row).css('font-size', '17px');
                     $(row).addClass(dataIndex % 2 === 0 ? 'bg-white' : 'bg-secondary text-white');
                 },
                 pageLength: 50,

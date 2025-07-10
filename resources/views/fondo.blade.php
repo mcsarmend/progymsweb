@@ -39,7 +39,22 @@
     }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
+    function exportarexcel(jsonData, fileName ) {
+        // Crear un libro de Excel
+        const workbook = XLSX.utils.book_new();
+
+        // Convertir JSON a hoja de cálculo
+        const worksheet = XLSX.utils.json_to_sheet(jsonData);
+
+        // Añadir la hoja al libro
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte");
+
+        // Generar el archivo Excel y descargarlo
+        XLSX.writeFile(workbook, fileName);
+    }
+
     function drawTriangles() {
         const contentWrapper = document.querySelector(".content-wrapper");
         const canvas = document.createElement("canvas");
@@ -86,7 +101,7 @@
 
     function showUsersSections() {
 
-        var type = parseInt( @json($type) );
+        var type = parseInt(@json($type));
         switch (type) {
 
             // VENDEDOR

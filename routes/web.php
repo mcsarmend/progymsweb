@@ -207,6 +207,8 @@ Route::get('generarreportemermas', [reportesController::class, 'generarreporteme
 Route::get('generarreporteentradas', [reportesController::class, 'generarreporteentradas'])->middleware(['auth']);
 Route::get('generarreportesalidas', [reportesController::class, 'generarreportesalidas'])->middleware(['auth']);
 
+Route::post('reportesoloexistencias', [reportesController::class, 'reportesoloexistencias'])->middleware(['auth']);
+
 //OPCIONES
 Route::get('admin/settings', [adminsettingsController::class, 'index'])->middleware(['auth']);
 Route::get('recuperarcontrasena', [dashboardController::class, 'recuperarcontrasena']);

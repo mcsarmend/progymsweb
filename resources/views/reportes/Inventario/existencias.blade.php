@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Reporte > Inventario > Existencias y Costos')
+@section('title', 'Multialmacén')
 
 @section('content_header')
 
@@ -10,18 +10,45 @@
     <div class="card">
 
         <div class="card-body">
+
             <div class="card">
                 <div class="card-header">
-                    <h1 class="card-title" style ="font-size: 2rem">Reporte > Inventario > Existencias y Costos</h1>
+                    <h1>Precios y existencias</h1>
                 </div>
                 <div class="card-body">
-                    <table id=table-products class="table">
+                    <form method="POST" id="existencias_form">
+                        @csrf
+                        <div class="row justify-content-center align-items-center text-center">
+                            <div class="col-auto">
+                                <label for="">Almacen:</label>
+                                <select class="form-control" name="almacen" id="almacen" required>
+                                    <option class="form-control" value="0">Todos</option>
+                                    @foreach ($almacenes as $almacen)
+                                        <option class="form-control" value="{{ $almacen->id }}">{{ $almacen->nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-success">Descargar</button>
+                            </div>
+                            <div class="col-auto">
+                                <p>Selecciona el almacen del que quieres obtener sus existencias</p>
+                            </div>
+                        </div>
+                    </form>
+                    <br>
+                    <table id="productos" class="table">
                         <thead>
                             <tr>
                                 <th>Codigo</th>
-                                <th>Producto</th>
+                                <th>Nombre</th>
                                 <th>Marca</th>
                                 <th>Categoria</th>
+                                <th>Público</th>
+                                <th>Frecuente</th>
+                                <th>Mayoreo</th>
+                                <th>Distribuidor</th>
                                 <th>Existencias Totales</th>
                                 <th>Almacèn Principal</th>
                                 <th>Viveros</th>
@@ -29,6 +56,7 @@
                                 <th>Coacalco</th>
                                 <th>Villas</th>
                                 <th>Naucalpan</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -39,6 +67,12 @@
         </div>
 
     </div>
+
+
+
+
+
+
     @include('fondo')
 @stop
 
@@ -47,21 +81,30 @@
 @stop
 
 @section('js')
+    <script src="https://cdn.datatables.net/fixedheader/3.2.0/js/dataTables.fixedHeader.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.0/css/fixedHeader.dataTables.min.css">
+
     <script>
         $(document).ready(function() {
             var products = @json($products);
-            $('#table-products').DataTable({
+            $('#productos').DataTable({
                 destroy: true,
                 scrollX: true,
+                fixedHeader: true,
+                scrollY: '700px',
                 scrollCollapse: true,
                 "language": {
                     "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
                 },
                 "buttons": [
-
+                    'copy', 'excel', 'pdf', 'print'
                 ],
                 dom: 'Blfrtip',
-                destroy: true,
+                createdRow: function(row, data, dataIndex) {
+                    $(row).css('font-size', '17px');
+                    $(row).addClass(dataIndex % 2 === 0 ? 'bg-white' : 'bg-secondary text-white');
+                },
+                pageLength: 50,
                 processing: true,
                 sort: true,
                 paging: true,
@@ -70,49 +113,123 @@
                     [10, 25, 50, 'All']
                 ], // Personalizar el menú de longitud de visualización
 
-
-                "data": products,
-                columns: [{
-                        data: 'codigo'
-                    },
-                    {
-                        data: 'producto'
-                    },
-                    {
-                        data: 'marca'
-                    },
-                    {
-                        data: 'categoria'
-                    },
-                    {
-                        data: 'totales'
-                    },
-                    {
-                        data: 'almacen_principal'
-                    },
-                    {
-                        data: 'viveros'
-                    },
-                    {
-                        data: 'towncenter'
-                    },
-                    {
-                        data: 'coacalco'
-                    },
-                    {
-                        data: 'villas'
-                    },
-                    {
-                        data: 'naucalpan'
+                // Configurar las opciones de exportación
+                // Para PDF
+                pdf: {
+                    orientation: 'landscape', // Orientación del PDF (landscape o portrait)
+                    pageSize: 'A4', // Tamaño del papel del PDF
+                    exportOptions: {
+                        columns: ':visible' // Exportar solo las columnas visibles
                     }
-                ],
-                order: [
-                    [0, "asc"]
-                ],
-                pageLength: 50,
+                },
+                // Para Excel
+                excel: {
+                    exportOptions: {
+                        columns: ':visible' // Exportar solo las columnas visibles
+                    }
+                },
+                "data": products,
+                "columns": [{
+                        "data": "codigo"
+                    },
+                    {
+                        "data": "producto"
+                    },
+                    {
+                        "data": "marca"
+                    },
+                    {
+                        "data": "categoria"
+                    },
+                    {
+                        "data": "publico",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
+                    },
+                    {
+                        "data": "frecuente",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
+                    },
+                    {
+                        "data": "mayoreo",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
+                    },
+                    {
+                        "data": "distribuidor",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
+                    },
+                    {
+                        "data": "totales"
+                    },
+                    {
+                        "data": "almacen_principal"
+                    },
+                    {
+                        "data": "viveros"
+                    },
+                    {
+                        "data": "towncenter"
+                    },
+                    {
+                        "data": "coacalco"
+                    },
+                    {
+                        "data": "villas"
+                    },
+                    {
+                        "data": "naucalpan"
+                    }
+
+                ]
             });
             drawTriangles();
             showUsersSections();
         });
+
+        $('#existencias_form').submit(function(e) {
+            e.preventDefault(); // Evitar la recarga de la página
+
+            const idsucursal = $('#almacen').val();
+
+            const data = {
+                sucursal: idsucursal
+            };
+
+            $.ajax({
+                url: 'reportesoloexistencias', // URL a la que se hace la solicitud
+                type: 'POST', // Tipo de solicitud (GET, POST, etc.)
+                data: data,
+                dataType: 'json', // Tipo de datos esperados en la respuesta
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+
+                    products = data.products;
+                    exportarexcel(products, 'SoloExistencias.xlsx');
+
+                },
+                error: function(xhr, status, error) {
+
+                    Swal.fire({
+                        title: 'Error:',
+                        text: xhr.responseJSON.error,
+                        icon: 'warning'
+                    });
+                }
+            });
+
+
+        });
+
+
+
     </script>
 @stop
