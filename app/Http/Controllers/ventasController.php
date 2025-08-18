@@ -84,6 +84,13 @@ class ventasController extends Controller
         return view('ventas.reportes', ['type' => $type]);
     }
 
+
+    public function validarcortecaja(Request $request)
+    {
+        $sucursal = $request->sucursal;
+
+
+    }
     public function buscarprecio(Request $request)
     {
         $idproducto = $request->id_producto;

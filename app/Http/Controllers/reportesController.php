@@ -122,7 +122,9 @@ class reportesController extends Controller
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
         }
     }
-    public function generarreportecortecaja(Request $request)
+    public function
+
+    generarreportecortecaja(Request $request)
     {
         try {
             $timezone = 'America/Mexico_City';

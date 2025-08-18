@@ -246,6 +246,10 @@
                 <label for="inputExistencias">Existencias:</label>
                 <input type="number" id="inputExistencias" class="form-control col-sm-14" readonly>
                 <br>
+
+
+
+
             `,
                         focusConfirm: false,
                         preConfirm: () => {
@@ -542,10 +546,44 @@
             // Obtener el HTML de la tabla modificada
             var productoTableHtml = $productoTableClone.prop('outerHTML');
 
+            var elementos = table + '<br>' + productoTableHtml;
+
+
+            if ($('#metodo_pago').val() == 'efectivo') {
+                elementos +=
+                    '<div style="margin-top: 20px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">' +
+                    '<div style="flex: 1; min-width: 150px;">' +
+                    '<label for="efectivo_recibido" style="display: block; margin-bottom: 5px;">Efectivo Recibido:</label>' +
+                    '<input type="number" id="efectivo_recibido" class="swal2-input" style="width: 75%;" oninput="calcularcambio()">' +
+                    '</div>' +
+                    '<div style="flex: 1; min-width: 150px;">' +
+                    '<label for="cambio" style="display: block; margin-bottom: 5px;">Cambio:</label>' +
+                    '<input type="number" id="cambio" class="swal2-input" style="width: 75%;" readonly>' +
+                    '</div>' +
+                    '<div style="flex: 1; min-width: 150px;">' +
+                    '<label for="metodo_pago_2">Método de pago 2:</label>' +
+                    '<select name="metodo_pago_2" id="metodo_pago_2" class="form-control" style="width: 75%;">' +
+                    '<option value="transferencia">Transferencia</option>' +
+                    '<option value="terminal">Terminal</option>' +
+                    '<option value="clip">Clip</option>' +
+                    '<option value="mercado_pago">Mercado Pago</option>' +
+                    '<option value="vales">Vales</option>' +
+                    '</select>' +
+                    '</div>' +
+                    '<div style="flex: 1; min-width: 150px;">' +
+                    '<label for="cantidad_recibida_2" style="display: block; margin-bottom: 5px;">Cantidad Recibida Método 2:</label>' +
+                    '<input type="number" id="cantidad_recibida_2" class="swal2-input" style="width: 75%; ">' +
+                    '</div>' +
+                    '</div>';
+            }
+
+
+
+
             // Mostrar el cuadro de diálogo de confirmación con SweetAlert
             Swal.fire({
                 title: '¡Se realizará una remisión con los siguientes datos!',
-                html: table + '<br>' + productoTableHtml,
+                html: elementos,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -587,6 +625,20 @@
             });
         });
 
+        function calcularcambio() {
+            let cambio = 0;
+            let cantidad2 = 0;
+            let total = parseInt($("#productosClone tbody tr:last td:last").text());
+            if ($('#cantidad_recibida_2').val()) {
+                cantidad2 = parseInt($('#cantidad_recibida_2').val());
+            } else {
+                cantidad2 = 0;
+            }
+            rest = total - cantidad2;
+            cambio = parseInt($('#efectivo_recibido').val()) - rest;
+            $("#cambio").val(cambio);
+            return;
+        }
 
         $('#cliente').on('change', function() {
             var cliente = $(this).val();
@@ -635,6 +687,14 @@
             tableData.forEach(element => {
                 total += parseInt(element.Subtotal);
             });
+
+            if (total == 0) {
+                Swal.fire({
+                    title: '¡No has agregado productos!',
+                    icon: 'warning'
+                });
+                return;
+            }
             var nombreSucursal = $("#sucursal option:selected").text();
             var tipo_precio = $("#tipo_precio").val();
             const data = {
