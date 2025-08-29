@@ -72,6 +72,7 @@ class asistenciasController extends Controller
         $reporte = DB::select('CALL sp_asistencias_y_ausencias_rep()');
         $empleados = User::select('users.id as id', 'users.name as nombre', 'users.email as correo', 'users.pass as contrasena', 'users.phone as telefono', 'users.role as rol', 'warehouse.nombre as sucursal')
             ->leftJoin('warehouse', 'users.warehouse', '=', 'warehouse.id')
+            ->where('users.status', 1)
             ->get();
         $totalEmpleados = User::whereIn('role', [3, 4])->count();
 
@@ -86,7 +87,9 @@ class asistenciasController extends Controller
         $incidencias = DB::select('CALL sp_incidencias_por_mes(?, ?)', [$mes, $anio]);
 
         $type = $this->gettype();
-        $empleados = User::select('id', 'name as nombre')->get();
+        $empleados = User::select('id', 'name as nombre')
+            ->where('status', 1)
+            ->get();
 
         return response()->view('asistencias.calendario', ['type' => $type, 'empleados' => $empleados, 'incidencias' => $incidencias]);
     }
@@ -96,7 +99,9 @@ class asistenciasController extends Controller
         $vacaciones = DB::select('CALL obtener_vacaciones_restantes()');
 
         $type = $this->gettype();
-        $empleados = User::select('id', 'name as nombre')->get();
+        $empleados = User::select('id', 'name as nombre')
+         ->where('status', 1)
+         ->get();
 
         return response()->view('asistencias.vacaciones', ['type' => $type, 'empleados' => $empleados, 'vacaciones' => $vacaciones]);
     }
