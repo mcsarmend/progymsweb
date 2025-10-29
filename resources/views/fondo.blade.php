@@ -123,17 +123,52 @@
 
                 var almacenMenu = $('.nav-item.dropdown').has('.fas.fa-warehouse');
 
-                // Eliminar las secciones "Alta" y "Baja" dentro del menú "Almacén"
-                almacenMenu.find('.dropdown-item').each(function() {
-                    var itemText = $(this).text().trim();
-                    if (itemText === 'Alta' || itemText === 'Baja') {
-                        $(this).parent()
-                            .remove(); // Eliminar el elemento <li> que contiene la <a> con el texto "Alta" o "Baja"
+                $('.nav-item.has-treeview').each(function () {
+                    let menuTitle = $(this).find('> a.nav-link p').text().trim();
+
+                    if (menuTitle.startsWith('Almacén')) {
+                        // Dentro de este menú, eliminar Alta y Baja
+                        $(this).find('.nav-treeview .nav-link').each(function () {
+                            let itemText = $(this).find('p').text().trim();
+                            if (itemText === 'Alta' || itemText === 'Baja') {
+                                $(this).closest('li').remove();
+                            }
+                        });
                     }
                 });
 
+                $('.nav-item.has-treeview').each(function () {
+                    let menuTitle = $(this).find('> a.nav-link p').text().trim();
+
+                    if (menuTitle.startsWith('Clientes')) {
+                        // Dentro de este menú, eliminar "Edición" y "Baja"
+                        $(this).find('.nav-treeview .nav-link').each(function () {
+                            let itemText = $(this).find('p').text().trim();
+                            if (itemText === 'Edición' || itemText === 'Baja') {
+                                $(this).closest('li').remove();
+                            }
+                        });
+                    }
+                });
+
+                $('.nav-item.has-treeview').each(function () {
+                    let menuTitle = $(this).find('> a.nav-link p').text().trim();
+
+                    if (menuTitle.startsWith('Asistencias')) {
+                        // Dentro de este menú, eliminar "Asistencia General", "Calendario" y "Vacaciones"
+                        $(this).find('.nav-treeview .nav-link').each(function () {
+                            let itemText = $(this).find('p').text().trim();
+                            if (itemText === 'Asistencia General' || itemText === 'Calendario' || itemText === 'Vacaciones') {
+                                $(this).closest('li').remove();
+                            }
+                        });
+                    }
+                });
+
+
                 $('a.nav-link[href="https://gprogyms.com.mx/asistenciageneral"]').remove();
                 $('a.nav-link[href="https://gprogyms.com.mx/calendario"]').remove();
+
                 $('a.nav-link[href="https://gprogyms.com.mx/vacaciones"]').remove();
 
                 // Quitar Inventario

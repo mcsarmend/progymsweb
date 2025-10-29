@@ -42,7 +42,6 @@ class ventasController extends Controller
             ->select('product.*', 'brand.nombre as nombre_marca') // Selecciona las columnas de la tabla principal y el nombre de la marca
             ->get();
 
-
         return view('ventas.remisionar', ['type' => $type, 'idssucursales' => $idssucursales, 'idsucursal' => $idsucursal, 'nombresucursal' => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor' => $vendedor, 'clientes' => $clientes, 'productos' => $productos, 'vendedores' => $vendedores]);
     }
     public function remisionarlista()
@@ -57,8 +56,8 @@ class ventasController extends Controller
             ->get();
         $vendedores = user::all();
 
-        $clientes  = clients::all();
-        $type      = $this->gettype();
+        $clientes = clients::all();
+        $type     = $this->gettype();
 
         return view('ventas.remisionarlista', ['type' => $type, 'idssucursales'        => $idssucursales, 'idsucursal' => $idsucursal,
             'nombresucursal'                              => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor'      => $vendedor, 'clientes' => $clientes, 'vendedores' => $vendedores]);
@@ -84,11 +83,9 @@ class ventasController extends Controller
         return view('ventas.reportes', ['type' => $type]);
     }
 
-
     public function validarcortecaja(Request $request)
     {
         $sucursal = $request->sucursal;
-
 
     }
     public function buscarprecio(Request $request)
@@ -148,16 +145,15 @@ class ventasController extends Controller
     public function buscarexistencias(Request $request)
     {
 
-        $idwarehouse= $request->sucursal;
-        $idproducto = $request->id_producto;
+        $idwarehouse = $request->sucursal;
+        $idproducto  = $request->id_producto;
         $existencias = productwarehouse::where('idproducto', '=', $idproducto)
             ->where('idwarehouse', '=', $idwarehouse)
             ->value('existencias');
         return response()->json([
-            'existencias' => $existencias
+            'existencias' => $existencias,
         ]);
     }
-
 
     public function validarremision(Request $request)
     {
@@ -344,7 +340,6 @@ class ventasController extends Controller
             $resultado[$metodo] = array_values($ventasFiltradas);
         }
 
-        //return ['remisiones_por_pago' => $remisiones_por_pago, "*************************************************************", 'resultado' => $resultado];
         $remisiones_por_pago = $resultado;
 
         $remisiones_por_pago = array_map(function ($metodo) {
@@ -364,7 +359,11 @@ class ventasController extends Controller
 
         $total_general = array_sum($totales_por_pago);
 
+        $idssucursales = warehouse::select('id', 'nombre')
+            ->get();
+
         return view('ventas.cortedecaja', [
+            'idssucursales'        => $idssucursales,
             'type'                => $type,
             'remisiones_por_pago' => $remisiones_por_pago,
             'totales_por_pago'    => $totales_por_pago,

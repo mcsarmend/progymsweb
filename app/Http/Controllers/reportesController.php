@@ -40,8 +40,9 @@ class reportesController extends Controller
     }
     public function reporteremisiones()
     {
-        $type = $this->gettype();
-        return view('reportes.remisiones.remisiones', ['type' => $type]);
+        $type       = $this->gettype();
+        $sucursales = warehouse::all();
+        return view('reportes.remisiones.remisiones', ['type' => $type, 'sucursales' => $sucursales]);
     }
     public function reportecortecaja()
     {
@@ -58,17 +59,16 @@ class reportesController extends Controller
     }
     public function reporteinventarioexistenciascostos()
     {
-        $type = $this->gettype();
+        $type      = $this->gettype();
         $almacenes = warehouse::all();
-        $products = DB::select('CALL sp_multialmacen()');
+        $products  = DB::select('CALL sp_multialmacen()');
         return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes]);
     }
 
-
     public function reporteclienteslista()
     {
-        $type = $this->gettype();
-        $type = $this->gettype();
+        $type    = $this->gettype();
+        $type    = $this->gettype();
         $clients = clients::select('clients.id', 'clients.nombre', 'clients.telefono', 'warehouse.nombre as sucursal', 'prices.nombre as precio')
             ->leftJoin('warehouse', 'clients.sucursal', '=', 'warehouse.id')
             ->leftJoin('prices', 'clients.precio', '=', 'prices.id')
@@ -84,7 +84,7 @@ class reportesController extends Controller
     public function reporteproveedoreslista()
     {
         $proveedores = supplier::all();
-        $type = $this->gettype();
+        $type        = $this->gettype();
         return view('proveedores.proveedores', ['type' => $type, 'suppliers' => $proveedores]);
     }
 
@@ -94,10 +94,9 @@ class reportesController extends Controller
         try {
             $sucursal = $request->sucursal ?? 0; // Default to 0 if not provided
 
-            $query = 'CALL sp_reporteexistencias('.$sucursal.')';
+            $query = 'CALL sp_reporteexistencias(' . $sucursal . ')';
 
             $products = DB::select($query);
-
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'products' => $products], 200);
         } catch (\Throwable $th) {
@@ -108,11 +107,44 @@ class reportesController extends Controller
     public function generarreporteremisiones(Request $request)
     {
         try {
-            $timezone = 'America/Mexico_City';
-            $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString(); // '2024-12-10 00:00:00'
-            $hoy_fin = Carbon::today($timezone)->endOfDay()->toDateTimeString();   // '2024-12-10 23:59:59'
-            $id = Auth::user()->id;
-            $query = 'CALL obtenerremisiones("' . $hoy_inicio . '","' . $hoy_fin . '",NULL)';
+
+            $timezone   = 'America/Mexico_City';
+            $hoy_inicio = $request->dateStart . " 00:00:00"; // '2024-12-10 00:00:00'
+            $hoy_fin    = $request->dateEnd . " 23:59:59";   // '2024-12-10 23:59:59'
+            $id         = Auth::user()->id;
+            $almacen    = $request->id_sucursal ?? 0;
+            if ($almacen != 0) {
+                $query = "
+                            SELECT
+                                r.id,
+                                r.fecha,
+                                IFNULL(r.nota, 'SIN NOTA') AS nota,
+                                r.forma_pago,
+                                c.nombre as cliente,
+                                r.productos,
+                                r.total,
+                                w.nombre AS almacen,
+                                u.name AS vendedor,
+                                r.estatus,
+                                p.nombre AS precio,
+                                CASE
+                                    WHEN r.reparto = 1 THEN 'Sí'
+                                    WHEN r.reparto = 0 THEN 'No'
+                                    ELSE 'No definido'
+                                END AS reparto,
+                                COALESCE(us.name, 'No asignado') AS vendedor_reparto
+                            FROM referrals r
+                            LEFT JOIN warehouse w ON r.almacen = w.id
+                            LEFT JOIN users u ON r.vendedor = u.id
+                            LEFT JOIN prices p ON p.id = r.tipo_de_precio
+                            LEFT JOIN users us ON us.id = r.vendedor_reparto
+                            LEFT JOIN clients c ON c.id = r.cliente
+                            WHERE r.fecha BETWEEN '" . $hoy_inicio . "' AND '" . $hoy_fin . "'
+                            AND w.id = " . $almacen . "
+                        ";
+            } else {
+                $query = 'CALL obtenerremisiones("' . $hoy_inicio . '","' . $hoy_fin . '",NULL)';
+            }
 
             $remisiones = DB::select($query);
 
@@ -124,13 +156,12 @@ class reportesController extends Controller
     }
     public function
 
-    generarreportecortecaja(Request $request)
-    {
+    generarreportecortecaja(Request $request) {
         try {
             $timezone = 'America/Mexico_City';
 
             $hoy_inicio = $request->dateStart . " 00:00:00";
-            $hoy_fin = $request->dateEnd . " 23:59:59";
+            $hoy_fin    = $request->dateEnd . " 23:59:59";
 
             $query = 'CALL reportecortecaja("' . $hoy_inicio . '","' . $hoy_fin . '")';
 
@@ -146,7 +177,7 @@ class reportesController extends Controller
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $compras = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('stock_movements.id as id', 'users as u', 'stock_movements.autor', '=', 'u.id')
@@ -164,7 +195,7 @@ class reportesController extends Controller
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $traspasos = StockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
@@ -189,7 +220,7 @@ class reportesController extends Controller
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $mermas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
@@ -207,7 +238,7 @@ class reportesController extends Controller
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $entradas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
@@ -232,7 +263,7 @@ class reportesController extends Controller
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $salidas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
@@ -251,7 +282,7 @@ class reportesController extends Controller
     {
         try {
 
-            $id = $request->id;
+            $id         = $request->id;
             $movimiento = stockMovements::find($id);
 
             $productos = json_decode($movimiento->productos);

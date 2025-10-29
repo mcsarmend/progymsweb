@@ -13,6 +13,25 @@
                 <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                     <h1 class="card-title" style="font-size: 2rem;">Reporte Sucursal</h1>
                 </div>
+                @if ($type != 4)
+                    <div class="d-flex justify-content-center">
+                        <form action="" method="post" class="text-center">
+                            <p class="text-center">Selecciona la sucursal que quieres realizar el corte</p>
+
+                            <div class="mb-3">
+                                <label for="sucursal" class="form-label">Sucursal:</label>
+                                <select name="sucursal" id="sucursal" class="form-control">
+                                    @foreach ($idssucursales as $almacen)
+                                        <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-info">Obtener información</button>
+                        </form>
+                    </div>
+
+                @endif
                 <form id="cortecajaform">
 
                     <div class="card-body">
@@ -56,6 +75,16 @@
                             <hr style="border: 1px solid #000;">
                         </div>
                         @foreach ($remisiones_por_pago as $forma_pago => $remisiones)
+                            @php
+                                // Si la clave es vacía, la mostramos como "Sin forma de pago"
+                                $key = $forma_pago ?: 'Sin forma de pago';
+                                // Defaults seguros si la vista se carga sin datos
+                                $remisiones_por_pago = $remisiones_por_pago ?? [];
+                                $totales_por_pago = $totales_por_pago ?? [];
+                                // Si no viene $total_general, lo calculamos a partir de los totales por pago
+                                $total_general = $total_general ?? array_sum($totales_por_pago);
+                            @endphp
+
                             @if ($totales_por_pago[$forma_pago] > 0)
                                 <h3>Forma de Pago: {{ ucfirst($forma_pago) }}</h3>
                                 <table border="1" style="width: 100%; border-collapse: collapse;">

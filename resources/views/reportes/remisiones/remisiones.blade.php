@@ -12,28 +12,50 @@
             <h1>Reportes de Remisiones</h1>
         </div>
         <div class="card-body">
+
+
             <form id="reporte">
-                <div class="row">
-                    <div class="col">
-                        <label for="date-start"></label>
-                        <input type="date" name= "dateStart" class="form-control" required>
-                    </div>
-                    <div class="col">
-                        <label for="date-end"></label>
-                        <input type="date" name= "dateEnd" class="form-control" required>
-                    </div>
-                    <div class="col">
-                        <label for=""></label>
-                        <button type="submit" class="btn btn-primary form-control">Generar Reporte</button>
+                <div class="row align-items-end g-2">
+                    <!-- Fecha Inicio -->
+                    <div class="col-auto">
+                        <label for="dateStart" class="form-label">Fecha de Inicio</label>
+                        <input type="date" class="form-control" id="dateStart" name="dateStart" required>
                     </div>
 
+                    <!-- Fecha Fin -->
+                    <div class="col-auto">
+                        <label for="dateEnd" class="form-label">Fecha de Fin</label>
+                        <input type="date" class="form-control" id="dateEnd" name="dateEnd" required>
+                    </div>
 
+                    <!-- Sucursal -->
+                    <div class="col-auto">
+                        <label for="id_sucursal" class="form-label">Sucursal</label>
+                        <select name="id_sucursal" id="id_sucursal" class="form-control">
+                            <option value="{{ 0 }}">Sin seleccionar</option>
+                            @foreach ($sucursales as $sucursal)
+                                <option value="{{ $sucursal->id }}">{{ $sucursal->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Botón -->
+                    <div class="col-auto">
+                        <label class="form-label d-block">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary">Generar Reporte</button>
+                    </div>
                 </div>
-                <br>
-
-
             </form>
 
+            <br>
+            <br>
+
+
+            <center>
+                <h2 style="display:inline-block; margin-right:20px;">Total de venta</h2>
+                <h4 style="display:inline-block;" id="total">1234</h4>
+            </center>
+            <br>
             <table id="remisiones" class="table table-striped">
                 <thead>
                     <tr>
@@ -128,6 +150,12 @@
                         response.message,
                         'success'
                     );
+
+                    var remisiones = response.remisiones;
+                    var total = remisiones.reduce((acc, remision) => acc + remision.total, 0);
+
+                    // Formato con comas de miles y símbolo $
+                    $('#total').text("$" + total.toLocaleString('es-MX'));
 
                     $('#remisiones').DataTable({
                         destroy: true,
