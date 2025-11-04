@@ -53,16 +53,20 @@ Route::post('abonocxcevento', [cuentasController::class, 'abonocxcevento'])->mid
 
 //REMISIONES
 Route::get('remisionar', [ventasController::class, 'remisionar'])->middleware(['auth']);
-Route::get('remisionarlista', [ventasController::class, 'remisionarlista'])->middleware(['auth']);
+Route::get('remisionarlistablack', [ventasController::class, 'remisionarlistablack'])->middleware(['auth']);
+Route::get('remisionarlistaplatinum', [ventasController::class, 'remisionarlistaplatinum'])->middleware(['auth']);
 Route::get('remisiones', [ventasController::class, 'remisiones'])->middleware(['auth']);
 Route::get('ventasreportes', [ventasController::class, 'ventasreportes'])->middleware(['auth']);
 Route::get('verproductosremision', [ventasController::class, 'verproductosremision'])->middleware(['auth']);
-Route::get('cortedecaja', [ventasController::class, 'cortedecaja'])->middleware(['auth']);
 Route::get('buscarremision', [ventasController::class, 'buscarremision'])->middleware(['auth']);
 Route::get('validarcortecaja', [ventasController::class, 'validarcortecaja'])->middleware(['auth']);
+Route::get('cortedecaja', [ventasController::class, 'cortedecaja'])->middleware(['auth']);
 
 
 
+
+
+Route::post('infocortecaja', [ventasController::class, 'infocortecaja'])->middleware(['auth']);
 Route::post('enviarinfocortecaja', [ventasController::class, 'enviarinfocortecaja'])->middleware(['auth']);
 Route::post('buscarprecio', [ventasController::class, 'buscarprecio'])->middleware(['auth']);
 Route::post('buscaridprecio', [ventasController::class, 'buscaridprecio'])->middleware(['auth']);

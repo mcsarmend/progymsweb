@@ -15,7 +15,7 @@
                 </div>
                 @if ($type != 4)
                     <div class="d-flex justify-content-center">
-                        <form action="" method="post" class="text-center">
+                        <form action="" method="post" class="text-center" id="infocortecaja">
                             <p class="text-center">Selecciona la sucursal que quieres realizar el corte</p>
 
                             <div class="mb-3">
@@ -74,62 +74,63 @@
                             </div>
                             <hr style="border: 1px solid #000;">
                         </div>
-                        @foreach ($remisiones_por_pago as $forma_pago => $remisiones)
-                            @php
-                                // Si la clave es vacía, la mostramos como "Sin forma de pago"
-                                $key = $forma_pago ?: 'Sin forma de pago';
-                                // Defaults seguros si la vista se carga sin datos
-                                $remisiones_por_pago = $remisiones_por_pago ?? [];
-                                $totales_por_pago = $totales_por_pago ?? [];
-                                // Si no viene $total_general, lo calculamos a partir de los totales por pago
-                                $total_general = $total_general ?? array_sum($totales_por_pago);
-                            @endphp
+                        <div id="contenido-corte">
+                            @foreach ($remisiones_por_pago as $forma_pago => $remisiones)
+                                @php
+                                    // Si la clave es vacía, la mostramos como "Sin forma de pago"
+                                    $key = $forma_pago ?: 'Sin forma de pago';
+                                    // Defaults seguros si la vista se carga sin datos
+                                    $remisiones_por_pago = $remisiones_por_pago ?? [];
+                                    $totales_por_pago = $totales_por_pago ?? [];
+                                    // Si no viene $total_general, lo calculamos a partir de los totales por pago
+                                    $total_general = $total_general ?? array_sum($totales_por_pago);
+                                @endphp
 
-                            @if ($totales_por_pago[$forma_pago] > 0)
-                                <h3>Forma de Pago: {{ ucfirst($forma_pago) }}</h3>
-                                <table border="1" style="width: 100%; border-collapse: collapse;">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Fecha</th>
-                                            <th>Cliente</th>
-                                            <th>Total</th>
-                                            <th>Vendedor</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($remisiones as $remision)
+                                @if ($totales_por_pago[$forma_pago] > 0)
+                                    <h3>Forma de Pago: {{ ucfirst($forma_pago) }}</h3>
+                                    <table border="1" style="width: 100%; border-collapse: collapse;">
+                                        <thead>
                                             <tr>
-                                                <td>{{ $remision->id }}</td>
-                                                <td>{{ $remision->fecha }}</td>
-                                                <td>{{ $remision->cliente }}</td>
-                                                <td>${{ number_format($remision->total, 2) }}</td>
-                                                <td>{{ $remision->vendedor }}</td>
+                                                <th>ID</th>
+                                                <th>Fecha</th>
+                                                <th>Cliente</th>
+                                                <th>Total</th>
+                                                <th>Vendedor</th>
                                             </tr>
-                                        @empty
+                                        </thead>
+                                        <tbody>
+                                            @forelse($remisiones as $remision)
+                                                <tr>
+                                                    <td>{{ $remision->id }}</td>
+                                                    <td>{{ $remision->fecha }}</td>
+                                                    <td>{{ $remision->cliente }}</td>
+                                                    <td>${{ number_format($remision->total, 2) }}</td>
+                                                    <td>{{ $remision->vendedor }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5" style="text-align: center;">
+                                                        Sin datos para esta forma de pago
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                        <tfoot>
                                             <tr>
-                                                <td colspan="5" style="text-align: center;">
-                                                    Sin datos para esta forma de pago
+                                                <td colspan="3">
+                                                    <strong>Total por {{ ucfirst($forma_pago) }}</strong>
+                                                </td>
+                                                <td colspan="2"
+                                                    style="background-color: #d4edda; color: #155724; text-align: center;">
+                                                    <strong>${{ number_format($totales_por_pago[$forma_pago], 2) }}</strong>
                                                 </td>
                                             </tr>
-                                        @endforelse
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="3">
-                                                <strong>Total por {{ ucfirst($forma_pago) }}</strong>
-                                            </td>
-                                            <td colspan="2"
-                                                style="background-color: #d4edda; color: #155724; text-align: center;">
-                                                <strong>${{ number_format($totales_por_pago[$forma_pago], 2) }}</strong>
-                                            </td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                                <br>
-                            @endif
-                        @endforeach
-
+                                        </tfoot>
+                                    </table>
+                                    <br>
+                                @endif
+                            @endforeach
+                        </div>
                         <div class="col"><label for="observaciones">Observaciones:</label></div>
                         <div class="col">
                             <textarea id="observaciones" name="observaciones" rows="3" cols="120" placeholder="Escribe tu texto aquí..."
@@ -264,7 +265,33 @@
 
             });
 
+            $('#infocortecaja').submit(function(e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: '/infocortecaja',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+
+                        // Actualiza solo esta parte
+                        $('#contenido-corte').html(response.html);
+
+                        // Recalcular totales
+                        calculateTotals();
+                    },
+                    error: function(response) {
+                        Swal.fire("Error", "No se pudo obtener la información.", "error");
+                    }
+                });
+
+            });
         });
+
+
 
 
         function sendDataAsJson() {

@@ -44,7 +44,7 @@ class ventasController extends Controller
 
         return view('ventas.remisionar', ['type' => $type, 'idssucursales' => $idssucursales, 'idsucursal' => $idsucursal, 'nombresucursal' => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor' => $vendedor, 'clientes' => $clientes, 'productos' => $productos, 'vendedores' => $vendedores]);
     }
-    public function remisionarlista()
+    public function remisionarlistablack()
     {
         $idsucursal     = Auth::user()->warehouse;
         $vendedor       = Auth::user()->name;
@@ -59,8 +59,38 @@ class ventasController extends Controller
         $clientes = clients::all();
         $type     = $this->gettype();
 
-        return view('ventas.remisionarlista', ['type' => $type, 'idssucursales'        => $idssucursales, 'idsucursal' => $idsucursal,
-            'nombresucursal'                              => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor'      => $vendedor, 'clientes' => $clientes, 'vendedores' => $vendedores]);
+        $productos = Product::leftJoin('product_warehouse', 'product.id', '=', 'product_warehouse.idproducto')
+            ->leftJoin('brand', 'product.marca', '=', 'brand.id')
+            ->where('product_warehouse.idwarehouse', $idsucursal)
+            ->select('product.*', 'brand.nombre as nombre_marca') // Selecciona las columnas de la tabla principal y el nombre de la marca
+            ->get();
+
+        return view('ventas.remisionarlistablack', ['type' => $type, 'idssucursales'        => $idssucursales, 'idsucursal' => $idsucursal,
+            'nombresucursal'                                   => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor'      => $vendedor, 'clientes' => $clientes, 'vendedores' => $vendedores, 'productos' => $productos]);
+    }
+    public function remisionarlistaplatinum()
+    {
+        $idsucursal     = Auth::user()->warehouse;
+        $vendedor       = Auth::user()->name;
+        $idvendedor     = Auth::user()->id;
+        $nombresucursal = warehouse::select('nombre')
+            ->where('id', '=', $idsucursal)
+            ->first();
+        $idssucursales = warehouse::select('id', 'nombre')
+            ->get();
+        $vendedores = user::all();
+
+        $clientes = clients::all();
+        $type     = $this->gettype();
+
+        $productos = Product::leftJoin('product_warehouse', 'product.id', '=', 'product_warehouse.idproducto')
+            ->leftJoin('brand', 'product.marca', '=', 'brand.id')
+            ->where('product_warehouse.idwarehouse', $idsucursal)
+            ->select('product.*', 'brand.nombre as nombre_marca') // Selecciona las columnas de la tabla principal y el nombre de la marca
+            ->get();
+
+        return view('ventas.remisionarlistaplatinum', ['type' => $type, 'idssucursales'        => $idssucursales, 'idsucursal' => $idsucursal,
+            'nombresucursal'                                      => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor'      => $vendedor, 'clientes' => $clientes, 'vendedores' => $vendedores, 'productos' => $productos]);
     }
     public function remisiones()
     {
@@ -297,6 +327,78 @@ class ventasController extends Controller
 
     }
 
+    public function infocortecaja(Request $request)
+    {
+        $idSucursal = $request->sucursal;
+
+        $type       = $this->gettype();
+        $timezone   = 'America/Mexico_City';
+        $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString();
+        $hoy_fin    = Carbon::today($timezone)->endOfDay()->toDateTimeString();
+
+        // Ejecutar SP con la sucursal seleccionada
+        $remisiones = collect(DB::select('CALL obtenerremisionescorte(?, ?, ?)', [
+            $hoy_inicio, $hoy_fin, $idSucursal,
+        ]));
+
+        // Formas de pago base
+        $formas_pago_base = ['efectivo', 'transferencia', 'terminal', 'clip', 'mercado_pago', 'vales'];
+
+        // Agrupar por forma de pago
+        $remisiones_por_pago = $remisiones->groupBy('forma_pago');
+
+        // Asegurar que existan todas las formas de pago, aunque estén vacías
+        foreach ($formas_pago_base as $forma_pago) {
+            if (! $remisiones_por_pago->has($forma_pago)) {
+                $remisiones_por_pago[$forma_pago] = collect();
+            }
+        }
+
+        // Convertir a array
+        $remisiones_por_pago = json_decode($remisiones_por_pago, true);
+
+        // ✅ ELIMINAR CLAVES VACÍAS O NULAS ANTES DE PROCESAR
+        $remisiones_por_pago = array_filter(
+            $remisiones_por_pago,
+            fn($key) => $key !== "" && $key !== null,
+            ARRAY_FILTER_USE_KEY
+        );
+
+        // ✅ Filtrar solo remisiones emitidas
+        $resultado = [];
+        foreach ($remisiones_por_pago as $metodo => $ventas) {
+            $ventasFiltradas = array_filter($ventas, function ($venta) {
+                return isset($venta['estatus']) && $venta['estatus'] === 'emitida';
+            });
+            $resultado[$metodo] = array_values($ventasFiltradas);
+        }
+
+        // Convertir ventas a objetos para Blade
+        $remisiones_por_pago = array_map(fn($metodo) =>
+            array_map(fn($r) => (object) $r, $metodo),
+            $resultado
+        );
+
+        // Totales por forma de pago
+        $totales_por_pago = [
+            "efectivo"      => array_sum(array_column($remisiones_por_pago["efectivo"] ?? [], "total")),
+            "transferencia" => array_sum(array_column($remisiones_por_pago["transferencia"] ?? [], "total")),
+            "clip"          => array_sum(array_column($remisiones_por_pago["clip"] ?? [], "total")),
+            "terminal"      => array_sum(array_column($remisiones_por_pago["terminal"] ?? [], "total")),
+            "mercado_pago"  => array_sum(array_column($remisiones_por_pago["mercado_pago"] ?? [], "total")),
+            "vales"         => array_sum(array_column($remisiones_por_pago["vales"] ?? [], "total")),
+        ];
+
+        // Renderiza la tabla con Blade
+        $html = view('ventas.cortedecaja_tabla', [
+            'remisiones_por_pago' => $remisiones_por_pago,
+            'totales_por_pago'    => $totales_por_pago,
+            'total_general'       => array_sum($totales_por_pago),
+        ])->render();
+
+        return response()->json(['html' => $html]);
+    }
+
     public function cortedecaja()
     {
         $type       = $this->gettype();
@@ -305,7 +407,7 @@ class ventasController extends Controller
         $hoy_fin    = Carbon::today($timezone)->endOfDay()->toDateTimeString();
         $id         = Auth::user()->id;
 
-        $remisiones = collect(DB::select('CALL obtenerremisiones(?, ?, ?)', [$hoy_inicio, $hoy_fin, $id]));
+        $remisiones = collect(DB::select('CALL obtenerremisionescorte(?, ?, ?)', [$hoy_inicio, $hoy_fin, $id]));
 
         // Define las formas de pago que siempre quieres mostrar
         $formas_pago_base = ['efectivo', 'transferencia', 'terminal', 'clip', 'mercado_pago', 'vales'];
@@ -363,7 +465,7 @@ class ventasController extends Controller
             ->get();
 
         return view('ventas.cortedecaja', [
-            'idssucursales'        => $idssucursales,
+            'idssucursales'       => $idssucursales,
             'type'                => $type,
             'remisiones_por_pago' => $remisiones_por_pago,
             'totales_por_pago'    => $totales_por_pago,

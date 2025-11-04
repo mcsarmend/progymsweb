@@ -88,98 +88,6 @@
         right: 10px;
         transform: translateY(-230%);
     }
-
-
-    /* ESTILOS CORREGIDOS - SIN FixedHeader */
-    .dataTables_wrapper {
-        position: relative;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        overflow: hidden;
-    }
-
-    .dataTables_scroll {
-        position: relative;
-    }
-
-    .dataTables_scrollHead {
-        background-color: #495057;
-        overflow: hidden !important;
-    }
-
-    .dataTables_scrollHead table {
-        margin-bottom: 0 !important;
-        border-bottom: none;
-        table-layout: fixed !important;
-        width: 100% !important;
-    }
-
-    .dataTables_scrollHead thead th {
-        background-color: #495057 !important;
-        color: white !important;
-        border: 1px solid #5a6268 !important;
-        font-weight: bold;
-        padding: 12px 8px;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .dataTables_scrollBody {
-        background-color: white;
-        overflow: auto !important;
-    }
-
-    .dataTables_scrollBody table {
-        border-top: none !important;
-        margin-top: 0 !important;
-        table-layout: fixed !important;
-        width: 100% !important;
-    }
-
-    .dataTables_scrollBody td {
-        padding: 8px;
-        border: 1px solid #dee2e6;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    /* Asegurar que el header y body tengan el mismo ancho */
-    .dataTables_scrollHeadInner,
-    .dataTables_scrollBody table {
-        width: 100% !important;
-    }
-
-    /* Clases para alineación */
-    .dt-body-left {
-        text-align: left;
-    }
-
-    .dt-body-right {
-        text-align: right;
-    }
-
-    .dt-body-center {
-        text-align: center;
-    }
-
-    /* Botones */
-    .btn-ver-almacenes,
-    .btn-ver-imagen {
-        font-size: 0.8rem;
-        padding: 4px 8px;
-        white-space: nowrap;
-    }
-
-    /* Header fijo nativo de DataTables */
-    .dataTables_scrollHead thead th {
-        position: sticky;
-        top: 0;
-    }
 </style>
 
 <body>
@@ -229,15 +137,13 @@
             <div class="slider">
                 <div class="slides">
 
-                    <img class="slide" src="assets/images/promos/02.jpg" alt="Imagen 1">
+
                     <img class="slide" src="assets/images/promos/03.jpg" alt="Imagen 1">
-                    <img class="slide" src="assets/images/promos/04.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/05.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/06.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/07.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/08.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/09.jpg" alt="Imagen 1">
-                    <img class="slide" src="assets/images/promos/10.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/11.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/12.jpg" alt="Imagen 1">
 
@@ -784,127 +690,102 @@
             }, 3000); // Cambia cada 3 segundos
             /* SLIDE*/
 
-            // ✅ TABLA PRODUCTOS CON HEADER Y CUERPO ALINEADOS
+            /*TABLA PRODUCTOS*/
+
             var products = @json($products);
 
-            // Destruir instancia previa si existe
-            if ($.fn.DataTable.isDataTable('#table-products')) {
-                $('#table-products').DataTable().destroy();
-            }
-
-            // Inicializar DataTable SIN FixedHeader
-            var table = $('#table-products').DataTable({
+            $('#table-products').DataTable({
+                destroy: true,
                 scrollX: true,
-                scrollY: '500px',
                 scrollCollapse: true,
                 "language": {
                     "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
                 },
-                dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                    "<'row'<'col-sm-12'tr>>" +
-                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-                order: [
-                    [1, 'asc']
-                ],
+                dom: 'Blfrtip',
+                order: [[1, 'asc']],
                 processing: true,
+                sort: true,
                 paging: true,
-                pageLength: 25,
                 lengthMenu: [
                     [10, 25, 50, -1],
-                    [10, 25, 50, 'Todos']
+                    [10, 25, 50, 'All']
                 ],
                 "data": products,
                 "columns": [{
-                        "data": "producto",
-                        "className": "dt-body-left",
-                        "width": "200px" // 👈 Ancho específico
+                        "data": "producto"
                     },
                     {
-                        "data": "marca",
-                        "className": "dt-body-left",
-                        "width": "150px"
+                        "data": "marca"
                     },
                     {
-                        "data": "categoria",
-                        "className": "dt-body-left",
-                        "width": "150px"
+                        "data": "categoria"
                     },
                     {
                         "data": "publico",
                         "render": function(data) {
                             return '$' + data;
-                        },
-                        "className": "dt-body-right",
-                        "width": "100px"
+                        }
                     },
                     {
                         "data": "frecuente",
                         "render": function(data) {
                             return '$' + data;
-                        },
-                        "className": "dt-body-right",
-                        "width": "100px"
+                        }
                     },
                     {
                         "data": "mayoreo",
                         "render": function(data) {
                             return '$' + data;
-                        },
-                        "className": "dt-body-right",
-                        "width": "100px"
+                        }
                     },
                     {
                         "data": "distribuidor",
                         "render": function(data) {
                             return '$' + data;
-                        },
-                        "className": "dt-body-right",
-                        "width": "120px"
+                        }
                     },
                     {
                         "data": "black",
                         "render": function(data) {
-                            if (data == 0 || data == "0") return 'NO APLICA';
+                            if (data == 0 || data == "0") {
+                                return 'NO APLICA';
+                            }
                             return '$' + data;
-                        },
-                        "className": "dt-body-right",
-                        "width": "100px"
+                        }
                     },
                     {
                         "data": "platinum",
                         "render": function(data) {
-                            if (data == 0 || data == "0") return 'NO APLICA';
+                            if (data == 0 || data == "0") {
+                                return 'NO APLICA';
+                            }
                             return '$' + data;
-                        },
-                        "className": "dt-body-right",
-                        "width": "100px"
+                        }
                     },
+
+                    // Almacenes
                     {
                         "data": "codigo",
                         "render": function(data) {
                             return `<button class="btn btn-primary btn-sm btn-ver-almacenes" data-codigo="${data}">Ver</button>`;
-                        },
-                        "className": "dt-body-center",
-                        "width": "80px"
+                        }
                     },
+                    // Imagenes
                     {
                         "data": "codigo",
                         "render": function(data) {
-                            if (!data) return '';
-                            return `<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#imagenModal" data-codigo="${data}">Ver Imagen</button>`;
-                        },
-                        "className": "dt-body-center",
-                        "width": "100px"
+                            if (data === undefined || data === null) {
+                                return '';
+                            }
+                            return `<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#imagenModal" data-codigo="${data}">Ver Imagen</button>`;
+                        }
                     }
+
+
                 ],
                 initComplete: function() {
-                    console.log("DataTable inicializado correctamente");
-                    // Forzar el ajuste de columnas
-                    this.api().columns.adjust().draw();
-                },
-                drawCallback: function() {
-                    // Ajustar columnas después de cada dibujo
-                    this.api().columns.adjust();
+                    console.log("DataTable inicializado con los siguientes datos:", this.api().data()
+                        .toArray());
                 }
             });
 

@@ -325,9 +325,14 @@ return [
                             'url' => 'remisionar',
                         ],
                         [
-                            'text' => 'Remisionar Lista',
+                            'text' => 'Remisionar Lista Black',
                             'icon' => 'fas fa-file-alt',
-                            'url' => 'remisionarlista',
+                            'url' => 'remisionarlistablack',
+                        ],
+                        [
+                            'text' => 'Remisionar Lista Platinum',
+                            'icon' => 'fas fa-file-alt',
+                            'url' => 'remisionarlistaplatinum',
                         ],
                         [
                             'text' => 'Remisiones',

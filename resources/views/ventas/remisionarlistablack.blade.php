@@ -679,7 +679,7 @@
                 return;
             }
             var nombreSucursal = $("#sucursal option:selected").text();
-            var tipo_precio = $("#tipo_precio").val();
+            var tipo_precio = 5;
             const data = {
                 nombreSucursal: nombreSucursal,
                 nota: nota,
