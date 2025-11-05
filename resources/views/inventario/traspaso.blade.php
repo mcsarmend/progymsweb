@@ -153,7 +153,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
 
-                        if ($('#inputCantidad').val() > $('#inputExistencias').val()) {
+                        if (parseInt($('#inputCantidad').val()) > parseInt($('#inputExistencias').val())) {
                             Swal.fire({
                                 title: '¡Debes ingresar una cantidad menor o igual a las existencias!',
                                 icon: 'warning'
@@ -525,7 +525,9 @@
                             // Guardar y mostrar el PDF
                             doc.save(`traspaso_${documento}.pdf`);
                             Swal.fire("traspaso impreso!", "", "success");
-
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 5000);
                         } else {
                             setTimeout(function() {
                                 window.location.reload();

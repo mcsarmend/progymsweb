@@ -270,7 +270,8 @@
                         cancelButtonText: 'Cerrar'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            if (parseInt($('#inputCantidad').val()) > parseInt($('#inputExistencias').val())) {
+                            if (parseInt($('#inputCantidad').val()) > parseInt($('#inputExistencias')
+                            .val())) {
                                 Swal.fire({
                                     title: '¡Debes ingresar una cantidad menor o igual a las existencias!',
                                     icon: 'warning'
@@ -339,7 +340,13 @@
             const idProducto = obtenerNumerosHastaGuion(productoInput.value); // Usa tu función existente
 
             if (!idProducto) return; // Si no hay ID válido, no hacer nada
-            const idsucursal = $('#sucursal').val();
+            var type = @json($type);
+            var idsucursal = 1;
+            if (type == 4) {
+                idsucursal = parseInt($('#sucursal').data('value'));
+            } else {
+                idsucursal = $('#sucursal').val();
+            }
 
             const data = {
                 id_producto: idProducto,
@@ -375,13 +382,24 @@
         // Función para generar las opciones del datalist
         function generateOptions() {
             return new Promise((resolve, reject) => {
-                var sucursal = $('#sucursal').val();
+
+
+                var type = @json($type);
+                var idsucursal = 1;
+                if (type == 4) {
+                    idsucursal = parseInt($('#sucursal').data('value'));
+                } else {
+                    idsucursal = $('#sucursal').val();
+                }
+
+
+
 
                 $.ajax({
                     url: 'productosinventario',
                     type: 'POST',
                     data: {
-                        sucursal: sucursal
+                        sucursal: idsucursal
                     },
                     dataType: 'json',
                     headers: {

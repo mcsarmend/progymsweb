@@ -405,7 +405,7 @@ class ventasController extends Controller
         $timezone   = 'America/Mexico_City';
         $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString();
         $hoy_fin    = Carbon::today($timezone)->endOfDay()->toDateTimeString();
-        $id         = Auth::user()->id;
+        $id         = Auth::user()->warehouse;
 
         $remisiones = collect(DB::select('CALL obtenerremisionescorte(?, ?, ?)', [$hoy_inicio, $hoy_fin, $id]));
 

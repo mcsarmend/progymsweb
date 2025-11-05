@@ -77,16 +77,17 @@
                         <div id="contenido-corte">
                             @foreach ($remisiones_por_pago as $forma_pago => $remisiones)
                                 @php
-                                    // Si la clave es vacía, la mostramos como "Sin forma de pago"
-                                    $key = $forma_pago ?: 'Sin forma de pago';
-                                    // Defaults seguros si la vista se carga sin datos
+                                    // Ignorar claves vacías
+                                    if ($forma_pago === '') {
+                                        continue;
+                                    }
+
                                     $remisiones_por_pago = $remisiones_por_pago ?? [];
                                     $totales_por_pago = $totales_por_pago ?? [];
-                                    // Si no viene $total_general, lo calculamos a partir de los totales por pago
                                     $total_general = $total_general ?? array_sum($totales_por_pago);
                                 @endphp
 
-                                @if ($totales_por_pago[$forma_pago] > 0)
+                                @if (!empty($totales_por_pago[$forma_pago]))
                                     <h3>Forma de Pago: {{ ucfirst($forma_pago) }}</h3>
                                     <table border="1" style="width: 100%; border-collapse: collapse;">
                                         <thead>
@@ -117,19 +118,18 @@
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <td colspan="3">
-                                                    <strong>Total por {{ ucfirst($forma_pago) }}</strong>
+                                                <td colspan="3"><strong>Total por {{ ucfirst($forma_pago) }}</strong>
                                                 </td>
                                                 <td colspan="2"
-                                                    style="background-color: #d4edda; color: #155724; text-align: center;">
+                                                    style="background-color:#d4edda; color:#155724; text-align:center;">
                                                     <strong>${{ number_format($totales_por_pago[$forma_pago], 2) }}</strong>
                                                 </td>
                                             </tr>
                                         </tfoot>
                                     </table>
-                                    <br>
                                 @endif
                             @endforeach
+
                         </div>
                         <div class="col"><label for="observaciones">Observaciones:</label></div>
                         <div class="col">
