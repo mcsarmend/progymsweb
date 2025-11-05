@@ -281,7 +281,7 @@
                         $('#contenido-corte').html(response.html);
 
                         // Recalcular totales
-                        calculateTotals();
+                        calculateTotalsNewRol();
                     },
                     error: function(response) {
                         Swal.fire("Error", "No se pudo obtener la información.", "error");
@@ -470,6 +470,73 @@
                 total += parseFloat(input.value) || 0;
             });
             return total;
+        }
+
+        function calculateTotalsNewRol() {
+            let totalGeneral = 0;
+            let totalEfectivo = 0;
+
+            // Suma de inputs adicionales
+            let remesaRecibida = sumContainerInputs('remesa-recibida-container');
+            let otrasVentas = sumContainerInputs('otras-ventas-container');
+            let remesaEntregada = sumContainerInputs('remesa-entregada-container');
+            let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
+
+            // Inicializar totales individuales
+            let totalPorEfectivo = 0;
+            let totalPorTransferencia = 0;
+            let totalPorTerminal = 0;
+            let totalPorClip = 0;
+            let totalPorMercadoPago = 0;
+            let totalPorVales = 0;
+
+            // Leer cada tabla generada por forma de pago
+            document.querySelectorAll("table").forEach(table => {
+                let titleElement = table.previousElementSibling;
+                if (!titleElement || !titleElement.textContent.includes("Forma de Pago:")) return;
+
+                let formaPago = titleElement.textContent.replace("Forma de Pago: ", "").trim().toLowerCase();
+
+                // Sumar totales de la columna TOTAL
+                let totalPago = 0;
+                table.querySelectorAll("tbody tr").forEach(row => {
+                    let td = row.querySelector("td:nth-child(4)");
+                    if (td) {
+                        let valor = parseFloat(td.textContent.replace(/[^0-9.-]/g, '')) || 0;
+                        totalPago += valor;
+                    }
+                });
+
+                // Acumular en variables según forma de pago
+                if (formaPago === "efectivo") totalPorEfectivo += totalPago;
+                if (formaPago === "transferencia") totalPorTransferencia += totalPago;
+                if (formaPago === "terminal") totalPorTerminal += totalPago;
+                if (formaPago === "clip") totalPorClip += totalPago;
+                if (formaPago === "mercado_pago") totalPorMercadoPago += totalPago;
+                if (formaPago === "vales") totalPorVales += totalPago;
+            });
+
+            // Calcular electrónico
+            let totalElectronico =
+                totalPorTransferencia +
+                totalPorTerminal +
+                totalPorClip +
+                totalPorMercadoPago +
+                totalPorVales;
+
+            // Calcular total general
+            totalGeneral =
+                remesaRecibida +
+                otrasVentas +
+                totalPorEfectivo +
+                totalElectronico;
+
+            // Calcular total efectivo real a entregar
+            totalEfectivo = totalGeneral - remesaEntregada - gastosEnGeneral - totalElectronico;
+
+            // Actualizar pantalla
+            document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
+            document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
         }
     </script>
 @stop

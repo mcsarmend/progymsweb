@@ -547,6 +547,7 @@ class ventasController extends Controller
             $corteCaja->inputs_adicionales      = json_encode($request->inputs_adicionales ?? []); // Convertir a JSON
             $corteCaja->vendedor                = auth()->id() ?? 1;
             $corteCaja->estado                  = 'pendiente';
+            $corteCaja->fecha_cierre = now('America/Mexico_City')->format('Y-m-d');
             $corteCaja->observaciones           = $request->observaciones ?? null;
 
             // Guardar el usuario en la base de datos
