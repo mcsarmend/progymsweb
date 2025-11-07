@@ -264,6 +264,7 @@
 
                         ]
                     });
+                    sumarTotal();
                 },
                 error: function(response) {
                     Swal.fire(
@@ -274,6 +275,78 @@
                 }
             });
         });
+
+        function sumarTotal() {
+
+            var table = $('#remisiones').DataTable();
+            var total = 0;
+
+            table.rows().every(function() {
+
+                var datos = this.data();
+
+                // Columna 10 = Estatus
+                var estatus = datos.estatus;
+
+                // Solo sumar si es Emitida (insensible a may/min)
+                if (estatus && estatus.toString().toLowerCase() === "emitida") {
+
+                    // Columna 9 = Total
+                    var valor = parseInt(datos.total.toString().replace(/[^0-9.-]+/g, ""));
+
+                    total += parseFloat(valor) || 0;
+                }
+            });
+
+            // Formato $123,123.00
+            let totalFormateado = total.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            $('#total').text("Total: $" + totalFormateado);
+        }
+
+
+        function cancelar_remision(id) {
+
+            Swal.fire({
+                title: "¿Estas seguro?",
+                text: "¡Esta acción no se puede revertir!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "¡Si, cancelar remisión!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        url: 'cancelarremision', // URL a la que se hace la solicitud
+                        type: 'POST', // Tipo de solicitud (GET, POST, etc.)
+                        data: {
+                            id: id
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        dataType: 'json', // Tipo de datos esperados en la respuesta
+                        success: function(data) {
+                            Swal.fire({
+                                title: "¡Cancelada!",
+                                text: "La remisón ha sido cancelada.",
+                                icon: "success"
+                            });
+
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 3000);
+                        }
+                    });
+                }
+            });
+
+        }
 
         function ver(id) {
             $('#productos').modal('show');

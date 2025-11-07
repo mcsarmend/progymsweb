@@ -35,6 +35,7 @@ class ventasController extends Controller
         $type       = $this->gettype();
         $vendedores = DB::table('users')
             ->select('id', 'name')
+            ->where('status', 1)
             ->get();
         $productos = Product::leftJoin('product_warehouse', 'product.id', '=', 'product_warehouse.idproducto')
             ->leftJoin('brand', 'product.marca', '=', 'brand.id')
@@ -98,8 +99,8 @@ class ventasController extends Controller
         $timezone   = 'America/Mexico_City';
         $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString(); // '2024-12-10 00:00:00'
         $hoy_fin    = Carbon::today($timezone)->endOfDay()->toDateTimeString();   // '2024-12-10 23:59:59'
-        $id         = Auth::user()->id;
-        $query      = 'CALL obtenerremisiones("' . $hoy_inicio . '","' . $hoy_fin . '",' . $id . ')';
+        $id         = Auth::user()->warehouse;
+        $query      = 'CALL obtenerremisionescorte("' . $hoy_inicio . '","' . $hoy_fin . '",' . $id . ')';
 
         $remisiones = DB::select($query);
 
@@ -547,7 +548,7 @@ class ventasController extends Controller
             $corteCaja->inputs_adicionales      = json_encode($request->inputs_adicionales ?? []); // Convertir a JSON
             $corteCaja->vendedor                = auth()->id() ?? 1;
             $corteCaja->estado                  = 'pendiente';
-            $corteCaja->fecha_cierre = now('America/Mexico_City')->format('Y-m-d');
+            $corteCaja->fecha_cierre = now('America/Mexico_City')->format('Y-m-d H:i:s');
             $corteCaja->observaciones           = $request->observaciones ?? null;
 
             // Guardar el usuario en la base de datos

@@ -71,7 +71,7 @@ Route::post('enviarinfocortecaja', [ventasController::class, 'enviarinfocortecaj
 Route::post('buscarprecio', [ventasController::class, 'buscarprecio'])->middleware(['auth']);
 Route::post('buscaridprecio', [ventasController::class, 'buscaridprecio'])->middleware(['auth']);
 Route::post('buscarexistencias', [ventasController::class, 'buscarexistencias'])->middleware(['auth']);
-Route::post('validarremision', [ventasController::class, 'validarremision'])->middleware(['auth']);
+Route::post('validarremision', [ventasController::class, 'validaproductosinventariorremision'])->middleware(['auth']);
 Route::post('cancelarremision', [ventasController::class, 'cancelarremision'])->middleware(['auth']);
 
 //ALMACEN

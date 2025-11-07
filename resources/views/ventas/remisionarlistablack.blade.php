@@ -94,6 +94,8 @@
                                 <option value="2">Frecuente</option>
                                 <option value="3">Mayoreo</option>
                                 <option value="4">Distribuidor</option>
+                                <option value="5">Black</option>
+                                <option value="6">Platinum</option>
                             </select>
 
                         </div>
@@ -107,6 +109,8 @@
                                 <option value="2">Frecuente</option>
                                 <option value="3">Mayoreo</option>
                                 <option value="4">Distribuidor</option>
+                                <option value="5">Black</option>
+                                <option value="6">Platinum</option>
                             </select>
 
                         </div>

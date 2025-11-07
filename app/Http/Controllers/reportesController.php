@@ -180,8 +180,15 @@ class reportesController extends Controller
             $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $compras = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
-                ->leftJoin('stock_movements.id as id', 'users as u', 'stock_movements.autor', '=', 'u.id')
-                ->select('stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
+                ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
+                ->select(
+                    'stock_movements.id as id',
+                    'stock_movements.fecha as fecha',
+                    'stock_movements.movimiento as movimiento',
+                    'stock_movements.documento as documento',
+                    'stock_movements.productos as productos',
+                    'u.name as autor'
+                )
                 ->where('movimiento', 'PURCHASE')
                 ->get();
 
