@@ -7,6 +7,32 @@
 @stop
 
 @section('content')
+    <div class="card">
+        <div class="card-body">
+            <div class="card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h1 class="card-title" style="font-size: 2rem;">Reporte Sucursal</h1>
+                </div>
+                @if ($type != 4)
+                    <div class="d-flex justify-content-center">
+                        <form action="" method="post" class="text-center" id="infocortecaja">
+                            <p class="text-center">Selecciona la sucursal que quieres realizar el corte</p>
+
+                            <div class="mb-3">
+                                <label for="sucursal" class="form-label">Sucursal:</label>
+                                <select name="sucursal" id="sucursal" class="form-control">
+                                    @foreach ($idssucursales as $almacen)
+                                        <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-info">Obtener información</button>
+                        </form>
+                    </div>
+
+                @endif
+                <form id="cortecajaform">
 
 
 
@@ -38,87 +64,69 @@
                             <div class="inputs-container" id="remesa-recibida-inputs"></div>
                             <button class="add-button" onclick="addInput('remesa-recibida-inputs')">Agregar</button>
                         </div>
-                        <hr style="border: 1px solid #000;">
-                        <div class="concept-container" id="remesa-entregada-container">
-                            <div class="concept-header">REMESA ENTREGADA</div>
-                            <div class="inputs-container" id="remesa-entregada-inputs"></div>
-                            <button class="add-button" onclick="addInput('remesa-entregada-inputs')">Agregar</button>
-                        </div>
-                        <hr style="border: 1px solid #000;">
-                        <div class="concept-container" id="otras-ventas-container">
-                            <div class="concept-header">OTRAS VENTAS</div>
-                            <div class="inputs-container" id="otras-ventas-inputs"></div>
-                            <button class="add-button" onclick="addInput('otras-ventas-inputs')">Agregar</button>
-                        </div>
-                        <hr style="border: 1px solid #000;">
-                        <div class="concept-container" id="gastos-en-general-container">
-                            <div class="concept-header">GASTOS EN GENERAL</div>
-                            
-                            <div class="inputs-container" id="gastos-en-general-inputs"></div>
-                            <button class="add-button" onclick="addInput('gastos-en-general-inputs')">Agregar</button>
-                        </div>
-                        <hr style="border: 1px solid #000;">
-                    </div>
-                   
-                   @if ($type == 4)
-                        <div class="col"><label for="sucursal">Sucursal:</label></div>
-                        <div class="col"><input type="text" class="form-control" id="sucursal" name = "sucursal"
-                                data-value={{ $idsucursal }} value={{ $sucursalauth->nombre }} readonly></div>
-                    @else
-                        <div class="col"><label for="sucursal">Sucursal:</label></div>
-                        <div class="col">
-                            <select name="sucursal" id="sucursal" class="form-control">
-                                @foreach ($idsucursales as $almacen)
-                                    <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    @endif
-                    @foreach ($remisiones_por_pago as $forma_pago => $remisiones)
-                        @if ($totales_por_pago[$forma_pago] > 0)
-                            <h3>Forma de Pago: {{ ucfirst($forma_pago) }}</h3>
-                            <table border="1" style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Fecha</th>
-                                        <th>Cliente</th>
-                                        <th>Total</th>
-                                        <th>Vendedor</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($remisiones as $remision)
-                                        <tr>
-                                            <td>{{ $remision->id }}</td>
-                                            <td>{{ $remision->fecha }}</td>
-                                            <td>{{ $remision->cliente }}</td>
-                                            <td>${{ number_format($remision->total, 2) }}</td>
-                                            <td>{{ $remision->vendedor }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="5" style="text-align: center;">
-                                                Sin datos para esta forma de pago
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="3">
-                                            <strong>Total por {{ ucfirst($forma_pago) }}</strong>
-                                        </td>
-                                        <td colspan="2" style="background-color: #d4edda; color: #155724; text-align: center;">
-                                            <strong>${{ number_format($totales_por_pago[$forma_pago], 2) }}</strong>
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                            <br>
-                        @endif
-                    @endforeach
+                        <div id="contenido-corte">
+                            @foreach ($remisiones_por_pago as $forma_pago => $remisiones)
+                                @php
+                                    // Ignorar claves vacías
+                                    if ($forma_pago === '') {
+                                        continue;
+                                    }
 
+                                    $remisiones_por_pago = $remisiones_por_pago ?? [];
+                                    $totales_por_pago = $totales_por_pago ?? [];
+                                    $total_general = $total_general ?? array_sum($totales_por_pago);
+                                @endphp
+
+                                @if (!empty($totales_por_pago[$forma_pago]))
+                                    <h3>Forma de Pago: {{ ucfirst($forma_pago) }}</h3>
+                                    <table border="1" style="width: 100%; border-collapse: collapse;">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Fecha</th>
+                                                <th>Cliente</th>
+                                                <th>Total</th>
+                                                <th>Vendedor</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($remisiones as $remision)
+                                                <tr>
+                                                    <td>{{ $remision->id }}</td>
+                                                    <td>{{ $remision->fecha }}</td>
+                                                    <td>{{ $remision->cliente }}</td>
+                                                    <td>${{ number_format($remision->total, 2) }}</td>
+                                                    <td>{{ $remision->vendedor }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5" style="text-align: center;">
+                                                        Sin datos para esta forma de pago
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="3"><strong>Total por {{ ucfirst($forma_pago) }}</strong>
+                                                </td>
+                                                <td colspan="2"
+                                                    style="background-color:#d4edda; color:#155724; text-align:center;">
+                                                    <strong>${{ number_format($totales_por_pago[$forma_pago], 2) }}</strong>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                @endif
+                            @endforeach
+
+                        </div>
+                        <div class="col"><label for="observaciones">Observaciones:</label></div>
+                        <div class="col">
+                            <textarea id="observaciones" name="observaciones" rows="3" cols="120" placeholder="Escribe tu texto aquí..."
+                                data-value="" value=""></textarea>
+                        </div>
+                        <br>
 
                     <div class="col"><label for="observaciones">Observaciones:</label></div>
                     <div class="col">
@@ -253,12 +261,37 @@
                 }
             });
 
+            $('#infocortecaja').submit(function(e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: '/infocortecaja',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+
+                        // Actualiza solo esta parte
+                        $('#contenido-corte').html(response.html);
+
+                        // Recalcular totales
+                        calculateTotalsNewRol();
+                    },
+                    error: function(response) {
+                        Swal.fire("Error", "No se pudo obtener la información.", "error");
+                    }
+                });
+
+            });
         });
 
     });
 
-//agregar el wherehouse al json de data
-    function sendDataAsJson() {  
+
+
+        function sendDataAsJson() {
 
         let data = {
             total_general: parseFloat($("#total-general").text().replace("$", "").trim()) || 0,
@@ -435,29 +468,79 @@
         document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
     }
 
-    function sumContainerInputs(containerId) {
-        let total = 0;
-        document.querySelectorAll(`#${containerId} .input-group input[type="number"]`).forEach(input => {
-            total += parseFloat(input.value) || 0;
-        });
-        return total;
-    }
-    function verificarTipoElemento(id) {
-    const elemento = document.getElementById(id);
-    
-    if (!elemento) {
-        return 'Elemento no encontrado';
-    }
+        function sumContainerInputs(containerId) {
+            let total = 0;
+            document.querySelectorAll(`#${containerId} .input-group input[type="number"]`).forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            return total;
+        }
 
-    if (elemento instanceof HTMLSelectElement) {
-        return 'SELECT';
-    } else if (elemento instanceof HTMLInputElement) {
-        return 'INPUT';
-    } else {
-        return `Elemento ${elemento.tagName}`;
-    }
-}
+        function calculateTotalsNewRol() {
+            let totalGeneral = 0;
+            let totalEfectivo = 0;
 
+            // Suma de inputs adicionales
+            let remesaRecibida = sumContainerInputs('remesa-recibida-container');
+            let otrasVentas = sumContainerInputs('otras-ventas-container');
+            let remesaEntregada = sumContainerInputs('remesa-entregada-container');
+            let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
 
-</script>
+            // Inicializar totales individuales
+            let totalPorEfectivo = 0;
+            let totalPorTransferencia = 0;
+            let totalPorTerminal = 0;
+            let totalPorClip = 0;
+            let totalPorMercadoPago = 0;
+            let totalPorVales = 0;
+
+            // Leer cada tabla generada por forma de pago
+            document.querySelectorAll("table").forEach(table => {
+                let titleElement = table.previousElementSibling;
+                if (!titleElement || !titleElement.textContent.includes("Forma de Pago:")) return;
+
+                let formaPago = titleElement.textContent.replace("Forma de Pago: ", "").trim().toLowerCase();
+
+                // Sumar totales de la columna TOTAL
+                let totalPago = 0;
+                table.querySelectorAll("tbody tr").forEach(row => {
+                    let td = row.querySelector("td:nth-child(4)");
+                    if (td) {
+                        let valor = parseFloat(td.textContent.replace(/[^0-9.-]/g, '')) || 0;
+                        totalPago += valor;
+                    }
+                });
+
+                // Acumular en variables según forma de pago
+                if (formaPago === "efectivo") totalPorEfectivo += totalPago;
+                if (formaPago === "transferencia") totalPorTransferencia += totalPago;
+                if (formaPago === "terminal") totalPorTerminal += totalPago;
+                if (formaPago === "clip") totalPorClip += totalPago;
+                if (formaPago === "mercado_pago") totalPorMercadoPago += totalPago;
+                if (formaPago === "vales") totalPorVales += totalPago;
+            });
+
+            // Calcular electrónico
+            let totalElectronico =
+                totalPorTransferencia +
+                totalPorTerminal +
+                totalPorClip +
+                totalPorMercadoPago +
+                totalPorVales;
+
+            // Calcular total general
+            totalGeneral =
+                remesaRecibida +
+                otrasVentas +
+                totalPorEfectivo +
+                totalElectronico;
+
+            // Calcular total efectivo real a entregar
+            totalEfectivo = totalGeneral - remesaEntregada - gastosEnGeneral - totalElectronico;
+
+            // Actualizar pantalla
+            document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
+            document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
+        }
+    </script>
 @stop

@@ -325,11 +325,6 @@ return [
                             'url' => 'remisionar',
                         ],
                         [
-                            'text' => 'Remisionar Lista',
-                            'icon' => 'fas fa-file-alt',
-                            'url' => 'remisionarlista',
-                        ],
-                        [
                             'text' => 'Remisiones',
                             'icon' => 'fas fa-file-signature',
                             'url' => 'remisiones',
@@ -338,6 +333,11 @@ return [
                             'text' => 'Corte de caja',
                             'icon' => 'fas fa-money-bill-wave',
                             'url' => 'cortedecaja',
+                        ],
+                        [
+                            'text' => 'Corte de caja especial',
+                            'icon' => 'fas fa-money-bill-wave',
+                            'url' => 'cortedecajaespecial',
                         ],
                     ],
                 ],
@@ -655,11 +655,7 @@ return [
                     'text' => 'Inventario',
                     'icon' => 'fas fa-archive',
                     'submenu' => [
-                        [
-                            'text' => 'Lista de Precios',
-                            'url' => 'reporteinventariolistaprecios',
-                            'icon' => 'fas fa-list-alt',
-                        ],
+
                         [
                             'text' => 'Existencias y costos actuales',
                             'url' => 'reporteinventarioexistenciascostos',

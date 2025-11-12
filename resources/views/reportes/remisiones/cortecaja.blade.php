@@ -37,6 +37,7 @@
             <table id="entradas" class="table table-striped">
                 <thead>
                     <tr>
+                        <th>Almacén</th>
                         <th>Total General</th>
                         <th>Total Efectivo a Entregar</th>
                         <th>Formas de pago</th>
@@ -170,6 +171,10 @@
                         },
                         "data": response.cortecaja,
                         "columns": [{
+                                "data": "almacen"
+                            },
+
+                            {
                                 "data": "total_general"
                             },
                             {

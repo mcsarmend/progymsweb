@@ -88,6 +88,16 @@
         right: 10px;
         transform: translateY(-230%);
     }
+
+    /* Solo el label "Buscar" de esta tabla */
+    #productos_distribuidor_filter label {
+        color: white !important;
+    }
+
+    /* Solo el texto dentro del input de esta tabla */
+    #productos_distribuidor_filter input {
+        color: black !important;
+    }
 </style>
 
 <body>
@@ -137,18 +147,16 @@
             <div class="slider">
                 <div class="slides">
 
-                    <img class="slide" src="assets/images/promos/01.jpeg" alt="Imagen 1">
-                    <img class="slide" src="assets/images/promos/02.jpeg" alt="Imagen 2">
-                    <img class="slide" src="assets/images/promos/03.jpeg" alt="Imagen 3">
-                    <img class="slide" src="assets/images/promos/05.jpeg" alt="Imagen 5">
-                    <img class="slide" src="assets/images/promos/06.jpeg" alt="Imagen 6">
-                    <img class="slide" src="assets/images/promos/07.jpeg" alt="Imagen 7">
-                    <img class="slide" src="assets/images/promos/08.jpeg" alt="Imagen 8">
-                    <img class="slide" src="assets/images/promos/09.jpeg" alt="Imagen 9">
-                    <img class="slide" src="assets/images/promos/10.jpeg" alt="Imagen 10">
-                    <img class="slide" src="assets/images/promos/11.jpeg" alt="Imagen 11">
-                    <img class="slide" src="assets/images/promos/12.jpeg" alt="Imagen 12">
-                    <img class="slide" src="assets/images/promos/13.jpeg" alt="Imagen 13">
+
+                    <img class="slide" src="assets/images/promos/03.jpg" alt="Imagen 1">
+                    <img class="slide" src="assets/images/promos/05.jpg" alt="Imagen 1">
+                    <img class="slide" src="assets/images/promos/06.jpg" alt="Imagen 1">
+                    <img class="slide" src="assets/images/promos/07.jpg" alt="Imagen 1">
+                    <img class="slide" src="assets/images/promos/08.jpg" alt="Imagen 1">
+                    <img class="slide" src="assets/images/promos/09.jpg" alt="Imagen 1">
+                    <img class="slide" src="assets/images/promos/11.jpg" alt="Imagen 1">
+                    <img class="slide" src="assets/images/promos/12.jpg" alt="Imagen 1">
+
 
 
                 </div>
@@ -160,6 +168,101 @@
         </div>
     </section>
 
+    <!-- CONTACT -->
+    <section id="contact" data-stellar-background-ratio="0.5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <div class="section-title">
+                        <h2>Contáctanos</h2>
+                        <span class="line-bar">...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215512415377" class="btn section-btn smoothScroll" target="_blank"
+                        style="background:white;">
+                        <i class="fab fa-whatsapp" style="color:#25D366; font-size:28px; margin-right:6px;"></i>
+                        <span style="color:#25D366; font-weight:bold;">Viveros (Tlalnepantla)</span>
+                    </a>
+                </div>
+                <br>
+
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215648149566" class="btn section-btn smoothScroll" target="_blank"
+                        style="background:white;">
+                        <i class="fab fa-whatsapp" style="color:#25D366; font-size:28px; margin-right:6px;"></i>
+                        <span style="color:#25D366; font-weight:bold;">San Esteban (Naucalpan)</span>
+                    </a>
+                </div>
+                <br>
+
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215578397643" class="btn section-btn smoothScroll" target="_blank"
+                        style="background:white;">
+                        <i class="fab fa-whatsapp" style="color:#25D366; font-size:28px; margin-right:6px;"></i>
+                        <span style="color:#25D366; font-weight:bold;">Town Center (Nicolás Romero)</span>
+                    </a>
+                </div>
+                <br>
+
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215531216226" class="btn section-btn smoothScroll" target="_blank"
+                        style="background:white;">
+                        <i class="fab fa-whatsapp" style="color:#25D366; font-size:28px; margin-right:6px;"></i>
+                        <span style="color:#25D366; font-weight:bold;">Serviplaza Coacalco</span>
+                    </a>
+                </div>
+                <br>
+
+                <div class="col home-info" style="text-align: center;">
+                    <a href="https://wa.me/5215643018711" class="btn section-btn smoothScroll" target="_blank"
+                        style="background:white;">
+                        <i class="fab fa-whatsapp" style="color:#25D366; font-size:28px; margin-right:6px;"></i>
+                        <span style="color:#25D366; font-weight:bold;">Villas de la Hacienda (Cuautitlan
+                            Izcalli)</span>
+                    </a>
+                </div>
+            </div>
+
+    </section>
+
+
+    <section data-stellar-background-ratio="0.5">
+        <div class="container">
+            <div class="row">
+
+                <div class="col-md-12 col-sm-12">
+                    <div class="section-title">
+                        <h2 data-toggle="modal" data-target="#modalPrecios"
+                            style="
+                                display: inline-block;
+                                background-color: #337AB7;
+                                color: white;
+
+                                /* Tamaño del texto adaptable pero limitado */
+                                font-size: clamp(20px, 4vw, 34px);
+
+                                /* Padding adaptable pero limitado */
+                                padding: clamp(10px, 3vw, 25px) clamp(20px, 6vw, 50px);
+
+                                border-radius: 10px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                text-align: center;
+                                box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+                                margin: 0 auto;
+                            ">
+                            Precios Distribuidor
+                        </h2>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
 
 
     <!-- PRODUCTOs -->
@@ -187,8 +290,9 @@
 
             <br><br>
 
+
             <div class="row">
-                <table class="table table-hover" id="table-products">
+                <table class="table table-striped"id="table-products">
                     <thead>
                         <tr>
                             <th>Producto</th>
@@ -197,9 +301,7 @@
                             <th>Público</th>
                             <th>Frecuente</th>
                             <th>Mayoreo</th>
-                            <th>Distribuidor</th>
                             <th>Existencias</th>
-                            <th>Almacenes</th>
                             <th>Ver imagen</th>
                         </tr>
                     </thead>
@@ -219,56 +321,15 @@
                 <li><strong>Precio frecuente</strong>: Clientes con compras mayores a **$1500** mensuales</li>
                 <li><strong>Precio mayorista</strong>: Clientes con compras mayores a **$3000** mensuales</li>
                 <li><strong>Precio distribuidor</strong>: Compras en una sola exhibición de más de **$3000**</li>
+                <li><strong>Precio Black</strong>: Compras en una sola exhibición de más de **$4500**</li>
+                <li><strong>Precio Platinum</strong>: Compras en una sola exhibición de más de **$6000**</li>
             </ul>
         </div>
 
     </section>
 
 
-    <!-- CONTACT -->
-    <section id="contact" data-stellar-background-ratio="0.5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12 col-sm-12">
-                    <div class="section-title">
-                        <h2>Contáctanos</h2>
-                        <span class="line-bar">...</span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215512415377" class="btn section-btn smoothScroll" target="_blank">
-                        <i class="fab fa-whatsapp"></i> Viveros (Tlalnepantal)
-                    </a>
-                </div>
-                <br>
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215648149566" class="btn section-btn smoothScroll" target="_blank">
-                        <i class="fab fa-whatsapp"></i> San Esteban (Naucalpan)
-                    </a>
-                </div>
-                <br>
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215578397643" class="btn section-btn smoothScroll" target="_blank">
-                        <i class="fab fa-whatsapp"></i> Town Center (Nicolás Romero)
-                    </a>
-                </div>
-                <br>
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215531216226" class="btn section-btn smoothScroll" target="_blank">
-                        <i class="fab fa-whatsapp"></i> Plaza Coacalco
-                    </a>
-                </div>
-                <br>
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215643018711" class="btn section-btn smoothScroll" target="_blank">
-                        <i class="fab fa-whatsapp"></i> Villas de la Hacienda (Cuautitlan Izcalli)
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
+
 
 
 
@@ -625,6 +686,43 @@
     </div>
 
 
+
+    <div class="modal fade" id="modalPrecios" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 95%;">
+            <!-- Solo estilo agregado -->
+            <div class="modal-content">
+
+
+                <!-- SOLO SE AGREGARON ESTILOS AQUÍ -->
+                <div class="modal-body modal-almacenes-body" style="overflow-x: auto; max-height: 75vh;">
+
+                    <table id="productos_distribuidor" class="table table-striped table-almacenes"
+                        style="min-width: 900px;">
+                        <!-- ancho mínimo para que no se aplaste -->
+                        <thead class="table-almacenes-header">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Marca</th>
+                                <th>Categoria</th>
+                                <th>Distribuidor</th>
+                                <th>Black</th>
+                                <th>Platinum</th>
+                                <th>Existencias</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
     <!-- SCRIPTS -->
     <script src="js/jquery.js"></script>
     <script src="js/bootstrap.min.js"></script>
@@ -701,6 +799,9 @@
                     "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
                 },
                 dom: 'Blfrtip',
+                order: [
+                    [1, 'asc']
+                ],
                 processing: true,
                 sort: true,
                 paging: true,
@@ -736,15 +837,8 @@
                             return '$' + data;
                         }
                     },
-                    {
-                        "data": "distribuidor",
-                        "render": function(data) {
-                            return '$' + data;
-                        }
-                    },
-                    {
-                        "data": "existencias"
-                    },
+
+
                     // Almacenes
                     {
                         "data": "codigo",
@@ -770,6 +864,75 @@
                         .toArray());
                 }
             });
+
+
+
+
+
+            $('#productos_distribuidor').DataTable({
+                destroy: true,
+                scrollX: true,
+                scrollCollapse: true,
+                "language": {
+                    "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
+                },
+                dom: 'Blfrtip',
+                order: [
+                    [1, 'asc']
+                ],
+                processing: true,
+                sort: true,
+                paging: true,
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, 'All']
+                ],
+                "data": products,
+                "columns": [{
+                        "data": "producto"
+                    },
+                    {
+                        "data": "marca"
+                    },
+                    {
+                        "data": "categoria"
+                    },
+                    {
+                        "data": "distribuidor",
+                        "render": function(data) {
+                            return '$' + data;
+                        }
+                    },
+                    {
+                        "data": "black",
+                        "render": function(data) {
+                            return '$' + data;
+                        }
+                    },
+                    {
+                        "data": "platinum",
+                        "render": function(data) {
+                            return '$' + data;
+                        }
+                    },
+
+                    {
+                        "data": "existencias",
+
+                    },
+
+
+
+                ],
+                initComplete: function() {
+                    console.log("DataTable inicializado con los siguientes datos:", this.api().data()
+                        .toArray());
+                }
+            });
+
+
+
+
 
 
             $('#table-products tbody').on('click', '.btn-ver-almacenes', function() {

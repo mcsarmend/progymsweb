@@ -12,6 +12,12 @@
             <h2>Remisiones</h2>
         </div>
         <div class="card-body">
+
+            <div class="row">
+                <div class="head-body">Total de venta</div>
+                <div id="total"></div>
+            </div>
+
             <table id="remisiones" class="table">
                 <thead>
                     <tr>
@@ -96,6 +102,9 @@
             drawTriangles();
             showUsersSections();
             var remisiones = @json($remisiones);
+            total = remisiones.reduce((acc, remision) => acc + remision.total, 0);
+            $('#total').text(total);
+
             $('#remisiones').DataTable({
                 destroy: true,
                 scrollX: true,

@@ -29,6 +29,8 @@
                                 <th>Frecuente</th>
                                 <th>Mayoreo</th>
                                 <th>Distribuidor</th>
+                                <th>Black</th>
+                                <th>Platinum</th>
                                 <th>Existencias Totales</th>
                                 <th>Almacèn Principal</th>
                                 <th>Viveros</th>
@@ -67,6 +69,9 @@
         $(document).ready(function() {
             var products = @json($products);
             $('#productos').DataTable({
+                order: [
+                    [2, 'asc']
+                ],
                 destroy: true,
                 scrollX: true,
                 fixedHeader: true,
@@ -80,7 +85,7 @@
                 ],
                 dom: 'Blfrtip',
                 createdRow: function(row, data, dataIndex) {
-                    $(row).css('font-size', '12px');
+                    $(row).css('font-size', '17px');
                     $(row).addClass(dataIndex % 2 === 0 ? 'bg-white' : 'bg-secondary text-white');
                 },
                 pageLength: 50,
@@ -141,6 +146,24 @@
                     {
                         "data": "distribuidor",
                         "render": function(data, type, row) {
+                            return '$' + data;
+                        }
+                    },
+                    {
+                        "data": "black",
+                        "render": function(data) {
+                            if (data == 0 || data == "0") {
+                                return 'NO APLICA';
+                            }
+                            return '$' + data;
+                        }
+                    },
+                    {
+                        "data": "platinum",
+                        "render": function(data) {
+                            if (data == 0 || data == "0") {
+                                return 'NO APLICA';
+                            }
                             return '$' + data;
                         }
                     },

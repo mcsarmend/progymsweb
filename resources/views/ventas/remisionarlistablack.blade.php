@@ -1,4 +1,3 @@
-
 @extends('adminlte::page')
 
 @section('title', 'Remisionar')
@@ -17,10 +16,8 @@
         </div>
         <div class="card-body">
 
-        
 
             <form id="remisionar">
-                
 
                 <div class="row">
                     <div class="col"><label for="vendedor">Vendedor:</label></div>
@@ -277,8 +274,7 @@
                         cancelButtonText: 'Cerrar'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            if (parseInt($('#inputCantidad').val()) > parseInt($('#inputExistencias')
-                            .val())) {
+                            if (parseInt($('#inputCantidad').val()) > parseInt($('#inputExistencias').val())) {
                                 Swal.fire({
                                     title: '¡Debes ingresar una cantidad menor o igual a las existencias!',
                                     icon: 'warning'
@@ -347,13 +343,7 @@
             const idProducto = obtenerNumerosHastaGuion(productoInput.value); // Usa tu función existente
 
             if (!idProducto) return; // Si no hay ID válido, no hacer nada
-            var type = @json($type);
-            var idsucursal = 1;
-            if (type == 4) {
-                idsucursal = parseInt($('#sucursal').data('value'));
-            } else {
-                idsucursal = $('#sucursal').val();
-            }
+            const idsucursal = $('#sucursal').val();
 
             const data = {
                 id_producto: idProducto,
@@ -389,24 +379,13 @@
         // Función para generar las opciones del datalist
         function generateOptions() {
             return new Promise((resolve, reject) => {
-
-
-                var type = @json($type);
-                var idsucursal = 1;
-                if (type == 4) {
-                    idsucursal = parseInt($('#sucursal').data('value'));
-                } else {
-                    idsucursal = $('#sucursal').val();
-                }
-
-
-
+                var sucursal = $('#sucursal').val();
 
                 $.ajax({
                     url: 'productosinventario',
                     type: 'POST',
                     data: {
-                        sucursal: idsucursal
+                        sucursal: sucursal
                     },
                     dataType: 'json',
                     headers: {
@@ -704,7 +683,7 @@
                 return;
             }
             var nombreSucursal = $("#sucursal option:selected").text();
-            var tipo_precio = $("#tipo_precio").val();
+            var tipo_precio = 5;
             const data = {
                 nombreSucursal: nombreSucursal,
                 nota: nota,

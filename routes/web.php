@@ -53,18 +53,28 @@ Route::post('abonocxcevento', [cuentasController::class, 'abonocxcevento'])->mid
 
 //REMISIONES
 Route::get('remisionar', [ventasController::class, 'remisionar'])->middleware(['auth']);
-Route::get('remisionarlista', [ventasController::class, 'remisionarlista'])->middleware(['auth']);
+Route::get('remisionarlistablack', [ventasController::class, 'remisionarlistablack'])->middleware(['auth']);
+Route::get('remisionarlistaplatinum', [ventasController::class, 'remisionarlistaplatinum'])->middleware(['auth']);
 Route::get('remisiones', [ventasController::class, 'remisiones'])->middleware(['auth']);
 Route::get('ventasreportes', [ventasController::class, 'ventasreportes'])->middleware(['auth']);
 Route::get('verproductosremision', [ventasController::class, 'verproductosremision'])->middleware(['auth']);
-Route::get('cortedecaja', [ventasController::class, 'cortedecaja'])->middleware(['auth']);
 Route::get('buscarremision', [ventasController::class, 'buscarremision'])->middleware(['auth']);
+Route::get('validarcortecaja', [ventasController::class, 'validarcortecaja'])->middleware(['auth']);
+Route::get('cortedecaja', [ventasController::class, 'cortedecaja'])->middleware(['auth']);
+Route::get('cortedecajaespecial', [ventasController::class, 'cortedecajaespecial'])->middleware(['auth']);
 
+
+
+
+
+Route::post('infocortecaja', [ventasController::class, 'infocortecaja'])->middleware(['auth']);
 Route::post('enviarinfocortecaja', [ventasController::class, 'enviarinfocortecaja'])->middleware(['auth']);
+
+
 Route::post('buscarprecio', [ventasController::class, 'buscarprecio'])->middleware(['auth']);
 Route::post('buscaridprecio', [ventasController::class, 'buscaridprecio'])->middleware(['auth']);
 Route::post('buscarexistencias', [ventasController::class, 'buscarexistencias'])->middleware(['auth']);
-Route::post('validarremision', [ventasController::class, 'validarremision'])->middleware(['auth']);
+Route::post('validarremision', [ventasController::class, 'validaproductosinventariorremision'])->middleware(['auth']);
 Route::post('cancelarremision', [ventasController::class, 'cancelarremision'])->middleware(['auth']);
 
 //ALMACEN
@@ -207,6 +217,8 @@ Route::get('generarreportetraspasos', [reportesController::class, 'generarreport
 Route::get('generarreportemermas', [reportesController::class, 'generarreportemermas'])->middleware(['auth']);
 Route::get('generarreporteentradas', [reportesController::class, 'generarreporteentradas'])->middleware(['auth']);
 Route::get('generarreportesalidas', [reportesController::class, 'generarreportesalidas'])->middleware(['auth']);
+
+Route::post('reportesoloexistencias', [reportesController::class, 'reportesoloexistencias'])->middleware(['auth']);
 
 //OPCIONES
 Route::get('admin/settings', [adminsettingsController::class, 'index'])->middleware(['auth']);

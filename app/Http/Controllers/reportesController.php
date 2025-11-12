@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\clients;
 use App\Models\stockMovements;
 use App\Models\supplier;
+use App\Models\warehouse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,8 +40,9 @@ class reportesController extends Controller
     }
     public function reporteremisiones()
     {
-        $type = $this->gettype();
-        return view('reportes.remisiones.remisiones', ['type' => $type]);
+        $type       = $this->gettype();
+        $sucursales = warehouse::all();
+        return view('reportes.remisiones.remisiones', ['type' => $type, 'sucursales' => $sucursales]);
     }
     public function reportecortecaja()
     {
@@ -57,10 +59,10 @@ class reportesController extends Controller
     }
     public function reporteinventarioexistenciascostos()
     {
-        $type = $this->gettype();
-
-        $products = DB::select('CALL lista_existencias_activas()');
-        return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products]);
+        $type      = $this->gettype();
+        $almacenes = warehouse::all();
+        $products  = DB::select('CALL sp_multialmacen()');
+        return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes]);
     }
 public function reporteimagendealmacen(){
          $type = $this->gettype();
@@ -68,8 +70,8 @@ public function reporteimagendealmacen(){
 }
     public function reporteclienteslista()
     {
-        $type = $this->gettype();
-        $type = $this->gettype();
+        $type    = $this->gettype();
+        $type    = $this->gettype();
         $clients = clients::select('clients.id', 'clients.nombre', 'clients.telefono', 'warehouse.nombre as sucursal', 'prices.nombre as precio')
             ->leftJoin('warehouse', 'clients.sucursal', '=', 'warehouse.id')
             ->leftJoin('prices', 'clients.precio', '=', 'prices.id')
@@ -85,18 +87,67 @@ public function reporteimagendealmacen(){
     public function reporteproveedoreslista()
     {
         $proveedores = supplier::all();
-        $type = $this->gettype();
+        $type        = $this->gettype();
         return view('proveedores.proveedores', ['type' => $type, 'suppliers' => $proveedores]);
     }
 
+    public function reportesoloexistencias(Request $request)
+    {
+
+        try {
+            $sucursal = $request->sucursal ?? 0; // Default to 0 if not provided
+
+            $query = 'CALL sp_reporteexistencias(' . $sucursal . ')';
+
+            $products = DB::select($query);
+
+            return response()->json(['message' => 'Reporte Generado Correctamente', 'products' => $products], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
     public function generarreporteremisiones(Request $request)
     {
         try {
-            $timezone = 'America/Mexico_City';
-            $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString(); // '2024-12-10 00:00:00'
-            $hoy_fin = Carbon::today($timezone)->endOfDay()->toDateTimeString();   // '2024-12-10 23:59:59'
-            $id = Auth::user()->id;
-            $query = 'CALL obtenerremisiones("' . $hoy_inicio . '","' . $hoy_fin . '",NULL)';
+
+            $timezone   = 'America/Mexico_City';
+            $hoy_inicio = $request->dateStart . " 00:00:00"; // '2024-12-10 00:00:00'
+            $hoy_fin    = $request->dateEnd . " 23:59:59";   // '2024-12-10 23:59:59'
+            $id         = Auth::user()->id;
+            $almacen    = $request->id_sucursal ?? 0;
+            if ($almacen != 0) {
+                $query = "
+                            SELECT
+                                r.id,
+                                r.fecha,
+                                IFNULL(r.nota, 'SIN NOTA') AS nota,
+                                r.forma_pago,
+                                c.nombre as cliente,
+                                r.productos,
+                                r.total,
+                                w.nombre AS almacen,
+                                u.name AS vendedor,
+                                r.estatus,
+                                p.nombre AS precio,
+                                CASE
+                                    WHEN r.reparto = 1 THEN 'Sí'
+                                    WHEN r.reparto = 0 THEN 'No'
+                                    ELSE 'No definido'
+                                END AS reparto,
+                                COALESCE(us.name, 'No asignado') AS vendedor_reparto
+                            FROM referrals r
+                            LEFT JOIN warehouse w ON r.almacen = w.id
+                            LEFT JOIN users u ON r.vendedor = u.id
+                            LEFT JOIN prices p ON p.id = r.tipo_de_precio
+                            LEFT JOIN users us ON us.id = r.vendedor_reparto
+                            LEFT JOIN clients c ON c.id = r.cliente
+                            WHERE r.fecha BETWEEN '" . $hoy_inicio . "' AND '" . $hoy_fin . "'
+                            AND w.id = " . $almacen . "
+                        ";
+            } else {
+                $query = 'CALL obtenerremisiones("' . $hoy_inicio . '","' . $hoy_fin . '",NULL)';
+            }
 
             $remisiones = DB::select($query);
 
@@ -106,13 +157,14 @@ public function reporteimagendealmacen(){
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
         }
     }
-    public function generarreportecortecaja(Request $request)
-    {
+    public function
+
+    generarreportecortecaja(Request $request) {
         try {
             $timezone = 'America/Mexico_City';
 
             $hoy_inicio = $request->dateStart . " 00:00:00";
-            $hoy_fin = $request->dateEnd . " 23:59:59";
+            $hoy_fin    = $request->dateEnd . " 23:59:59";
 
             $query = 'CALL reportecortecaja("' . $hoy_inicio . '","' . $hoy_fin . '")';
 
@@ -128,11 +180,18 @@ public function reporteimagendealmacen(){
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $compras = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
-                ->leftJoin('stock_movements.id as id','users as u', 'stock_movements.autor', '=', 'u.id')
-                ->select('stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
+                ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
+                ->select(
+                    'stock_movements.id as id',
+                    'stock_movements.fecha as fecha',
+                    'stock_movements.movimiento as movimiento',
+                    'stock_movements.documento as documento',
+                    'stock_movements.productos as productos',
+                    'u.name as autor'
+                )
                 ->where('movimiento', 'PURCHASE')
                 ->get();
 
@@ -146,20 +205,20 @@ public function reporteimagendealmacen(){
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
-		$traspasos = StockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
-		    ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
-		    ->select(
-			'stock_movements.id as id',
-		        'stock_movements.fecha as fecha',
-		        'stock_movements.movimiento as movimiento',
-		        'stock_movements.documento as documento',
-		        'stock_movements.productos as productos',
-		        'u.name as autor'
-		    )
-		    ->where('movimiento', 'TRANSFER')
-		    ->get();
+            $traspasos = StockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
+                ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
+                ->select(
+                    'stock_movements.id as id',
+                    'stock_movements.fecha as fecha',
+                    'stock_movements.movimiento as movimiento',
+                    'stock_movements.documento as documento',
+                    'stock_movements.productos as productos',
+                    'u.name as autor'
+                )
+                ->where('movimiento', 'TRANSFER')
+                ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'traspasos' => $traspasos], 200);
         } catch (\Throwable $th) {
@@ -171,11 +230,11 @@ public function reporteimagendealmacen(){
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $mermas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
-                ->select('stock_movements.id as id','stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
+                ->select('stock_movements.id as id', 'stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
                 ->where('movimiento', 'DECREASE')
                 ->get();
 
@@ -189,20 +248,20 @@ public function reporteimagendealmacen(){
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
-		$entradas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
-            ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
-            ->select(
-                'stock_movements.id as id',
-                'stock_movements.fecha as fecha',
-                'stock_movements.movimiento as movimiento',
-                'stock_movements.documento as documento',
-                'stock_movements.productos as productos',
-                'u.name as autor'
-            )
-            ->where('movimiento', 'ENTRANCEMERCH')
-            ->get();
+            $entradas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
+                ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
+                ->select(
+                    'stock_movements.id as id',
+                    'stock_movements.fecha as fecha',
+                    'stock_movements.movimiento as movimiento',
+                    'stock_movements.documento as documento',
+                    'stock_movements.productos as productos',
+                    'u.name as autor'
+                )
+                ->where('movimiento', 'ENTRANCEMERCH')
+                ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'entradas' => $entradas], 200);
         } catch (\Throwable $th) {
@@ -214,11 +273,11 @@ public function reporteimagendealmacen(){
     {
         try {
             $dateStart = Carbon::parse($request->dateStart)->startOfDay();
-            $dateEnd = Carbon::parse($request->dateEnd)->endOfDay();
+            $dateEnd   = Carbon::parse($request->dateEnd)->endOfDay();
 
             $salidas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
-                ->select('stock_movements.id as id','stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
+                ->select('stock_movements.id as id', 'stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
                 ->where('movimiento', 'EXITMERCH')
                 ->get();
 
@@ -231,15 +290,15 @@ public function reporteimagendealmacen(){
 
     public function verproductosmovimiento(Request $request)
     {
-    	try {
+        try {
 
-        $id = $request->id;
-        $movimiento = stockMovements::find($id);
+            $id         = $request->id;
+            $movimiento = stockMovements::find($id);
 
-        $productos = json_decode($movimiento->productos);
+            $productos = json_decode($movimiento->productos);
 
-        return response()->json(['productos' => $productos, 'movimiento' => $movimiento], 200);
-         } catch (\Throwable $th) {
+            return response()->json(['productos' => $productos, 'movimiento' => $movimiento], 200);
+        } catch (\Throwable $th) {
 
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
         }

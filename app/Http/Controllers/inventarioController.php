@@ -140,6 +140,7 @@ class inventarioController extends Controller
                 ->leftJoin('product_warehouse as pw', 'p.id', '=', 'pw.idproducto')
                 ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
                 ->where('pw.idwarehouse', $idsucursal)
+                ->where('pw.existencias', '>', 0)
                 ->select([
                     'p.id',
                     'p.nombre',
