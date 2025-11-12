@@ -325,16 +325,6 @@ return [
                             'url' => 'remisionar',
                         ],
                         [
-                            'text' => 'Remisionar Lista Black',
-                            'icon' => 'fas fa-file-alt',
-                            'url' => 'remisionarlistablack',
-                        ],
-                        [
-                            'text' => 'Remisionar Lista Platinum',
-                            'icon' => 'fas fa-file-alt',
-                            'url' => 'remisionarlistaplatinum',
-                        ],
-                        [
                             'text' => 'Remisiones',
                             'icon' => 'fas fa-file-signature',
                             'url' => 'remisiones',
@@ -343,6 +333,11 @@ return [
                             'text' => 'Corte de caja',
                             'icon' => 'fas fa-money-bill-wave',
                             'url' => 'cortedecaja',
+                        ],
+                        [
+                            'text' => 'Corte de caja especial',
+                            'icon' => 'fas fa-money-bill-wave',
+                            'url' => 'cortedecajaespecial',
                         ],
                     ],
                 ],

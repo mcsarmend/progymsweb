@@ -473,6 +473,79 @@ class ventasController extends Controller
             'total_general'       => $total_general,
         ]);
     }
+    public function cortedecajaespecial()
+    {
+        $type       = $this->gettype();
+        $timezone   = 'America/Mexico_City';
+        $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString();
+        $hoy_fin    = Carbon::today($timezone)->endOfDay()->toDateTimeString();
+        $id         = Auth::user()->warehouse;
+
+        $remisiones = collect(DB::select('CALL obtenerremisionescorteespecial(?, ?)', [$hoy_inicio, $hoy_fin]));
+
+        // Define las formas de pago que siempre quieres mostrar
+        $formas_pago_base = ['efectivo', 'transferencia', 'terminal', 'clip', 'mercado_pago', 'vales'];
+
+        // Agrupar remisiones por forma de pago
+        $remisiones_por_pago = $remisiones->groupBy('forma_pago');
+
+        // Añadir formas de pago sin datos (si no existen en los resultados)
+        foreach ($formas_pago_base as $forma_pago) {
+            if (! $remisiones_por_pago->has($forma_pago)) {
+                $remisiones_por_pago[$forma_pago] = collect(); // Agregar un grupo vacío
+            }
+        }
+
+        $datos = json_decode($remisiones_por_pago, true);
+
+        // Filtrar cada método de pago
+        $resultado = [];
+        foreach ($datos as $metodo => $ventas) {
+            // Si no hay ventas, mantener el array vacío
+            if (empty($ventas)) {
+                $resultado[$metodo] = [];
+                continue;
+            }
+
+            // Filtrar solo las ventas con estatus "emitida"
+            $ventasFiltradas = array_filter($ventas, function ($venta) {
+                return $venta['estatus'] === 'emitida';
+            });
+
+            // Reindexar el array (opcional, para que no queden huecos en los índices)
+            $resultado[$metodo] = array_values($ventasFiltradas);
+        }
+
+        $remisiones_por_pago = $resultado;
+
+        $remisiones_por_pago = array_map(function ($metodo) {
+            return array_map(function ($remision) {
+                return (object) $remision; // Convierte cada array a objeto
+            }, $metodo);
+        }, $remisiones_por_pago);
+
+        $totales_por_pago = [
+            "efectivo"      => array_sum(array_column($remisiones_por_pago["efectivo"], "total")),
+            "transferencia" => array_sum(array_column($remisiones_por_pago["transferencia"], "total")),
+            "clip"          => array_sum(array_column($remisiones_por_pago["clip"], "total")),
+            "terminal"      => array_sum(array_column($remisiones_por_pago["terminal"], "total")),
+            "mercado_pago"  => array_sum(array_column($remisiones_por_pago["mercado_pago"], "total")),
+            "vales"         => array_sum(array_column($remisiones_por_pago["vales"], "total")),
+        ];
+
+        $total_general = array_sum($totales_por_pago);
+
+        $idssucursales = warehouse::select('id', 'nombre')
+            ->get();
+
+        return view('ventas.cortedecajaespecial', [
+            'idssucursales'       => $idssucursales,
+            'type'                => $type,
+            'remisiones_por_pago' => $remisiones_por_pago,
+            'totales_por_pago'    => $totales_por_pago,
+            'total_general'       => $total_general,
+        ]);
+    }
 
     public function cancelarremision(Request $request)
     {
@@ -541,15 +614,38 @@ class ventasController extends Controller
 
         try {
 
+            $vendedor = auth()->id() ?? 1;
+            $almacen = Auth::user()->warehouse;
+            $fechaHoy   = now('America/Mexico_City')->toDateString(); // YYYY-mm-dd
+
+            // Verificar si ya existe un corte de caja hoy para el vendedor
+            $existeCorte = cash_closure::where('vendedor', $vendedor)
+                ->whereDate('fecha_cierre', $fechaHoy)
+                ->exists();
+
+            if ($existeCorte) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Ya existe un corte de caja registrado hoy para este vendedor.',
+                ], 409); // 409 Conflict
+
+            }
             $corteCaja                          = new cash_closure();
             $corteCaja->total_general           = (float) $request->total_general;
             $corteCaja->total_efectivo_entregar = (float) $request->total_efectivo_entregar;
             $corteCaja->formas_pago             = json_encode($request->formas_pago);              // Convertir a JSON
             $corteCaja->inputs_adicionales      = json_encode($request->inputs_adicionales ?? []); // Convertir a JSON
-            $corteCaja->vendedor                = auth()->id() ?? 1;
+
+            $corteCaja->vendedor                = $vendedor;
             $corteCaja->estado                  = 'pendiente';
-            $corteCaja->fecha_cierre = now('America/Mexico_City')->format('Y-m-d H:i:s');
+            $corteCaja->fecha_cierre            = now('America/Mexico_City')->format('Y-m-d H:i:s');
             $corteCaja->observaciones           = $request->observaciones ?? null;
+
+            if ($vendedor == 28) {
+                $corteCaja->almacen = 1;
+            } else {
+                $corteCaja->almacen = Auth::user()->warehouse;
+            }
 
             // Guardar el usuario en la base de datos
             $corteCaja->save();

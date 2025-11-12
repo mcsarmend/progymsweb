@@ -61,6 +61,7 @@ Route::get('verproductosremision', [ventasController::class, 'verproductosremisi
 Route::get('buscarremision', [ventasController::class, 'buscarremision'])->middleware(['auth']);
 Route::get('validarcortecaja', [ventasController::class, 'validarcortecaja'])->middleware(['auth']);
 Route::get('cortedecaja', [ventasController::class, 'cortedecaja'])->middleware(['auth']);
+Route::get('cortedecajaespecial', [ventasController::class, 'cortedecajaespecial'])->middleware(['auth']);
 
 
 
@@ -68,6 +69,8 @@ Route::get('cortedecaja', [ventasController::class, 'cortedecaja'])->middleware(
 
 Route::post('infocortecaja', [ventasController::class, 'infocortecaja'])->middleware(['auth']);
 Route::post('enviarinfocortecaja', [ventasController::class, 'enviarinfocortecaja'])->middleware(['auth']);
+
+
 Route::post('buscarprecio', [ventasController::class, 'buscarprecio'])->middleware(['auth']);
 Route::post('buscaridprecio', [ventasController::class, 'buscaridprecio'])->middleware(['auth']);
 Route::post('buscarexistencias', [ventasController::class, 'buscarexistencias'])->middleware(['auth']);
