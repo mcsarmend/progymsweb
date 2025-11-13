@@ -170,7 +170,13 @@
                         },
                         "data": response.cortecaja,
                         "columns": [{
-                                "data": "almacen"
+                                data: "almacen",
+                                render: function(data, type, row) {
+                                    if (data === "Almacén Principal") {
+                                        return "Almacén principal y Viveros";
+                                    }
+                                    return data;
+                                }
                             },
 
                             {

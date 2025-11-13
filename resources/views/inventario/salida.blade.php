@@ -141,7 +141,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
 
-                        if ($('#inputCantidad').val() > $('#inputExistencias').val()) {
+                        if (parseInt($('#inputCantidad').val()) > parseInt($('#inputExistencias').val())) {
                             Swal.fire({
                                 title: '¡Debes ingresar una cantidad menor o igual a las existencias!',
                                 icon: 'warning'

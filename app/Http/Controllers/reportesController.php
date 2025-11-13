@@ -61,7 +61,7 @@ class reportesController extends Controller
     {
         $type      = $this->gettype();
         $almacenes = warehouse::all();
-        $products  = DB::select('CALL sp_multialmacen()');
+        $products  = DB::select('CALL sp_reporteexistencias(0)');
         return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes]);
     }
 

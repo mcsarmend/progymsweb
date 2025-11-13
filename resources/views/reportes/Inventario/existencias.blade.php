@@ -45,10 +45,14 @@
                                 <th>Nombre</th>
                                 <th>Marca</th>
                                 <th>Categoria</th>
+                                <th>Costo</th>
+                                <th>Costo Promedio</th>
                                 <th>Público</th>
                                 <th>Frecuente</th>
                                 <th>Mayoreo</th>
                                 <th>Distribuidor</th>
+                                <th>Black</th>
+                                <th>Platinum</th>
                                 <th>Existencias Totales</th>
                                 <th>Almacèn Principal</th>
                                 <th>Viveros</th>
@@ -97,7 +101,7 @@
                     "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
                 },
                 "buttons": [
-                    'copy', 'excel', 'pdf', 'print'
+                    'copy', 'excel', 'pdf'
                 ],
                 dom: 'Blfrtip',
                 createdRow: function(row, data, dataIndex) {
@@ -122,12 +126,7 @@
                         columns: ':visible' // Exportar solo las columnas visibles
                     }
                 },
-                // Para Excel
-                excel: {
-                    exportOptions: {
-                        columns: ':visible' // Exportar solo las columnas visibles
-                    }
-                },
+
                 "data": products,
                 "columns": [{
                         "data": "codigo"
@@ -140,6 +139,12 @@
                     },
                     {
                         "data": "categoria"
+                    },
+                    {
+                        "data": "costo"
+                    },
+                    {
+                        "data": "costo_promedio"
                     },
                     {
                         "data": "publico",
@@ -166,6 +171,18 @@
                         }
                     },
                     {
+                        "data": "black",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
+                    },
+                    {
+                        "data": "platinum",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
+                    },
+                    {
                         "data": "totales"
                     },
                     {
@@ -187,7 +204,8 @@
                         "data": "naucalpan"
                     }
 
-                ]
+                ],
+                order: [[2, 'asc']]
             });
             drawTriangles();
             showUsersSections();
