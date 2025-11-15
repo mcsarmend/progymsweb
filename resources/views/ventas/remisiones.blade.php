@@ -33,7 +33,7 @@
                         <th>Total</th>
                         <th>Estatus</th>
                         <th>Es Reparto</th>
-                        <th>Asignado por</th>
+                        <th>Vendedor Reparto</th>
                         <th>Imprimir</th>
                         <th>Cancelar</th>
 

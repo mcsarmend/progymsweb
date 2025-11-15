@@ -339,7 +339,7 @@
                         id: $(celdas[0]).text().trim(),
                         fecha: $(celdas[1]).text().trim(),
                         cliente: $(celdas[2]).text().trim(),
-                        total: parseFloat($(celdas[3]).text().replace("$", "").trim()),
+                        total: parseFloat($(celdas[3]).text().replace(/[^0-9.]/g, "")),
                         vendedor: $(celdas[4]).text().trim()
                     });
                 });

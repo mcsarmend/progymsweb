@@ -16,6 +16,9 @@
                     <h1>Precios y existencias</h1>
                 </div>
                 <div class="card-body">
+                    <div class="col-auto">
+                        <p>Selecciona el almacen del que quieres obtener sus existencias</p>
+                    </div>
                     <form method="POST" id="existencias_form">
                         @csrf
                         <div class="row justify-content-center align-items-center text-center">
@@ -32,9 +35,7 @@
                             <div class="col-auto">
                                 <button type="submit" class="btn btn-success">Descargar</button>
                             </div>
-                            <div class="col-auto">
-                                <p>Selecciona el almacen del que quieres obtener sus existencias</p>
-                            </div>
+
                         </div>
                     </form>
                     <br>
@@ -85,6 +86,8 @@
 @stop
 
 @section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.datatables.net/fixedheader/3.2.0/js/dataTables.fixedHeader.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.0/css/fixedHeader.dataTables.min.css">
 
@@ -101,7 +104,7 @@
                     "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
                 },
                 "buttons": [
-                    'copy', 'excel', 'pdf'
+
                 ],
                 dom: 'Blfrtip',
                 createdRow: function(row, data, dataIndex) {
@@ -205,7 +208,9 @@
                     }
 
                 ],
-                order: [[2, 'asc']]
+                order: [
+                    [2, 'asc']
+                ]
             });
             drawTriangles();
             showUsersSections();
@@ -231,7 +236,16 @@
                 success: function(data) {
 
                     products = data.products;
-                    exportarexcel(products, 'SoloExistencias.xlsx');
+
+                    var ahora = new Date();
+                    var fecha = ahora.toISOString().slice(0, 10); // 2025-11-13
+                    var hora = ahora.toTimeString().slice(0, 8);  // 11:42:10
+
+                    var resultado = fecha + ' ' + hora;
+                    var nombre = $('#almacen option:selected').text() +resultado + ".xlsx";
+                    exportarexcel(products, nombre);
+                    generarPDF(data.products);
+
 
                 },
                 error: function(xhr, status, error) {
@@ -247,7 +261,39 @@
 
         });
 
+        function generarPDF(data) {
+            const {
+                jsPDF
+            } = window.jspdf;
+            const doc = new jsPDF();
 
+            const columnasPermitidas = ["codigo", "producto", "marca", "categoria", "existencias"];
 
+            const dataFiltrada = data.map(item => {
+                let obj = {};
+                columnasPermitidas.forEach(col => {
+                    obj[col] = item[col];
+                });
+                return obj;
+            });
+
+            // Encabezados desde las claves del JSON
+            const headers = Object.keys(dataFiltrada[0]);
+
+            // Filas desde los valores
+            const rows = dataFiltrada.map(item => Object.values(item));
+
+            doc.autoTable({
+                head: [headers],
+                body: rows
+            });
+            var ahora = new Date();
+            var fecha = ahora.toISOString().slice(0, 10); // 2025-11-13
+            var hora = ahora.toTimeString().slice(0, 8);  // 11:42:10
+
+            var resultado = fecha + ' ' + hora;
+            var nombre =$('#almacen option:selected').text() +resultado + ".pdf";
+            doc.save(nombre);
+        }
     </script>
 @stop

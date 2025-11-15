@@ -69,6 +69,9 @@
                                 <th>Codigo</th>
                                 <th>Cantidad</th>
                                 <th>Nombre</th>
+                                <th>Costo Anterior</th>
+                                <th>Costo en Compra</th>
+                                <th>Cambio Costo</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -244,7 +247,25 @@
                             },
                             {
                                 "data": "Nombre"
+                            },
+                            {
+                                "data": "Costo Unitario"
+                            },
+                            {
+                                "data": "Costo en Compra"
+                            },
+                            {
+                                "data": null,
+                                "render": function(data, type, row) {
+                                    // row["Costo Unitario"] → viene como string
+                                    // row["Costo en Compra"] → viene como string
+                                    let unit = parseFloat(row["Costo Unitario"]);
+                                    let compra = parseFloat(row["Costo en Compra"]);
+
+                                    return unit !== compra ? "Sí" : "No";
+                                }
                             }
+
                         ]
                     });
                 }

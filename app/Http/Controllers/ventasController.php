@@ -205,6 +205,8 @@ class ventasController extends Controller
             $remision->estatus          = "emitida";
             $remision->tipo_de_precio   = $request->tipo_precio;
             $remision->vendedor_reparto = $request->vendedor_reparto;
+            $remision->tipo_tarjeta     = $request->tipo_tarjeta;
+
             if ($request->reparto == null) {
                 $remision->reparto = 0;
 
@@ -212,6 +214,9 @@ class ventasController extends Controller
                 $remision->reparto          = $request->reparto;
                 $remision->vendedor_reparto = $request->vendedor_reparto;
             }
+
+
+
 
             $productos           = json_decode($request->productos);
             $remision->productos = json_encode($productos); // Convertir el array de productos a JSON
@@ -641,7 +646,7 @@ class ventasController extends Controller
             $corteCaja->fecha_cierre            = now('America/Mexico_City')->format('Y-m-d H:i:s');
             $corteCaja->observaciones           = $request->observaciones ?? null;
 
-            if ($vendedor == 28) {
+            if ($vendedor == 28) { // USUARIO DE MONTSERAT
                 $corteCaja->almacen = 1;
             } else {
                 $corteCaja->almacen = Auth::user()->warehouse;

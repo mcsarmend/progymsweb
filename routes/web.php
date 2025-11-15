@@ -208,6 +208,11 @@ Route::get('reporteclientescompras', [reportesController::class, 'reportecliente
 Route::get('reporteproveedoreslista', [reportesController::class, 'reporteproveedoreslista'])->middleware(['auth']);
 Route::get('verproductosmovimiento', [reportesController::class, 'verproductosmovimiento'])->middleware(['auth']);
 Route::get('reportecortecaja', [reportesController::class, 'reportecortecaja'])->middleware(['auth']);
+Route::get('productoremision', [reportesController::class, 'productoremision'])->middleware(['auth']);
+Route::get('resumenventas', [reportesController::class, 'resumenventas'])->middleware(['auth']);
+
+
+
 
 Route::get('generarreportecortecaja', [reportesController::class, 'generarreportecortecaja'])->middleware(['auth']);
 Route::get('generarreporteremisiones', [reportesController::class, 'generarreporteremisiones'])->middleware(['auth']);

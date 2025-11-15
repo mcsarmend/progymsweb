@@ -661,6 +661,11 @@ return [
                             'url' => 'reporteinventarioexistenciascostos',
                             'icon' => 'fas fa-boxes',
                         ],
+                        [
+                            'text' => 'Producto - Remisión',
+                            'url' => 'productoremision',
+                            'icon' => 'fas fa-boxes',
+                        ],
 
                     ],
                 ],
@@ -676,6 +681,11 @@ return [
                         [
                             'text' => 'Corte de Caja',
                             'url' => 'reportecortecaja',
+                            'icon' => 'fas fa-money-bill-wave',
+                        ],
+                        [
+                            'text' => 'Resumen de Ventas',
+                            'url' => 'resumenventas',
                             'icon' => 'fas fa-money-bill-wave',
                         ],
 

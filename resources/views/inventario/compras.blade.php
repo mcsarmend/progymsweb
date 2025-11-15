@@ -54,6 +54,7 @@
                                         <th>Nombre</th>
                                         <th>Costo Unitario</th>
                                         <th>Costo Subtotal</th>
+                                        <th>Costo en Compra</th>
                                         <th>Cancelar</th>
                                     </tr>
                                 </thead>
@@ -120,6 +121,8 @@
                     </datalist>
                     <label for="inputCantidad">Cantidad:</label>
                     <input type="number" id="inputCantidad" class="form-control col-sm-14">
+                    <label for="inputCantidad">Costo en compra:</label>
+                    <input type="number" id="costoencompra" class="form-control col-sm-14">
                     <br>
                 `,
                 focusConfirm: false,
@@ -127,6 +130,7 @@
                     const cantidad = document.getElementById('inputCantidad').value;
                     const producto = document.getElementById('inputWithDatalist').value;
                     const datalist = document.getElementById('datalistOptions');
+                    const costoencompra = document.getElementById('costoencompra').value;
                     const options = Array.from(datalist.options).map(option => option.value);
                     if (cantidad === "" || producto === "" || !options.includes(producto)) {
                         Swal.showValidationMessage(
@@ -135,7 +139,8 @@
                     }
                     return {
                         cantidad: cantidad,
-                        producto: producto
+                        producto: producto,
+                        costoencompra: costoencompra
                     };
                 },
                 showCancelButton: true,
@@ -152,7 +157,8 @@
                         id_producto: idproducto,
                         idcliente: idcliente || 1,
                         cantidad: cantidad,
-                        sucursal: idsucursal
+                        sucursal: idsucursal,
+                        costoencompra: result.value.costoencompra
                     };
 
                     $.ajax({
@@ -164,7 +170,7 @@
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(data) {
-                            agregarFila(data.idproducto, data.cantidad, data.nombre, data.costo);
+                            agregarFila(data.idproducto, data.cantidad, data.nombre, data.costo, result.value.costoencompra);
                         },
                         error: function(xhr, status, error) {
                             Swal.fire({
@@ -188,7 +194,7 @@
             return dataList;
         }
 
-        function agregarFila(codigo, cantidad, nombre, costo) {
+        function agregarFila(codigo, cantidad, nombre, costo,costoencompra) {
             // Verificar si el código ya existe en alguna fila
             var codigoExiste = false;
             $('#productos tbody tr').each(function() {
@@ -217,6 +223,7 @@
                     <td>${nombre}</td>
                     <td>${costo}</td>
                     <td>${costosubtotal}</td>
+                    <td>${costoencompra}</td>
                     <td><button class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>
                 </tr>`;
 
