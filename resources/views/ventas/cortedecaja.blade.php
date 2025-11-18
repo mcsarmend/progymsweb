@@ -357,186 +357,188 @@
 
             // Enviar los datos como JSON mediante Ajax
             $.ajax({
-                url: '/enviarinfocortecaja', // Ajusta la ruta al endpoint adecuado
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(data),
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                },
-                success: function(response) {
-                    Swal.fire(
-                        '¡Datos enviados!',
-                        'Se ha procesado correctamente la información.',
-                        'success'
-                    );
-                },
-                error: function(response) {
-                    Swal.fire(
-                        '¡Error!',
-                        'Hubo un problema al procesar la información.',
-                        'error'
-                    );
-                }
-            });
-        }
+                    url: '/enviarinfocortecaja', // Ajusta la ruta al endpoint adecuado
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    },
+                    success: function(response) {
+                        Swal.fire(
+                            '¡Datos enviados!',
+                            'Se ha procesado correctamente la información.',
+                            'success'
+                        );
+                    },
 
+                    error: function(response) {
+                        Swal.fire(
+                            '¡Gracias por esperar!',
+                            "Existe un error: " + response.responseJSON.message,
+                            'error'
+                        )
 
-        function addInput(containerId) {
-            const container = document.getElementById(containerId);
-
-            // Crear un grupo para los inputs
-            const inputGroup = document.createElement('div');
-            inputGroup.classList.add('input-group');
-
-            // Crear input para el monto
-            const montoInput = document.createElement('input');
-            montoInput.type = 'number';
-            montoInput.placeholder = 'Monto';
-            montoInput.required = true;
-            montoInput.addEventListener('input', calculateTotals); // Asegúrate de recalcular al escribir
-
-            // Crear input para el concepto
-            const conceptoInput = document.createElement('input');
-            conceptoInput.type = 'text';
-            conceptoInput.placeholder = 'Concepto';
-            conceptoInput.required = true;
-
-            // Botón para eliminar la fila
-            const removeButton = document.createElement('button');
-            removeButton.textContent = 'Eliminar';
-            removeButton.classList.add('remove-button');
-            removeButton.onclick = function() {
-                container.removeChild(inputGroup);
-                calculateTotals(); // Recalcular después de eliminar
-            };
-
-            // Agregar inputs y botón al grupo
-            inputGroup.appendChild(montoInput);
-            inputGroup.appendChild(conceptoInput);
-            inputGroup.appendChild(removeButton);
-
-            // Agregar el grupo al contenedor
-            container.appendChild(inputGroup);
-
-            // Recalcular totales inmediatamente después de agregar un input
-            calculateTotals();
-        }
-
-        function calculateTotals() {
-            let totalGeneral = 0;
-            let totalEfectivo = 0;
-
-            // Variables para sumar valores
-            let remesaRecibida = sumContainerInputs('remesa-recibida-container');
-            let otrasVentas = sumContainerInputs('otras-ventas-container');
-            let remesaEntregada = sumContainerInputs('remesa-entregada-container');
-            let totalPorEfectivo = parseFloat('{{ $totales_por_pago['efectivo'] ?? 0 }}');
-            let totalPorTransferencia = parseFloat('{{ $totales_por_pago['transferencia'] ?? 0 }}');
-            let totalPorTerminal = parseFloat('{{ $totales_por_pago['terminal'] ?? 0 }}');
-            let totalPorClip = parseFloat('{{ $totales_por_pago['clip'] ?? 0 }}');
-            let totalPorMercadoPago = parseFloat('{{ $totales_por_pago['mercado_pago'] ?? 0 }}');
-            let totalPorVales = parseFloat('{{ $totales_por_pago['vales'] ?? 0 }}');
-            let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
-
-
-            // Cálculo de total general
-
-            totalGeneral =
-                remesaRecibida +
-                otrasVentas +
-                totalPorEfectivo +
-                totalPorTransferencia +
-                totalPorTerminal +
-                totalPorClip +
-                totalPorMercadoPago +
-                totalPorVales;
-
-
-            total_electronico = totalPorTransferencia + totalPorTerminal + totalPorClip + totalPorMercadoPago +
-                totalPorVales
-
-            // Cálculo de total efectivo
-            totalEfectivo = totalGeneral - remesaEntregada - gastosEnGeneral - total_electronico;
-
-            // Actualizar los valores en pantalla
-            document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
-            document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
-        }
-
-        function sumContainerInputs(containerId) {
-            let total = 0;
-            document.querySelectorAll(`#${containerId} .input-group input[type="number"]`).forEach(input => {
-                total += parseFloat(input.value) || 0;
-            });
-            return total;
-        }
-
-        function calculateTotalsNewRol() {
-            let totalGeneral = 0;
-            let totalEfectivo = 0;
-
-            // Suma de inputs adicionales
-            let remesaRecibida = sumContainerInputs('remesa-recibida-container');
-            let otrasVentas = sumContainerInputs('otras-ventas-container');
-            let remesaEntregada = sumContainerInputs('remesa-entregada-container');
-            let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
-
-            // Inicializar totales individuales
-            let totalPorEfectivo = 0;
-            let totalPorTransferencia = 0;
-            let totalPorTerminal = 0;
-            let totalPorClip = 0;
-            let totalPorMercadoPago = 0;
-            let totalPorVales = 0;
-
-            // Leer cada tabla generada por forma de pago
-            document.querySelectorAll("table").forEach(table => {
-                let titleElement = table.previousElementSibling;
-                if (!titleElement || !titleElement.textContent.includes("Forma de Pago:")) return;
-
-                let formaPago = titleElement.textContent.replace("Forma de Pago: ", "").trim().toLowerCase();
-
-                // Sumar totales de la columna TOTAL
-                let totalPago = 0;
-                table.querySelectorAll("tbody tr").forEach(row => {
-                    let td = row.querySelector("td:nth-child(4)");
-                    if (td) {
-                        let valor = parseFloat(td.textContent.replace(/[^0-9.-]/g, '')) || 0;
-                        totalPago += valor;
                     }
+                );
+            }
+
+
+            function addInput(containerId) {
+                const container = document.getElementById(containerId);
+
+                // Crear un grupo para los inputs
+                const inputGroup = document.createElement('div');
+                inputGroup.classList.add('input-group');
+
+                // Crear input para el monto
+                const montoInput = document.createElement('input');
+                montoInput.type = 'number';
+                montoInput.placeholder = 'Monto';
+                montoInput.required = true;
+                montoInput.addEventListener('input', calculateTotals); // Asegúrate de recalcular al escribir
+
+                // Crear input para el concepto
+                const conceptoInput = document.createElement('input');
+                conceptoInput.type = 'text';
+                conceptoInput.placeholder = 'Concepto';
+                conceptoInput.required = true;
+
+                // Botón para eliminar la fila
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Eliminar';
+                removeButton.classList.add('remove-button');
+                removeButton.onclick = function() {
+                    container.removeChild(inputGroup);
+                    calculateTotals(); // Recalcular después de eliminar
+                };
+
+                // Agregar inputs y botón al grupo
+                inputGroup.appendChild(montoInput);
+                inputGroup.appendChild(conceptoInput);
+                inputGroup.appendChild(removeButton);
+
+                // Agregar el grupo al contenedor
+                container.appendChild(inputGroup);
+
+                // Recalcular totales inmediatamente después de agregar un input
+                calculateTotals();
+            }
+
+            function calculateTotals() {
+                let totalGeneral = 0;
+                let totalEfectivo = 0;
+
+                // Variables para sumar valores
+                let remesaRecibida = sumContainerInputs('remesa-recibida-container');
+                let otrasVentas = sumContainerInputs('otras-ventas-container');
+                let remesaEntregada = sumContainerInputs('remesa-entregada-container');
+                let totalPorEfectivo = parseFloat('{{ $totales_por_pago['efectivo'] ?? 0 }}');
+                let totalPorTransferencia = parseFloat('{{ $totales_por_pago['transferencia'] ?? 0 }}');
+                let totalPorTerminal = parseFloat('{{ $totales_por_pago['terminal'] ?? 0 }}');
+                let totalPorClip = parseFloat('{{ $totales_por_pago['clip'] ?? 0 }}');
+                let totalPorMercadoPago = parseFloat('{{ $totales_por_pago['mercado_pago'] ?? 0 }}');
+                let totalPorVales = parseFloat('{{ $totales_por_pago['vales'] ?? 0 }}');
+                let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
+
+
+                // Cálculo de total general
+
+                totalGeneral =
+                    remesaRecibida +
+                    otrasVentas +
+                    totalPorEfectivo +
+                    totalPorTransferencia +
+                    totalPorTerminal +
+                    totalPorClip +
+                    totalPorMercadoPago +
+                    totalPorVales;
+
+
+                total_electronico = totalPorTransferencia + totalPorTerminal + totalPorClip + totalPorMercadoPago +
+                    totalPorVales
+
+                // Cálculo de total efectivo
+                totalEfectivo = totalGeneral - remesaEntregada - gastosEnGeneral - total_electronico;
+
+                // Actualizar los valores en pantalla
+                document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
+                document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
+            }
+
+            function sumContainerInputs(containerId) {
+                let total = 0;
+                document.querySelectorAll(`#${containerId} .input-group input[type="number"]`).forEach(input => {
+                    total += parseFloat(input.value) || 0;
+                });
+                return total;
+            }
+
+            function calculateTotalsNewRol() {
+                let totalGeneral = 0;
+                let totalEfectivo = 0;
+
+                // Suma de inputs adicionales
+                let remesaRecibida = sumContainerInputs('remesa-recibida-container');
+                let otrasVentas = sumContainerInputs('otras-ventas-container');
+                let remesaEntregada = sumContainerInputs('remesa-entregada-container');
+                let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
+
+                // Inicializar totales individuales
+                let totalPorEfectivo = 0;
+                let totalPorTransferencia = 0;
+                let totalPorTerminal = 0;
+                let totalPorClip = 0;
+                let totalPorMercadoPago = 0;
+                let totalPorVales = 0;
+
+                // Leer cada tabla generada por forma de pago
+                document.querySelectorAll("table").forEach(table => {
+                    let titleElement = table.previousElementSibling;
+                    if (!titleElement || !titleElement.textContent.includes("Forma de Pago:")) return;
+
+                    let formaPago = titleElement.textContent.replace("Forma de Pago: ", "").trim().toLowerCase();
+
+                    // Sumar totales de la columna TOTAL
+                    let totalPago = 0;
+                    table.querySelectorAll("tbody tr").forEach(row => {
+                        let td = row.querySelector("td:nth-child(4)");
+                        if (td) {
+                            let valor = parseFloat(td.textContent.replace(/[^0-9.-]/g, '')) || 0;
+                            totalPago += valor;
+                        }
+                    });
+
+                    // Acumular en variables según forma de pago
+                    if (formaPago === "efectivo") totalPorEfectivo += totalPago;
+                    if (formaPago === "transferencia") totalPorTransferencia += totalPago;
+                    if (formaPago === "terminal") totalPorTerminal += totalPago;
+                    if (formaPago === "clip") totalPorClip += totalPago;
+                    if (formaPago === "mercado_pago") totalPorMercadoPago += totalPago;
+                    if (formaPago === "vales") totalPorVales += totalPago;
                 });
 
-                // Acumular en variables según forma de pago
-                if (formaPago === "efectivo") totalPorEfectivo += totalPago;
-                if (formaPago === "transferencia") totalPorTransferencia += totalPago;
-                if (formaPago === "terminal") totalPorTerminal += totalPago;
-                if (formaPago === "clip") totalPorClip += totalPago;
-                if (formaPago === "mercado_pago") totalPorMercadoPago += totalPago;
-                if (formaPago === "vales") totalPorVales += totalPago;
-            });
+                // Calcular electrónico
+                let totalElectronico =
+                    totalPorTransferencia +
+                    totalPorTerminal +
+                    totalPorClip +
+                    totalPorMercadoPago +
+                    totalPorVales;
 
-            // Calcular electrónico
-            let totalElectronico =
-                totalPorTransferencia +
-                totalPorTerminal +
-                totalPorClip +
-                totalPorMercadoPago +
-                totalPorVales;
+                // Calcular total general
+                totalGeneral =
+                    remesaRecibida +
+                    otrasVentas +
+                    totalPorEfectivo +
+                    totalElectronico;
 
-            // Calcular total general
-            totalGeneral =
-                remesaRecibida +
-                otrasVentas +
-                totalPorEfectivo +
-                totalElectronico;
+                // Calcular total efectivo real a entregar
+                totalEfectivo = totalGeneral - remesaEntregada - gastosEnGeneral - totalElectronico;
 
-            // Calcular total efectivo real a entregar
-            totalEfectivo = totalGeneral - remesaEntregada - gastosEnGeneral - totalElectronico;
-
-            // Actualizar pantalla
-            document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
-            document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
-        }
+                // Actualizar pantalla
+                document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
+                document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
+            }
     </script>
 @stop

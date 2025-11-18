@@ -169,12 +169,20 @@
                             },
 
                             {
-                                "data": "productos",
+                                "data": null,
                                 "render": function(data, type, row) {
-                                    return '<button onclick="ver(' + row.id +
-                                        ')" class="btn btn-primary">Ver</button>';
+                                    let unit = parseFloat(row["Costo Unitario"]);
+                                    let compra = parseFloat(row["Costo en Compra"]);
+
+                                    if (compra < unit) {
+                                        return "Bajó";
+                                    } else if (compra > unit) {
+                                        return "Subió";
+                                    } else {
+                                        return "No aplica";
+                                    }
                                 }
-                            },
+                            }
 
 
                         ]

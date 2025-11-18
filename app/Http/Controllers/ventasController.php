@@ -634,6 +634,8 @@ class ventasController extends Controller
                     'message' => 'Ya existe un corte de caja registrado hoy para este vendedor.',
                 ], 409); // 409 Conflict
 
+
+
             }
             $corteCaja                          = new cash_closure();
             $corteCaja->total_general           = (float) $request->total_general;
