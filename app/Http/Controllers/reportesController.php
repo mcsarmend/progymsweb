@@ -118,6 +118,121 @@ class reportesController extends Controller
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
         }
     }
+
+    public function reporteresumenventas(Request $request)
+    {
+        try {
+
+            $dateStart = Carbon::parse($request->fechainicio)->startOfDay();
+            $dateEnd   = Carbon::parse($request->fechafin)->endOfDay();
+            $sucursal  = $request->sucursal;
+
+            $query = DB::table('referrals as r')
+                ->select(
+                    'r.fecha',
+                    'r.forma_pago',
+                    'u.name as vendedor',
+                    'ur.name as vendedor_reparto',
+                    'r.total as total',
+                    'p.nombre as tipo_de_precio',
+                    'r.reparto'
+                )
+                ->leftJoin('users as u', 'r.vendedor', '=', 'u.id')
+                ->leftJoin('users as ur', 'r.vendedor_reparto', '=', 'ur.id')
+                ->leftJoin('warehouse as w', 'w.id', '=', 'r.almacen')
+                ->leftJoin('prices as p', 'p.id', '=', 'r.tipo_de_precio')
+                ->where('r.estatus', 'emitida')
+                ->whereBetween('r.fecha', [$dateStart, $dateEnd]);
+
+            if ($sucursal != 0) {
+                $query->where('r.almacen', $sucursal);
+            }
+
+            /* 1. Total Vendido */
+            $total_vendido = $query->sum('r.total');
+
+            /* Cantidad de remisiones */
+            $cantidad_remisiones = $query->count();
+
+            /* 2. Métodos de pago */
+            $metodosBrutos = (clone $query)
+                ->select(
+                    'r.forma_pago',
+                    DB::raw('COUNT(*) as cantidad'),
+                    DB::raw('SUM(r.total) as total')
+                )
+                ->groupBy('r.forma_pago')
+                ->get()
+                ->keyBy('forma_pago')
+                ->toArray();
+
+            /* 3. Métodos de pago */
+            $cantidadesPorDia = (clone $query)
+                ->select(
+                    DB::raw("DATE(r.fecha) as fecha"),
+                    DB::raw("COUNT(*) as cantidad"),
+                    DB::raw("SUM(r.total) as total")
+                )
+                ->groupBy(DB::raw("DATE(r.fecha)"))
+                ->orderBy(DB::raw("DATE(r.fecha)"))
+                ->get()
+                ->keyBy('fecha')
+                ->toArray();
+
+            $metodos = [
+                'efectivo'      => $metodosBrutos['efectivo'] ?? 0,
+                'terminal'      => $metodosBrutos['terminal'] ?? 0,
+                'mercado_pago'  => $metodosBrutos['mercado_pago'] ?? 0,
+                'clip'          => $metodosBrutos['clip'] ?? 0,
+                'vales'         => $metodosBrutos['vales'] ?? 0,
+                'transferencia' => $metodosBrutos['transferencia'] ?? 0,
+            ];
+
+            /* 4. Tipos de precio */
+            $tipos_precio = (clone $query)
+                ->select(
+                    'p.nombre as tipo_de_precio',
+                    DB::raw('COUNT(*) as cantidad'),
+                    DB::raw('SUM(r.total) as total')
+                )
+                ->groupBy('p.nombre')
+                ->get()
+                ->keyBy('tipo_de_precio') // ← ESTE es el correcto
+                ->toArray();
+
+            /* 5. REPARTO Y MOSTRADOR*/
+            $tipos_remision = (clone $query)
+                ->select(
+                    DB::raw("CASE WHEN r.reparto = 1 THEN 'REPARTO' ELSE 'MOSTRADOR' END AS tipo_remision"),
+                    DB::raw('COUNT(*) as cantidad'),
+                    DB::raw('SUM(r.total) as total')
+                )
+                ->groupBy('tipo_remision')
+                ->get()
+                ->keyBy('tipo_remision')
+                ->toArray();
+
+
+
+            return response()->json([
+                'message'             => 'Reporte generado correctamente.',
+                'total_vendido'       => $total_vendido,
+                'metodos'             => $metodos,
+                'cantidadesPorDia'    => $cantidadesPorDia,
+                'tipos_precio'        => $tipos_precio,
+                'tipos_remision'      => $tipos_remision,
+                'metodosBrutos'       => $metodosBrutos,
+                'cantidad_remisiones' => $cantidad_remisiones,
+                'query'               => $query->get(),
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error: ' . $th->getMessage(),
+            ], 500);
+        }
+    }
+
     public function generarreporteremisiones(Request $request)
     {
         try {
@@ -216,7 +331,7 @@ class reportesController extends Controller
     public function buscarproductomovimiento(Request $request)
     {
         try {
-            $producto = $request->producto;
+            $producto  = $request->producto;
             $dateStart = Carbon::parse($request->fechainicio)->startOfDay();
             $dateEnd   = Carbon::parse($request->fechafin)->endOfDay();
 

@@ -125,6 +125,8 @@
 @stop
 
 @section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script>
         $(document).ready(function() {
             drawTriangles();
@@ -225,7 +227,10 @@
                                 }
                             },
                             {
-                                "data": "total"
+                                "data": "total",
+                                "render": function(data) {
+                                    return '$' + data;
+                                }
                             },
                             {
                                 "data": "estatus"
@@ -416,6 +421,155 @@
                     });
                 }
             });
+        }
+
+
+        function imprimir(rowData) {
+            // Hacer la petición AJAX primero
+            $.ajax({
+                url: 'verproductosremision',
+                type: 'GET',
+                data: {
+                    id: rowData.id
+                },
+                dataType: 'json',
+                success: function(data) {
+                    const productos = data.productos.map(p => ({
+                        codigo: p.Codigo,
+                        cantidad: p.Cantidad,
+                        descripcion: p.Nombre,
+                        precio: parseFloat(p['Precio Unitario']).toFixed(2),
+                        total: parseFloat(p.Subtotal).toFixed(2)
+                    }));
+                    // Una vez que tenemos los productos, generamos el PDF
+                    generarPDF(rowData, productos);
+                },
+                error: function(error) {
+                    console.error('Error al obtener productos:', error);
+                    Swal.fire('Error', 'No se pudieron obtener los productos', 'error');
+                }
+            });
+        }
+
+        function generarPDF(rowData, productos) {
+            // Crear el documento PDF
+            const {
+                jsPDF
+            } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: [400, 400]
+            });
+
+            // Extraer datos del registro (rowData)
+            var {
+                id: numeroRemision,
+                fecha,
+                nota = 'SIN NOTA',
+                forma_pago,
+                cliente,
+                almacen: nombreSucursal,
+                vendedor,
+                total
+            } = rowData;
+
+
+            // Agregar contenido al PDF
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('GRUPO PROGYMS', 30, 2);
+            doc.text(`Sucursal: ${nombreSucursal}`, 29, 7);
+            doc.text(`Remisión No.: ${numeroRemision}`, 10, 12);
+            doc.text(`Hora: ${fecha}`, 10, 17);
+            doc.text(`Nota: ${nota}`, 10, 22);
+            doc.text(`Forma de pago: ${forma_pago}`, 10, 27);
+            doc.text(`Almacen: ${nombreSucursal}`, 10, 32);
+            doc.setFontSize(7);
+            doc.text(`Vendedor: ${vendedor}`, 10, 37);
+            doc.text(`Cliente: ${cliente}`, 10, 42);
+
+            // Crear tabla temporal para los productos
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `
+        <table id="tempProductTable">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Cantidad</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${productos.map(p => `
+                                                                                    <tr>
+                                                                                        <td>${p.codigo || ''}</td>
+                                                                                        <td>${p.cantidad || ''}</td>
+                                                                                        <td>${p.descripcion || ''}</td>
+                                                                                        <td>${p.precio ? '$' + p.precio: ''}</td>
+                                                                                        <td>${p.total ? '$' + p.total : ''}</td>
+                                                                                    </tr>
+                                                                                `).join('')}
+                <tr>
+                    <td colspan="4" style="text-align: right;">TOTAL:</td>
+                    <td>$${total ? total.toFixed(2) : '0.00'}</td>
+                </tr>
+            </tbody>
+        </table>
+    `;
+
+            // Convertir la tabla HTML a formato para jsPDF
+            const res = doc.autoTableHtmlToJson(tempDiv.querySelector('#tempProductTable'));
+            doc.autoTable(res.columns, res.data, {
+                startY: 47,
+                margin: {
+                    left: 3,
+                    right: 5
+                },
+                styles: {
+                    fontSize: 6,
+                    fontStyle: 'bold'
+                },
+                columnStyles: {
+                    0: {
+                        cellWidth: 13
+                    },
+                    1: {
+                        cellWidth: 14
+                    },
+                    2: {
+                        cellWidth: 24
+                    },
+                    3: {
+                        cellWidth: 13
+                    },
+                    4: {
+                        cellWidth: 14
+                    }
+                },
+                headStyles: {
+                    fillColor: null,
+                    textColor: 0
+                },
+                bodyStyles: {
+                    fillColor: '#FFFFFF',
+                    textColor: 0
+                }
+            });
+
+            // Pie de página
+            doc.setFontSize(6);
+            doc.text('Para cambios y devoluciones, presentar el producto SIN ABRIR', 10,
+                doc.autoTable.previous.finalY + 10);
+            doc.text('con su ticket de venta dentro de los primeros 5 días hábiles', 10,
+                doc.autoTable.previous.finalY + 15);
+            doc.text('después de la fecha de compra.', 10, doc.autoTable.previous.finalY + 20);
+
+            // Guardar PDF
+            doc.save(`remision_${numeroRemision}.pdf`);
+            Swal.fire('Ticket impreso!', '', 'success');
         }
     </script>
 @stop

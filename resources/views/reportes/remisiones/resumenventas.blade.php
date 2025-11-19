@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Reporte Producto Movimiento')
+@section('title', 'Resumen de Ventas')
 
 @section('content_header')
 
@@ -9,75 +9,143 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h1>Reporte Producto Movimiento</h1>
+            <h1>Resumen de Ventas</h1>
         </div>
         <div class="card-body">
-            <form method="post" id="buscarproductoform">
+            <form method="post" id="reporteresumenventas" class="border p-3 rounded">
 
-                <div class="row">
-                    <div class="col">
-                        <div class="btn btn-primary" onclick="buscarProducto()">Indicar Producto</div>
+                <div class="row align-items-center g-2">
+
+                    <!-- Fecha Inicio -->
+                    <div class="col-md-2 text-end">
+                        <label for="fechainicio" class="col-form-label">Fecha inicio:</label>
                     </div>
-                </div>
-                <div class="col"><label for="producto">Producto:</label></div>
-                <div class="col">
-                    <input type="text" name="producto" id="producto" class="form-control">
+                    <div class="col-md-2">
+                        <input type="date" name="fechainicio" id="fechainicio" class="form-control">
+                    </div>
+
+                    <!-- Fecha Fin -->
+                    <div class="col-md-2 text-end">
+                        <label for="fechafin" class="col-form-label">Fecha fin:</label>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="fechafin" id="fechafin" class="form-control">
+                    </div>
+
+                    <!-- Sucursal -->
+                    <div class="col-md-1 text-end">
+                        <label for="sucursal" class="col-form-label">Sucursal:</label>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="sucursal" id="sucursal" class="form-control">
+                            <option class="form-control" value="0">Todas</option>
+                            @foreach ($almacenes as $almacen)
+                                <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Botón -->
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-success w-100 py-2">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+
                 </div>
 
-                <div class="row">
-                    <button type="submit" class="btn btn-success">Buscar producto</button>
-                </div>
             </form>
 
 
-            <table id="compras" class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Movimiento</th>
-                        <th>Autor</th>
-                        <th>Documento</th>
-                        <th>Productos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
+            <!-- DASHBOARD DE RESUMEN DE VENTAS -->
+            <hr>
 
-    </div>
+            <!-- FILA: TOTAL VENDIDO + CANTIDAD DE REMISIONES -->
+            <div class="row mb-4 text-center">
 
-
-    <div class="modal fade" id="productos" tabindex="-1" role="dialog" aria-labelledby="productosCenterTitle"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered custom-width " role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="productosLongTitle">Detalle de productos</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                <!-- TOTAL VENDIDO -->
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-primary text-white shadow h-100">
+                        <div class="card-body">
+                            <h3><i class="fas fa-dollar-sign"></i> Total Vendido</h3>
+                            <h1 id="total_vendido" class="display-4">$0.00</h1>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <table id="productostabla" class="table">
-                        <thead>
-                            <tr>
-                                <th>Codigo</th>
-                                <th>Cantidad</th>
-                                <th>Producto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 
+                <!-- CANTIDAD DE REMISIONES -->
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-info text-white shadow h-100">
+                        <div class="card-body">
+                            <h3><i class="fas fa-receipt"></i> Cantidad de Remisiones</h3>
+                            <h1 id="cantidad_remisiones" class="display-4">0</h1>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FILA 2: MÉTODOS DE PAGO -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h4><i class="fas fa-credit-card"></i> Métodos de Pago</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="grafica_metodos_pago" style="height: 400px;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <!-- FILA 3: GRAFICA VENTAS POR DIA -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h4><i class="fas fa-chart-bar"></i> Ventas por Día</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="grafica_ventas_dia" style="height: 400px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILA 4: GRAFICA VENTAS POR TIPO DE PRECIO -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h4><i class="fas fa-tags"></i> Ventas por Tipo de Precio</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="grafica_tipos_precio" style="height: 400px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILA 5: GRAFICA REPARTO VS MOSTRADOR -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h4><i class="fas fa-store"></i> Reparto vs Venta Mostrador</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="grafica_tipos_remision" style="height: 400px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
+
     </div>
+
+
+
     @include('fondo')
 @stop
 
@@ -86,13 +154,20 @@
 @stop
 
 @section('js')
+    <script src="https://code.highcharts.com/highcharts.js"></script>
     <script>
         $(document).ready(function() {
             drawTriangles();
             showUsersSections();
+            Highcharts.setOptions({
+                lang: {
+                    decimalPoint: '.',
+                    thousandsSep: ','
+                }
+            })
         });
 
-        $('#buscarproductoform').submit(function(e) {
+        $('#reporteresumenventas').submit(function(e) {
             e.preventDefault(); // Evitar la recarga de la página
 
             // Obtener los datos del formulario
@@ -100,86 +175,235 @@
 
             // Realizar la solicitud AJAX con jQuery
             $.ajax({
-                url: '/buscarproductomovimiento', // Ruta al controlador de Laravel
-                type: 'GET',
+                url: '/reporteresumenventas', // Ruta al controlador de Laravel
+                type: 'POST',
                 // data: datosFormulario, // Enviar los datos del formulario
                 data: datosFormulario,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
 
                 success: function(response) {
-                    Swal.fire(
-                        '¡Gracias por esperar!',
-                        response.message,
-                        'success'
-                    );
 
-                    $('#compras').DataTable({
-                        destroy: true,
-                        scrollX: true,
-                        scrollCollapse: true,
-                        "language": {
-                            "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
+
+                    // ACTUALIZAR TARJETAS DEL DASHBOARD
+                    $('#total_vendido').text('$' + Number(response.total_vendido).toLocaleString(
+                        'es-MX'));
+
+                    $('#cantidad_remisiones').text(response.cantidad_remisiones);
+
+
+                    // GRAFICA DE METODOS DE PAGO
+
+                    // Preparar datos para la gráfica
+                    let categorias = Object.keys(response.metodos);
+
+                    let cantidades = categorias.map(k => Number(response.metodos[k].cantidad));
+                    let totales = categorias.map(k => Number(response.metodos[k].total));
+
+                    Highcharts.chart('grafica_metodos_pago', {
+                        chart: {
+                            type: 'column'
                         },
-                        "buttons": [
-                            'copy', 'excel', 'pdf', 'print'
-                        ],
-                        dom: 'Blfrtip',
-                        destroy: true,
-                        processing: true,
-                        sort: true,
-                        paging: true,
-                        lengthMenu: [
-                            [10, 25, 50, -1],
-                            [10, 25, 50, 'All']
-                        ], // Personalizar el menú de longitud de visualización
-
-                        // Configurar las opciones de exportación
-                        // Para PDF
-                        pdf: {
-                            orientation: 'landscape', // Orientación del PDF (landscape o portrait)
-                            pageSize: 'A4', // Tamaño del papel del PDF
-                            exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
+                        title: {
+                            text: 'Métodos de Pago: Cantidad y Total Vendido'
+                        },
+                        xAxis: {
+                            categories: categorias,
+                            title: {
+                                text: 'Métodos de Pago'
                             }
                         },
-                        // Para Excel
-                        excel: {
-                            exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
+                        yAxis: [{
+                            title: {
+                                text: 'Cantidad de Remisiones'
                             }
-                        },
-                        "data": response.compras,
-                        "columns": [{
-                                "data": "fecha"
+                        }, {
+                            title: {
+                                text: 'Total Vendido ($)'
+                            },
+                            opposite: true
+                        }],
+                        series: [{
+                                name: 'Cantidad',
+                                data: cantidades,
+                                tooltip: {
+                                    valueSuffix: ' remisiones'
+                                }
                             },
                             {
-                                "data": "movimiento"
-                            },
-                            {
-                                "data": "autor"
-                            },
-                            {
-                                "data": "documento"
-                            },
-
-                            {
-                                "data": null,
-                                "render": function(data, type, row) {
-                                    let unit = parseFloat(row["Costo Unitario"]);
-                                    let compra = parseFloat(row["Costo en Compra"]);
-
-                                    if (compra < unit) {
-                                        return "Bajó";
-                                    } else if (compra > unit) {
-                                        return "Subió";
-                                    } else {
-                                        return "No aplica";
-                                    }
+                                name: 'Total Vendido',
+                                type: 'column', // 👉 columnas, no línea
+                                yAxis: 1, // 👉 eje secundario
+                                data: totales,
+                                tooltip: {
+                                    valuePrefix: '$'
                                 }
                             }
-
-
                         ]
                     });
+
+                    // // GRAFICO VENTAS POR DIA
+
+                    let fechas = Object.keys(response.cantidadesPorDia);
+                    let cantidades_dia = fechas.map(f => Number(response.cantidadesPorDia[f].cantidad));
+                    let totales_dia = fechas.map(f => Number(response.cantidadesPorDia[f].total));
+
+                    Highcharts.chart('grafica_ventas_dia', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'Ventas por Día'
+                        },
+                        xAxis: {
+                            categories: fechas,
+                            title: {
+                                text: 'Fecha'
+                            }
+                        },
+                        yAxis: [{
+                            title: {
+                                text: 'Cantidad de Remisiones'
+                            }
+                        }, {
+                            title: {
+                                text: 'Total Vendido ($)'
+                            },
+                            opposite: true
+                        }],
+                        series: [{
+                                name: 'Cantidad',
+                                data: cantidades_dia,
+                                tooltip: {
+                                    valueSuffix: ' remisiones'
+                                }
+                            },
+                            {
+                                name: 'Total Vendido',
+                                type: 'column',
+                                yAxis: 1,
+                                data: totales_dia,
+                                tooltip: {
+                                    valuePrefix: '$'
+                                }
+                            }
+                        ]
+                    });
+
+                    // GRAFICO TIPOS DE PRECIO
+
+                    let tipos = Object.keys(response.tipos_precio);
+                    let cantidades_tipo = tipos.map(t => Number(response.tipos_precio[t].cantidad));
+                    let totales_tipo = tipos.map(t => Number(response.tipos_precio[t].total));
+
+                    let colores = Highcharts.getOptions().colors; // colores base de Highcharts
+
+                    Highcharts.chart('grafica_tipos_precio', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'Ventas por Tipo de Precio'
+                        },
+                        xAxis: {
+                            categories: tipos,
+                            title: {
+                                text: 'Tipo de Precio'
+                            }
+                        },
+                        yAxis: [{
+                            title: {
+                                text: 'Cantidad'
+                            }
+                        }, {
+                            title: {
+                                text: 'Total Vendido ($)'
+                            },
+                            opposite: true
+                        }],
+                        series: [{
+                            name: 'Cantidad',
+                            data: cantidades_tipo,
+                            tooltip: {
+                                valueSuffix: ' remisiones'
+                            },
+                            color: colores[0] // un color para toda la serie
+                        }, {
+                            name: 'Total Vendido',
+                            type: 'column',
+                            yAxis: 1,
+                            data: totales_tipo,
+                            tooltip: {
+                                valuePrefix: '$'
+                            },
+                            color: colores[1] // otro color para toda la serie
+                        }]
+                    });
+
+
+                    // GRAFICO TIPOS DE REMISION
+
+                    let tiposRemision = Object.keys(response.tipos_remision);
+
+                    let cantidadesRemision = tiposRemision.map(key => {
+                        return Number(response.tipos_remision[key].cantidad);
+                    });
+
+                    let totalesRemision = tiposRemision.map(key => {
+                        return Number(response.tipos_remision[key].total);
+                    });
+
+                    Highcharts.chart('grafica_tipos_remision', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'Ventas por Tipo de Remisión'
+                        },
+                        xAxis: {
+                            categories: tiposRemision,
+                            title: {
+                                text: 'Tipo de Remisión'
+                            }
+                        },
+                        yAxis: [{
+                            title: {
+                                text: 'Cantidad de Remisiones'
+                            }
+                        }, {
+                            title: {
+                                text: 'Total Vendido ($)'
+                            },
+                            opposite: true
+                        }],
+                        series: [{
+                                name: 'Cantidad',
+                                data: cantidadesRemision,
+                                tooltip: {
+                                    valueSuffix: ' remisiones'
+                                },
+                                colorByPoint: true
+                            },
+                            {
+                                name: 'Total Vendido',
+                                type: 'column',
+                                yAxis: 1,
+                                data: totalesRemision,
+                                tooltip: {
+                                    valuePrefix: '$'
+                                },
+                                colorByPoint: true
+                            }
+                        ]
+                    });
+
+
+
+
+                    Swal.fire('¡Reporte Listo!', response.message, 'success');
+
+
                 },
                 error: function(response) {
                     Swal.fire(
@@ -190,87 +414,5 @@
                 }
             });
         });
-
-        function ver(id) {
-            $('#productos').modal('show');
-
-
-            $.ajax({
-                url: 'verproductosmovimiento', // URL a la que se hace la solicitud
-                type: 'GET', // Tipo de solicitud (GET, POST, etc.)
-                data: {
-                    id: id
-                },
-
-                dataType: 'json', // Tipo de datos esperados en la respuesta
-                success: function(data) {
-                    $('#productostabla').DataTable({
-                        destroy: true,
-                        scrollX: true,
-                        scrollCollapse: true,
-                        "language": {
-                            "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
-                        },
-                        "buttons": [
-                            'copy', 'excel', 'pdf', 'print'
-                        ],
-                        dom: 'Blfrtip',
-                        destroy: true,
-                        processing: true,
-                        sort: true,
-                        paging: true,
-                        lengthMenu: [
-                            [10, 25, 50, -1],
-                            [10, 25, 50, 'All']
-                        ], // Personalizar el menú de longitud de visualización
-
-                        // Configurar las opciones de exportación
-                        // Para PDF
-                        pdf: {
-                            orientation: 'landscape', // Orientación del PDF (landscape o portrait)
-                            pageSize: 'A4', // Tamaño del papel del PDF
-                            exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
-                            }
-                        },
-                        // Para Excel
-                        excel: {
-                            exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
-                            }
-                        },
-                        "data": data.productos,
-                        "columns": [{
-                                "data": "Codigo"
-                            },
-                            {
-                                "data": "Cantidad"
-                            },
-                            {
-                                "data": "Nombre"
-                            },
-                            {
-                                "data": "Costo Unitario"
-                            },
-                            {
-                                "data": "Costo en Compra"
-                            },
-                            {
-                                "data": null,
-                                "render": function(data, type, row) {
-                                    // row["Costo Unitario"] → viene como string
-                                    // row["Costo en Compra"] → viene como string
-                                    let unit = parseFloat(row["Costo Unitario"]);
-                                    let compra = parseFloat(row["Costo en Compra"]);
-
-                                    return unit !== compra ? "Sí" : "No";
-                                }
-                            }
-
-                        ]
-                    });
-                }
-            });
-        }
     </script>
 @stop

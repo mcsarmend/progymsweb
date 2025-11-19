@@ -224,6 +224,7 @@ Route::get('generarreporteentradas', [reportesController::class, 'generarreporte
 Route::get('generarreportesalidas', [reportesController::class, 'generarreportesalidas'])->middleware(['auth']);
 
 Route::post('reportesoloexistencias', [reportesController::class, 'reportesoloexistencias'])->middleware(['auth']);
+Route::post('reporteresumenventas', [reportesController::class, 'reporteresumenventas'])->middleware(['auth']);
 
 //OPCIONES
 Route::get('admin/settings', [adminsettingsController::class, 'index'])->middleware(['auth']);
