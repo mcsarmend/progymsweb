@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\clients;
+use App\Models\product;
 use App\Models\stockMovements;
 use App\Models\supplier;
 use App\Models\warehouse;
@@ -63,6 +64,19 @@ class reportesController extends Controller
         $almacenes = warehouse::all();
         $products  = DB::select('CALL sp_reporteexistencias(0)');
         return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes]);
+    }
+    public function productomovimiento()
+    {
+        $type      = $this->gettype();
+        $productos = product::all();
+        return view('reportes.inventario.productomovimiento', ['type' => $type, 'productos' => $productos]);
+    }
+    public function resumenventas()
+    {
+        $type      = $this->gettype();
+        $almacenes = warehouse::all();
+        $products  = DB::select('CALL sp_reporteexistencias(0)');
+        return view('reportes.remisiones.resumenventas', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes]);
     }
 
     public function reporteclienteslista()
@@ -198,6 +212,41 @@ class reportesController extends Controller
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
         }
     }
+
+    public function buscarproductomovimiento(Request $request)
+    {
+        try {
+            $producto = $request->producto;
+            $dateStart = Carbon::parse($request->fechainicio)->startOfDay();
+            $dateEnd   = Carbon::parse($request->fechafin)->endOfDay();
+
+            $movimientos = stockMovements::where('stock_movements.productos', 'like', '%' . $producto . '%')
+                ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
+                ->select(
+                    'stock_movements.id as id',
+                    'stock_movements.fecha as fecha',
+                    DB::raw("CASE
+                                        WHEN stock_movements.movimiento = 'PURCHASE' THEN 'COMPRA'
+                                        WHEN stock_movements.movimiento = 'TRANSFER' THEN 'TRASPASO'
+                                        WHEN stock_movements.movimiento = 'ENTRANCEMERCH' THEN 'ENTRADA'
+                                        WHEN stock_movements.movimiento = 'REMISSIONISSUED' THEN 'REMISION'
+                                        WHEN stock_movements.movimiento = 'EXITMERCH' THEN 'SALIDA'
+                                        ELSE stock_movements.movimiento
+                                    END as movimiento"),
+                    'stock_movements.documento as documento',
+                    'stock_movements.productos as productos',
+                    'u.name as autor'
+                )
+                ->whereBetween('fecha', [$dateStart, $dateEnd])
+                ->get();
+
+            return response()->json(['message' => 'Reporte Generado Correctamente', 'movimientos' => $movimientos], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+
     public function generarreportetraspasos(Request $request)
     {
         try {

@@ -662,9 +662,9 @@ return [
                             'icon' => 'fas fa-boxes',
                         ],
                         [
-                            'text' => 'Producto - Remisión',
-                            'url' => 'productoremision',
-                            'icon' => 'fas fa-boxes',
+                            'text' => 'Producto - Movimiento',
+                            'url' => 'productomovimiento',
+                            'icon' => 'fas fa-exchange-alt',
                         ],
 
                     ],
@@ -686,7 +686,7 @@ return [
                         [
                             'text' => 'Resumen de Ventas',
                             'url' => 'resumenventas',
-                            'icon' => 'fas fa-money-bill-wave',
+                            'icon' => 'fas fa-chart-line',
                         ],
 
                     ],
