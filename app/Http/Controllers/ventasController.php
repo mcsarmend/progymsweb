@@ -188,6 +188,7 @@ class ventasController extends Controller
 
     public function validarremision(Request $request)
     {
+
         try {
             // Crear una nueva instancia del modelo referrals
             $remision             = new referrals();

@@ -148,13 +148,11 @@
                 <div class="slides">
 
 
-                    <img class="slide" src="assets/images/promos/03.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/05.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/06.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/07.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/08.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/09.jpg" alt="Imagen 1">
-                    <img class="slide" src="assets/images/promos/11.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/12.jpg" alt="Imagen 1">
 
 
@@ -321,7 +319,7 @@
                 <li><strong>Precio frecuente</strong>: Clientes con compras mayores a **$1500** mensuales</li>
                 <li><strong>Precio mayorista</strong>: Clientes con compras mayores a **$3000** mensuales</li>
                 <li><strong>Precio distribuidor</strong>: Compras en una sola exhibición de más de **$3000**</li>
-                <li><strong>Precio Black</strong>: Compras en una sola exhibición de más de **$4500**</li>
+
                 <li><strong>Precio Platinum</strong>: Compras en una sola exhibición de más de **$6000**</li>
             </ul>
         </div>
@@ -705,7 +703,7 @@
                                 <th>Marca</th>
                                 <th>Categoria</th>
                                 <th>Distribuidor</th>
-                                <th>Black</th>
+
                                 <th>Platinum</th>
                                 <th>Existencias</th>
 
@@ -903,12 +901,7 @@
                             return '$' + data;
                         }
                     },
-                    {
-                        "data": "black",
-                        "render": function(data) {
-                            return '$' + data;
-                        }
-                    },
+
                     {
                         "data": "platinum",
                         "render": function(data) {
@@ -917,7 +910,7 @@
                     },
 
                     {
-                        "data": "existencias",
+                        "data": "totales",
 
                     },
 

@@ -63,7 +63,13 @@ class reportesController extends Controller
         $type      = $this->gettype();
         $almacenes = warehouse::all();
         $products  = DB::select('CALL sp_reporteexistencias(0)');
-        return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes]);
+
+        $total_costos = array_reduce($products, function ($carry, $item) {
+            return $carry + ($item->costo * intval($item->totales));
+        }, 0);
+
+
+        return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes, 'total_costos' => $total_costos]);
     }
     public function productomovimiento()
     {
@@ -211,8 +217,6 @@ class reportesController extends Controller
                 ->get()
                 ->keyBy('tipo_remision')
                 ->toArray();
-
-
 
             return response()->json([
                 'message'             => 'Reporte generado correctamente.',

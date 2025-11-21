@@ -39,6 +39,15 @@
                         </div>
                     </form>
                     <br>
+
+                    <div class="col-12 col-md-6 mb-3 mx-auto">
+                        <div class="card bg-primary text-white shadow h-100">
+                            <div class="card-body text-center">
+                                <h3><i class="fas fa-dollar-sign"></i> Total Costos</h3>
+                                <h1 id="total_costos" class="display-4" style="color: #00ffa6;">$0.00</h1>
+                            </div>
+                        </div>
+                    </div>
                     <table id="productos" class="table">
                         <thead>
                             <tr>
@@ -94,6 +103,14 @@
     <script>
         $(document).ready(function() {
             var products = @json($products);
+            var total_costos = @json($total_costos);
+            $('#total_costos').text(
+                '$' + Number(total_costos).toLocaleString('es-MX', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })
+            );
+
             $('#productos').DataTable({
                 destroy: true,
                 scrollX: true,
@@ -239,10 +256,10 @@
 
                     var ahora = new Date();
                     var fecha = ahora.toISOString().slice(0, 10); // 2025-11-13
-                    var hora = ahora.toTimeString().slice(0, 8);  // 11:42:10
+                    var hora = ahora.toTimeString().slice(0, 8); // 11:42:10
 
                     var resultado = fecha + ' ' + hora;
-                    var nombre = $('#almacen option:selected').text() +resultado + ".xlsx";
+                    var nombre = $('#almacen option:selected').text() + resultado + ".xlsx";
                     exportarexcel(products, nombre);
                     generarPDF(data.products);
 
@@ -289,10 +306,10 @@
             });
             var ahora = new Date();
             var fecha = ahora.toISOString().slice(0, 10); // 2025-11-13
-            var hora = ahora.toTimeString().slice(0, 8);  // 11:42:10
+            var hora = ahora.toTimeString().slice(0, 8); // 11:42:10
 
             var resultado = fecha + ' ' + hora;
-            var nombre =$('#almacen option:selected').text() +resultado + ".pdf";
+            var nombre = $('#almacen option:selected').text() + resultado + ".pdf";
             doc.save(nombre);
         }
     </script>
