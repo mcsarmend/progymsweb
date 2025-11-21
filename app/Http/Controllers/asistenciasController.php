@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\attendance;
@@ -28,8 +27,8 @@ class asistenciasController extends Controller
     }
     public function asistenciapersonal()
     {
-        $now = Carbon::now();
-        $id = Auth::user()->id;
+        $now         = Carbon::now();
+        $id          = Auth::user()->id;
         $attendances = DB::table(DB::raw('(
             SELECT
                 CAST(fecha_hora AS DATE) AS fecha,
@@ -67,26 +66,88 @@ class asistenciasController extends Controller
     {
         $now = Carbon::now();
 
-        $entradasysalidas = DB::select('CALL sp_get_asistencias_y_ausencias()');
-        $tendencias = DB::select('CALL sp_get_asistencias_y_ausencias_por_semana()');
-        $reporte = DB::select('CALL sp_asistencias_y_ausencias_rep()');
-        $empleados = User::select('users.id as id', 'users.name as nombre', 'users.email as correo', 'users.pass as contrasena', 'users.phone as telefono', 'users.role as rol', 'warehouse.nombre as sucursal')
-            ->leftJoin('warehouse', 'users.warehouse', '=', 'warehouse.id')
+        // Consulta única: por fecha + usuario (detallado)
+        $asistencias = DB::table('attendance as a')
+            ->leftJoin('users as u', 'u.id', '=', 'a.id_user')
+            ->select(
+                'a.fecha',
+                'u.id as usuario_id',
+                'u.name as vendedor',
+                DB::raw("SUM(CASE WHEN a.evento = 'ENTRANCE' THEN 1 ELSE 0 END) AS entrada"),
+                DB::raw("SUM(CASE WHEN a.evento = 'EXIT' THEN 1 ELSE 0 END) AS salida"),
+                DB::raw("
+                                    SUM(
+                                        CASE
+                                            WHEN a.evento = 'ENTRANCE'
+                                            AND TIME(a.fecha_hora) > DATE_ADD(u.hora_entrada, INTERVAL 15 MINUTE)
+                                            THEN 1 ELSE 0
+                                        END
+                                    ) AS incidencia
+                                "),
+                DB::raw("MIN(CASE WHEN a.evento = 'ENTRANCE' THEN a.hora END) AS hora_entrada"),
+                DB::raw("MAX(CASE WHEN a.evento = 'EXIT' THEN a.hora END) AS hora_salida"),
+                DB::raw("
+                                    CASE
+                                        WHEN a.dispositivo LIKE '%Windows NT%' THEN 'Computadora'
+                                        WHEN a.dispositivo LIKE '%Android%' THEN 'Celular'
+                                        ELSE 'Otro'
+                                    END AS medio
+                                ")
+            )
+            ->whereYear('a.fecha', $now->year)
+            ->whereMonth('a.fecha', $now->month)
+            ->whereNotNull('u.id')
+            ->groupBy('a.fecha', 'u.id', 'u.name','a.dispositivo')
+            ->orderBy('a.fecha')
+            ->get(); // Collection de stdClass
+
+        // ---- Agrupar y sumar por fecha para las gráficas (totales por día) ----
+        // $asistencias es una Collection, usamos groupBy + map para obtener totales por fecha
+        $totalesPorFecha = $asistencias
+            ->groupBy('fecha')
+            ->map(function ($rows, $fecha) {
+                // $rows es una Collection de filas (stdClass) que comparten la misma fecha
+                return (object) [
+                    'fecha'      => $fecha,
+                    'entrada'    => (int) $rows->sum(function ($r) {return (int) $r->entrada;}),
+                    'salida'     => (int) $rows->sum(function ($r) {return (int) $r->salida;}),
+                    'incidencia' => (int) $rows->sum(function ($r) {return (int) $r->incidencia;}),
+                ];
+            })
+            ->values(); // reindexar
+
+        // Empleados (igual que antes)
+        $empleados = User::select('users.id as id', 'users.name as nombre')
             ->where('users.status', 1)
+            ->whereIn('users.role', [3, 4])
             ->get();
-        $totalEmpleados = User::whereIn('role', [3, 4])->count();
+
+        $totalEmpleados = User::whereIn('role', [3, 4])
+            ->where('status', 1)
+            ->count();
 
         $type = $this->gettype();
 
-        return response()->view('asistencias.asistenciageneral', ['type' => $type, 'entradasysalidas' => $entradasysalidas, 'totalempleados' => $totalEmpleados, 'tendencias' => $tendencias, 'empleados' => $empleados, 'reporte' => $reporte]);
+        // Enviamos:
+        // - 'entradasysalidas' = totales por fecha (para Highcharts)
+        // - 'reporte' = detallado por fecha+usuario (para DataTable)
+        return view('asistencias.asistenciageneral', [
+            'type'             => $type,
+            'entradasysalidas' => $totalesPorFecha,
+            'totalempleados'   => $totalEmpleados,
+            'tendencias'       => collect(), // si ya no usas tendencias, envía colección vacía o remueve
+            'empleados'        => $empleados,
+            'reporte'          => $asistencias,
+        ]);
     }
+
     public function calendario()
     {
-        $mes = Carbon::now()->month;
-        $anio = Carbon::now()->year;
+        $mes         = Carbon::now()->month;
+        $anio        = Carbon::now()->year;
         $incidencias = DB::select('CALL sp_incidencias_por_mes(?, ?)', [$mes, $anio]);
 
-        $type = $this->gettype();
+        $type      = $this->gettype();
         $empleados = User::select('id', 'name as nombre')
             ->where('status', 1)
             ->get();
@@ -98,10 +159,10 @@ class asistenciasController extends Controller
 
         $vacaciones = DB::select('CALL obtener_vacaciones_restantes()');
 
-        $type = $this->gettype();
+        $type      = $this->gettype();
         $empleados = User::select('id', 'name as nombre')
-         ->where('status', 1)
-         ->get();
+            ->where('status', 1)
+            ->get();
 
         return response()->view('asistencias.vacaciones', ['type' => $type, 'empleados' => $empleados, 'vacaciones' => $vacaciones]);
     }
@@ -109,7 +170,7 @@ class asistenciasController extends Controller
     {
 
         try {
-            $id = $request->id;
+            $id          = $request->id;
             $id_empleado = Crypt::decrypt($id);
 
             $fechas = User::select('id', 'fecha_ingreso',
@@ -133,8 +194,8 @@ class asistenciasController extends Controller
     public function calendarioincidencias(Request $request)
     {
 
-        $mes = $request->mes;
-        $anio = $request->anio;
+        $mes         = $request->mes;
+        $anio        = $request->anio;
         $incidencias = DB::select('CALL sp_incidencias_por_mes(?, ?)', [$mes, $anio]);
 
         if ($incidencias == []) {
@@ -184,18 +245,18 @@ class asistenciasController extends Controller
     {
 
         try {
-            $incident = new incidents();
-            $incident->iduser = $request->iduser;
-            $incident->fecha = $request->fecha;
-            $incident->tipo = $request->tipo;
+            $incident              = new incidents();
+            $incident->iduser      = $request->iduser;
+            $incident->fecha       = $request->fecha;
+            $incident->tipo        = $request->tipo;
             $incident->descripcion = $request->descripcion;
 
             $incident->save();
 
             if ($request->tipo == "VACACION") {
-                $vacation = new vacation();
+                $vacation    = new vacation();
                 $id_empleado = $request->iduser;
-                $fechas = User::select('id', 'fecha_ingreso',
+                $fechas      = User::select('id', 'fecha_ingreso',
                     DB::raw("DATE_ADD(fecha_ingreso, INTERVAL CASE
                             WHEN YEAR(fecha_ingreso) < YEAR(CURDATE())
                             THEN YEAR(CURDATE()) - YEAR(fecha_ingreso)
@@ -209,8 +270,8 @@ class asistenciasController extends Controller
 
                 if ($vacacionesFechas == []) {
 
-                    $vacation->id_user = $id_empleado;
-                    $vacation->fecha = $request->fecha;
+                    $vacation->id_user     = $id_empleado;
+                    $vacation->fecha       = $request->fecha;
                     $vacation->no_vacacion = 1;
                 } else {
                     $vacacionesFechasJson = $vacacionesFechas["vacacionesFechas"];
@@ -221,10 +282,10 @@ class asistenciasController extends Controller
 
                     // Obtener la fecha más reciente y el NoVacacion
                     $fechaMasReciente = $vacacionReciente['FechaVacacion'];
-                    $noVacacion = $vacacionReciente['NoVacacion'];
+                    $noVacacion       = $vacacionReciente['NoVacacion'];
 
-                    $vacation->id_user = $id_empleado;
-                    $vacation->fecha = $request->fecha;
+                    $vacation->id_user     = $id_empleado;
+                    $vacation->fecha       = $request->fecha;
                     $vacation->no_vacacion = $noVacacion + 1;
 
                 }
@@ -241,49 +302,99 @@ class asistenciasController extends Controller
 
     public function asistencia_graficas(Request $request)
     {
-        $id_empleado = $request["id_empleado"];
-        if ($id_empleado != "0") {
-            $id_empleado = Crypt::decrypt($id_empleado);
-        }
-
-        $fecha_inicio = $request->fecha_inicio;
-        $fecha_fin = $request->fecha_fin;
-        $reporte = [];
-
         try {
-            $asistencia = [];
-            $asistencia_semana = [];
+            $id_empleado = $request->id_empleado;
 
-            if ($id_empleado == "0") {
-
-                $asistencia = DB::select('CALL sp_get_asistencias_y_ausencias_general(?, ?)', [$fecha_inicio, $fecha_fin]);
-                $asistencia_semana = DB::select('CALL sp_get_asistencias_y_ausencias_por_semana_general(?, ?)', [$fecha_inicio, $fecha_fin]);
-                $reporte = DB::select('CALL sp_asistencias_y_ausencias_rep_general(?, ?)', [$fecha_inicio, $fecha_fin]);
-
+            if ($id_empleado != "0") {
+                $id_empleado = Crypt::decrypt($id_empleado);
             } else {
-                $asistencia = DB::select('CALL sp_get_asistencias_y_ausencias_individual(?, ?, ?)', [$id_empleado, $fecha_inicio, $fecha_fin]);
-                $asistencia_semana = DB::select('CALL sp_get_asistencias_y_ausencias_por_semana_individual(?, ?, ?)', [$id_empleado, $fecha_inicio, $fecha_fin]);
-                $reporte = DB::select('CALL sp_asistencias_y_ausencias_rep_individual(?, ?, ?)', [$fecha_inicio, $fecha_fin, $id_empleado]);
+                $id_empleado = null; // TODOS
             }
-            return response()->json(['message' => 'Reporte generado correctamente ', 'asistencia' => $asistencia, 'asistencia_semana' => $asistencia_semana, 'reporte' => $reporte], 200);
+
+            $fecha_inicio = $request->fecha_inicio;
+            $fecha_fin    = $request->fecha_fin;
+
+            // ---------------------------------------------------------
+            // CONSULTA ÚNICA (como asistenciageneral)
+            // ---------------------------------------------------------
+            $asistencias = DB::table('attendance as a')
+                ->leftJoin('users as u', 'u.id', '=', 'a.id_user')
+                ->select(
+                    'a.fecha',
+                    'u.id as usuario_id',
+                    'u.name as vendedor',
+
+                    DB::raw("SUM(CASE WHEN a.evento = 'ENTRANCE' THEN 1 ELSE 0 END) AS entrada"),
+                    DB::raw("SUM(CASE WHEN a.evento = 'EXIT' THEN 1 ELSE 0 END) AS salida"),
+
+                    DB::raw("
+                    SUM(
+                        CASE
+                            WHEN a.evento = 'ENTRANCE'
+                             AND TIME(a.fecha_hora) > DATE_ADD(u.hora_entrada, INTERVAL 15 MINUTE)
+                            THEN 1 ELSE 0
+                        END
+                    ) AS incidencia
+                "),
+
+                    DB::raw("MIN(CASE WHEN a.evento = 'ENTRANCE' THEN a.hora END) AS hora_entrada"),
+                    DB::raw("MAX(CASE WHEN a.evento = 'EXIT' THEN a.hora END) AS hora_salida")
+                )
+                ->whereBetween('a.fecha', [$fecha_inicio, $fecha_fin])
+                ->when($id_empleado, function ($q) use ($id_empleado) {
+                    return $q->where('u.id', $id_empleado);
+                })
+                ->whereNotNull('u.id')
+                ->groupBy('a.fecha', 'u.id', 'u.name')
+                ->orderBy('a.fecha')
+                ->get();
+
+            // ---------------------------------------------------------
+            // SUMAR POR FECHA → (Highcharts)
+            // ---------------------------------------------------------
+            $totalesPorFecha = $asistencias
+                ->groupBy('fecha')
+                ->map(function ($rows, $fecha) {
+                    return (object) [
+                        'fecha'      => $fecha,
+                        'entrada'    => (int) $rows->sum('entrada'),
+                        'salida'     => (int) $rows->sum('salida'),
+                        'incidencia' => (int) $rows->sum('incidencia'),
+                    ];
+                })
+                ->values();
+
+            // Esto se llama "entradasysalidas" en tu JS
+            $asistencia = $totalesPorFecha;
+
+            // Detalle por empleado+fecha (tu DataTable)
+            $reporte = $asistencias;
+
+            return response()->json([
+                'message'    => 'Reporte generado correctamente',
+                'asistencia' => $asistencia, // para Highcharts
+                'reporte'    => $reporte,    // para tabla
+            ], 200);
+
         } catch (\Throwable $th) {
 
-            return response()->json(['message' => 'Error al reporte: ' . $th->getMessage()], 500);
+            return response()->json([
+                'message' => 'Error al generar reporte: ' . $th->getMessage(),
+            ], 500);
         }
-
     }
 
     public function registrarentrada(Request $request)
     {
         try {
             $attendance = new Attendance();
-            $id = Auth::user()->id;
+            $id         = Auth::user()->id;
 
             // Configurar la zona horaria a México
-            $now = Carbon::now('America/Mexico_City');
-            $fechaMysql = $now->format('Y-m-d H:i:s');
+            $now         = Carbon::now('America/Mexico_City');
+            $fechaMysql  = $now->format('Y-m-d H:i:s');
             $dispositivo = substr($request->device["userAgent"], 0, 50);
-            $evento = "ENTRANCE";
+            $evento      = "ENTRANCE";
 
             // Verificar si ya existe un registro para el usuario en la misma fecha
             $exists = Attendance::where('id_user', $id)
@@ -295,35 +406,35 @@ class asistenciasController extends Controller
                 return response()->json(['message' => 'Ya existe un registro para el usuario en esta fecha.'], 409); // Código de estado HTTP 409 Conflict
             }
 
-            $attendance->id_user = $id;
-            $attendance->fecha = $now->format('Y-m-d');
-            $attendance->hora = $now->format('H:i:s');
-            $attendance->fecha_hora = $fechaMysql;
+            $attendance->id_user     = $id;
+            $attendance->fecha       = $now->format('Y-m-d');
+            $attendance->hora        = $now->format('H:i:s');
+            $attendance->fecha_hora  = $fechaMysql;
             $attendance->dispositivo = $dispositivo;
-            $attendance->evento = $evento;
+            $attendance->evento      = $evento;
 
-            $diaActual = date('j'); // Día actual del mes sin ceros iniciales
-            $mesActual = date('m'); // Mes actual con ceros iniciales
+            $diaActual  = date('j'); // Día actual del mes sin ceros iniciales
+            $mesActual  = date('m'); // Mes actual con ceros iniciales
             $anioActual = date('Y'); // Año actual
 
             $fechaInicio = date('');
-            $fechaFin = date('');
+            $fechaFin    = date('');
 
             if ($diaActual <= 15) {
                 // Si el día es menor o igual a 15, obtenemos del primer día al 15
                 $fechaInicio = "$anioActual-$mesActual-01";
-                $fechaFin = "$anioActual-$mesActual-15";
+                $fechaFin    = "$anioActual-$mesActual-15";
             } else {
                 // Si el día es mayor a 15, obtenemos del 16 al último día del mes
                 $fechaInicio = "$anioActual-$mesActual-16";
-                $fechaFin = date("Y-m-t"); // Obtiene el último día del mes
+                $fechaFin    = date("Y-m-t"); // Obtiene el último día del mes
             }
 
             $cantidadIncidencias = DB::select('CALL sp_get_incidencias_individual(?, ?, ?)', [$id, $fechaInicio, $fechaFin]);
 
             $attendance->save();
 
-            $message = "Registro realizado correctamente a las: " . $attendance->hora . ". Recuerda que llevas: ***  " . $cantidadIncidencias[0]->total_incidencias . " *** incidencias en esta quincena";
+            $message               = "Registro realizado correctamente a las: " . $attendance->hora . ". Recuerda que llevas: ***  " . $cantidadIncidencias[0]->total_incidencias . " *** incidencias en esta quincena";
             $cantidadDeIncidencias = intval($cantidadIncidencias[0]->total_incidencias);
 
             // Devolver una respuesta de éxito
@@ -337,13 +448,13 @@ class asistenciasController extends Controller
     {
         try {
             $attendance = new Attendance();
-            $id = Auth::user()->id;
+            $id         = Auth::user()->id;
 
             // Configurar la zona horaria a México
-            $now = Carbon::now('America/Mexico_City');
-            $fechaMysql = $now->format('Y-m-d H:i:s');
+            $now         = Carbon::now('America/Mexico_City');
+            $fechaMysql  = $now->format('Y-m-d H:i:s');
             $dispositivo = substr($request->device["userAgent"], 0, 50);
-            $evento = "EXIT";
+            $evento      = "EXIT";
 
             // Verificar si ya existe un registro para el usuario en la misma fecha
             $exists = Attendance::where('id_user', $id)
@@ -355,12 +466,12 @@ class asistenciasController extends Controller
                 return response()->json(['message' => 'Ya existe un registro para el usuario en esta fecha.'], 409); // Código de estado HTTP 409 Conflict
             }
 
-            $attendance->id_user = $id;
-            $attendance->fecha = $now->format('Y-m-d');
-            $attendance->hora = $now->format('H:i:s');
-            $attendance->fecha_hora = $fechaMysql;
+            $attendance->id_user     = $id;
+            $attendance->fecha       = $now->format('Y-m-d');
+            $attendance->hora        = $now->format('H:i:s');
+            $attendance->fecha_hora  = $fechaMysql;
             $attendance->dispositivo = $dispositivo;
-            $attendance->evento = $evento;
+            $attendance->evento      = $evento;
             $attendance->save();
 
             // Devolver una respuesta de éxito

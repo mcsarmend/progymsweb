@@ -93,13 +93,13 @@
         <div id="incidencias" style="width:100%; height:400px;">
         </div>
 
-        <br>
+        {{-- <br>
 
         <div class="chart-container">
             <div id="lineChart" style="width:100%; height:400px;"></div>
         </div>
 
-        <br>
+        <br> --}}
 
         <div class="card-body">
             <table id="asistencias" class="table table-striped table-bordered display nowrap" style="width: 100%">
@@ -107,6 +107,7 @@
                     <tr>
                         <th>Fecha</th>
                         <th>Vendedor</th>
+                        <th>Medio</th>
                         <th>Hora Entrada</th>
                         <th>Hora Salida</th>
                         <th>Incidencia</th>
@@ -202,33 +203,6 @@
             });
 
 
-            tendencias = @json($tendencias);
-            tendencias = convertirJson(tendencias, 2);
-            semanas = tendencias.map(d => d.semana);
-            entradasSemana = tendencias.map(d => d.entrada);
-
-            Highcharts.chart('lineChart', {
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: 'Tendencia de Asistencias'
-                },
-                xAxis: {
-                    categories: semanas
-                },
-                yAxis: {
-                    title: {
-                        text: 'Asistencias'
-                    }
-                },
-                series: [{
-                    name: 'Asistencias',
-                    data: entradasSemana,
-                    color: '#28A745'
-                }]
-            });
-
 
 
             // TABLA ASSITENCIAS
@@ -273,6 +247,9 @@
                     },
                     {
                         "data": "vendedor"
+                    },
+                    {
+                        "data": "medio"
                     },
                     {
                         "data": "hora_entrada"
@@ -340,8 +317,7 @@
                     );
 
                     // Actualizar los gráficos con los nuevos datos
-                    actualizarGraficos(response.asistencia, response.asistencia_semana, response
-                        .reporte);
+                    actualizarGraficos(response.asistencia, response.reporte);
 
                 },
                 error: function(response) {
@@ -354,7 +330,7 @@
             });
         });
 
-        function actualizarGraficos(entradasysalidas, tendencias, reporte) {
+        function actualizarGraficos(entradasysalidas, reporte) {
             // Procesar los nuevos datos
             let data = convertirJson(entradasysalidas, 1);
             let fechas = data.map(d => d.fecha);
@@ -416,32 +392,7 @@
                 }
             });
 
-            // Actualizar el gráfico de tendencias de asistencias
-            let tendenciasData = convertirJson(tendencias, 2);
-            let semanas = tendenciasData.map(d => d.semana);
-            let entradasSemana = tendenciasData.map(d => d.entrada);
 
-            Highcharts.chart('lineChart', {
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: 'Tendencia de Asistencias'
-                },
-                xAxis: {
-                    categories: semanas
-                },
-                yAxis: {
-                    title: {
-                        text: 'Asistencias'
-                    }
-                },
-                series: [{
-                    name: 'Asistencias',
-                    data: entradasSemana,
-                    color: '#28A745'
-                }]
-            });
 
 
             $('#asistencias').DataTable({

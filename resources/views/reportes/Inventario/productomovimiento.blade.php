@@ -20,14 +20,14 @@
                         <label for="fechainicio" class="form-label">Fecha inicio:</label>
                     </div>
                     <div class="col-md-4">
-                        <input type="date" name="fechainicio" id="fechainicio" class="form-control">
+                        <input type="date" name="fechainicio" id="fechainicio" class="form-control" required>
                     </div>
 
                     <div class="col-md-2">
                         <label for="fechafin" class="form-label">Fecha fin:</label>
                     </div>
                     <div class="col-md-4">
-                        <input type="date" name="fechafin" id="fechafin" class="form-control">
+                        <input type="date" name="fechafin" id="fechafin" class="form-control" required>
                     </div>
                 </div>
 
@@ -41,7 +41,7 @@
                         <label for="producto" class="form-label">Producto:</label>
                     </div>
                     <div class="col-md-2">
-                        <input type="text" name="producto" id="producto" class="form-control" disabled>
+                        <input type="text" name="producto" id="producto" class="form-control" required>
                     </div>
                     <div class="col-md-1">
                         <label for="nombreproducto" class="form-label">Nombre:</label>
