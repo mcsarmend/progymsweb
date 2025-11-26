@@ -309,7 +309,7 @@
         <br>
 
         <div class="row">
-            <p>Última actualización: 24-02-2025</p>
+
 
             <p>Todos los precios están sujetos a cambios sin previo aviso</p>
 
@@ -319,7 +319,6 @@
                 <li><strong>Precio frecuente</strong>: Clientes con compras mayores a **$1500** mensuales</li>
                 <li><strong>Precio mayorista</strong>: Clientes con compras mayores a **$3000** mensuales</li>
                 <li><strong>Precio distribuidor</strong>: Compras en una sola exhibición de más de **$3000**</li>
-
                 <li><strong>Precio Platinum</strong>: Compras en una sola exhibición de más de **$6000**</li>
             </ul>
         </div>

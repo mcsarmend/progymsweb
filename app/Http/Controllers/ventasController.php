@@ -101,12 +101,12 @@ class ventasController extends Controller
         $hoy_fin    = Carbon::today($timezone)->endOfDay()->toDateTimeString();   // '2024-12-10 23:59:59'
         $id         = Auth::user()->warehouse;
         $query      = 'CALL obtenerremisionescorte("' . $hoy_inicio . '","' . $hoy_fin . '",' . $id . ')';
-
+        $sucursales = warehouse::where('id', '=', $id)->get();
         $remisiones = DB::select($query);
 
         $type = $this->gettype();
 
-        return view('ventas.remisiones', ['type' => $type, 'remisiones' => $remisiones]);
+        return view('ventas.remisiones', ['type' => $type, 'remisiones' => $remisiones, 'sucursales' => $sucursales]);
     }
     public function ventasreportes()
     {

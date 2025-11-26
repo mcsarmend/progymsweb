@@ -167,22 +167,14 @@
                             {
                                 "data": "documento"
                             },
-
                             {
-                                "data": null,
+                                "data": "productos",
                                 "render": function(data, type, row) {
-                                    let unit = parseFloat(row["Costo Unitario"]);
-                                    let compra = parseFloat(row["Costo en Compra"]);
-
-                                    if (compra < unit) {
-                                        return "Bajó";
-                                    } else if (compra > unit) {
-                                        return "Subió";
-                                    } else {
-                                        return "No aplica";
-                                    }
+                                    return '<button onclick="ver(' + row.id +
+                                        ')" class="btn btn-primary">Ver</button>';
                                 }
-                            }
+                            },
+
 
 
                         ]
@@ -265,12 +257,16 @@
                             {
                                 "data": null,
                                 "render": function(data, type, row) {
-                                    // row["Costo Unitario"] → viene como string
-                                    // row["Costo en Compra"] → viene como string
                                     let unit = parseFloat(row["Costo Unitario"]);
                                     let compra = parseFloat(row["Costo en Compra"]);
 
-                                    return unit !== compra ? "Sí" : "No";
+                                    if (compra < unit) {
+                                        return "Bajó";
+                                    } else if (compra > unit) {
+                                        return "Subió";
+                                    } else {
+                                        return "No aplica";
+                                    }
                                 }
                             }
 

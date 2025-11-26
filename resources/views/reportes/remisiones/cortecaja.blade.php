@@ -312,62 +312,65 @@
             // Parsear el JSON si viene como string
             const jsonObject = typeof data === 'string' ? parseNestedJson(data) : data;
 
-            // Obtener referencia al modal (asumiendo que ya existe en tu HTML)
+            // Obtener referencia al modal
             const modal = $('#movimientosCajaModal');
 
-            // Limpiar contenido previo
             modal.find('.modal-body').empty();
 
-            val = todosArraysVacios(jsonObject);
-            if (val) {
+            // Validar si todos los arrays están vacíos
+            if (todosArraysVacios(jsonObject)) {
                 modal.find('.modal-body').html('<p>No hay movimientos de caja para mostrar.</p>');
                 modal.modal('show');
                 return;
             }
 
-            // Construir el contenido HTML
+            // Construir HTML
             let html = `
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
-                        <thead class="thead-light">
-                        <tr>
-                            <th>Tipo de Movimiento</th>
-                            <th class="text-right">Monto</th>
-                            <th>Descripción</th>
-                        </tr>
-                        </thead>
-                    <tbody>`;
-
-            // Procesar cada tipo de movimiento
-            Object.entries(jsonObject).forEach(([tipo, datos]) => {
-                // Verificar si hay datos para este tipo (array no vacío)
-                if (datos.length > 0) {
-                    const [monto, descripcion] = datos;
-
-                    // Formatear el nombre del movimiento para mostrarlo más legible
-                    const nombreMovimiento = tipo.split('-').map(word =>
-                        word.charAt(0).toUpperCase() + word.slice(1)
-                    ).join(' ');
-
-                    html += `
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-light">
                 <tr>
-                    <td>${nombreMovimiento}</td>
-                    <td class="text-right">$${monto.toFixed(2)}</td>
-                    <td>${descripcion}</td>
-                </tr>`;
+                    <th>Tipo de Movimiento</th>
+                    <th class="text-right">Monto</th>
+                    <th>Descripción</th>
+                </tr>
+                </thead>
+                <tbody>
+    `;
+
+            // Procesar cada tipo
+            Object.entries(jsonObject).forEach(([tipo, datos]) => {
+
+                if (Array.isArray(datos) && datos.length > 0) {
+
+                    // Recorrer de 2 en 2
+                    for (let i = 0; i < datos.length; i += 2) {
+                        const monto = datos[i];
+                        const descripcion = datos[i + 1] ?? "";
+
+                        const nombreMovimiento = tipo
+                            .split('-')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ');
+
+                        html += `
+                    <tr>
+                        <td>${nombreMovimiento}</td>
+                        <td class="text-right">$${Number(monto).toFixed(2)}</td>
+                        <td>${descripcion}</td>
+                    </tr>
+                `;
+                    }
                 }
             });
 
             html += `
+                </tbody>
+            </table>
+        </div>
+    `;
 
-                        </tbody>
-                    </table>
-                </div>`;
-
-            // Insertar HTML en el modal
             modal.find('.modal-body').html(html);
-
-            // Mostrar el modal
             modal.modal('show');
         }
 

@@ -118,7 +118,7 @@ class clientesController extends Controller
     public function editarcliente(Request $request)
     {
         try {
-            $idcliente = intval(Crypt::decrypt($request->id));
+            $idcliente = $request->idcliente;
             $nuevo_nombre = $request->nombre;
             $idsucursal = intval(Crypt::decrypt($request->id_sucursal));
             $idprecio = intval(Crypt::decrypt($request->id_price));

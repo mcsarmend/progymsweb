@@ -55,6 +55,12 @@
                                 <button class="add-button" onclick="addInput('gastos-en-general-inputs')">Agregar</button>
                             </div>
                             <hr style="border: 1px solid #000;">
+                            <div class="concept-container" id="ajuste-cobros-container">
+                                <div class="concept-header">AJUSTE DE COBROS</div>
+                                <div class="inputs-container" id="ajuste-cobros-inputs"></div>
+                                <button class="add-button" onclick="addInput('ajuste-cobros-inputs')">Agregar</button>
+                            </div>
+                            <hr style="border: 1px solid #000;">
                         </div>
                         <div id="contenido-corte">
                             @foreach ($remisiones_por_pago as $forma_pago => $remisiones)
@@ -409,42 +415,52 @@
             let totalGeneral = 0;
             let totalEfectivo = 0;
 
-            // Variables para sumar valores
+            // Inputs adicionales
             let remesaRecibida = sumContainerInputs('remesa-recibida-container');
-            let otrasVentas = sumContainerInputs('otras-ventas-container');
             let remesaEntregada = sumContainerInputs('remesa-entregada-container');
+            let otrasVentas = sumContainerInputs('otras-ventas-container');
+            let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
+            let ajusteCobros = sumContainerInputs('ajuste-cobros-container');
+
+            // Totales desde PHP
             let totalPorEfectivo = parseFloat('{{ $totales_por_pago['efectivo'] ?? 0 }}');
             let totalPorTransferencia = parseFloat('{{ $totales_por_pago['transferencia'] ?? 0 }}');
             let totalPorTerminal = parseFloat('{{ $totales_por_pago['terminal'] ?? 0 }}');
             let totalPorClip = parseFloat('{{ $totales_por_pago['clip'] ?? 0 }}');
             let totalPorMercadoPago = parseFloat('{{ $totales_por_pago['mercado_pago'] ?? 0 }}');
             let totalPorVales = parseFloat('{{ $totales_por_pago['vales'] ?? 0 }}');
-            let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
 
-
-            // Cálculo de total general
-
-            totalGeneral =
-                remesaRecibida +
-                otrasVentas +
-                totalPorEfectivo +
+            // Total electrónico
+            let totalElectronico =
                 totalPorTransferencia +
                 totalPorTerminal +
                 totalPorClip +
                 totalPorMercadoPago +
                 totalPorVales;
 
+            // ------------------------------
+            //  TOTAL GENERAL
+            // ------------------------------
+            totalGeneral =
+                totalPorEfectivo +
+                totalElectronico;
 
-            total_electronico = totalPorTransferencia + totalPorTerminal + totalPorClip + totalPorMercadoPago +
-                totalPorVales
+            // ------------------------------
+            //  TOTAL EFECTIVO A ENTREGAR
+            // ------------------------------
+            totalEfectivo =
+                totalPorEfectivo + // efectivo normal
+                otrasVentas + // otras ventas
+                remesaRecibida - // suma remesa recibida
+                remesaEntregada - // resta remesa entregada
+                gastosEnGeneral + // suma remesa recibida
+                ajusteCobros;
 
-            // Cálculo de total efectivo
-            totalEfectivo = totalGeneral - remesaEntregada - gastosEnGeneral - total_electronico;
-
-            // Actualizar los valores en pantalla
+            // Mostrar en pantalla
             document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
             document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
         }
+
 
         function sumContainerInputs(containerId) {
             let total = 0;
@@ -453,5 +469,5 @@
             });
             return total;
         }
-</script>
+    </script>
 @stop

@@ -68,7 +68,6 @@ class reportesController extends Controller
             return $carry + ($item->costo * intval($item->totales));
         }, 0);
 
-
         return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes, 'total_costos' => $total_costos]);
     }
     public function productomovimiento()
@@ -83,6 +82,21 @@ class reportesController extends Controller
         $almacenes = warehouse::all();
         $products  = DB::select('CALL sp_reporteexistencias(0)');
         return view('reportes.remisiones.resumenventas', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes]);
+    }
+    public function ventascliente()
+    {
+        $type    = $this->gettype();
+        $clientes  = clients::select('clients.id', 'clients.nombre', 'clients.telefono', 'prices.nombre as precio')
+            ->leftJoin('prices', 'clients.precio', '=', 'prices.id')
+            ->get();
+
+        return view('reportes.remisiones.ventascliente', ['type' => $type, 'clientes' => $clientes ]);
+    }
+    public function ventasproducto()
+    {
+        $type     = $this->gettype();
+        $products = product::all();
+        return view('reportes.remisiones.ventasproducto', ['type' => $type, 'products' => $products]);
     }
 
     public function reporteclienteslista()
@@ -108,6 +122,88 @@ class reportesController extends Controller
         return view('proveedores.proveedores', ['type' => $type, 'suppliers' => $proveedores]);
     }
 
+    public function generarreporteventascliente(Request $request)
+    {
+        try {
+
+            $idcliente   = $request->idcliente ?? 0;
+            $fechainicio = $request->fechainicio ?? null;
+            $fechafin    = $request->fechafin ?? null;
+
+            $query = DB::table('referrals as r')
+                ->select(
+                    'r.fecha',
+                    'r.forma_pago',
+                    'r.total',
+                    'p.nombre as tipo_de_precio',
+                    'r.reparto',
+                    'c.nombre'
+                )
+                ->leftJoin('clients as c', 'r.cliente', '=', 'c.id')
+                ->leftJoin('prices as p', 'r.tipo_de_precio', '=', 'p.id')
+                ->where('c.id', $idcliente);
+
+            if ($fechainicio) {
+                $query->where('r.fecha', '>=', $fechainicio);
+            }
+            if ($fechafin) {
+                $query->where('r.fecha', '<=', $fechafin);
+            }
+
+            $remisiones = $query->get();
+
+            // ===================================================
+            // ================ ESTADÍSTICAS ======================
+            // ===================================================
+
+            // TOTAL VENDIDO
+            $total_vendido = $remisiones->sum('total');
+
+            // CANTIDAD DE REMISIONES
+            $cantidad_remisiones = $remisiones->count();
+
+
+
+            // VENTAS POR DÍA
+            $cantidadesPorDia = $remisiones->groupBy('fecha')->map(function ($grupo) {
+                return [
+                    'cantidad' => $grupo->count(),
+                    'total'    => $grupo->sum('total'),
+                ];
+            });
+
+
+
+            return response()->json([
+                'message'             => 'Reporte Generado Correctamente',
+                'remisiones'          => $remisiones,
+                'total_vendido'       => $total_vendido,
+                'cantidad_remisiones' => $cantidad_remisiones,
+                'cantidadesPorDia'    => $cantidadesPorDia,
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte: ' . $th->getMessage()], 500);
+        }
+    }
+
+    public function generarreporteventasproducto(Request $request)
+    {
+
+        try {
+            $sucursal = $request->sucursal ?? 0; // Default to 0 if not provided
+
+            $query = 'CALL sp_reporteexistencias(' . $sucursal . ')';
+
+            $products = DB::select($query);
+
+            return response()->json(['message' => 'Reporte Generado Correctamente', 'products' => $products], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
     public function reportesoloexistencias(Request $request)
     {
 

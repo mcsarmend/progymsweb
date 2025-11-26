@@ -422,7 +422,7 @@
                     }
                 },
                 excel: {
-                    exportOptions: {
+                    exportOptions: {wwwww
                         columns: ':visible'
                     }
                 },
@@ -432,6 +432,9 @@
                     },
                     {
                         "data": "vendedor"
+                    },
+                    {
+                        "data": "medio"
                     },
                     {
                         "data": "hora_entrada"

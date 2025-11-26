@@ -97,7 +97,7 @@ class asistenciasController extends Controller
             ->whereYear('a.fecha', $now->year)
             ->whereMonth('a.fecha', $now->month)
             ->whereNotNull('u.id')
-            ->groupBy('a.fecha', 'u.id', 'u.name','a.dispositivo')
+            ->groupBy('a.fecha', 'u.id', 'u.name', 'a.dispositivo')
             ->orderBy('a.fecha')
             ->get(); // Collection de stdClass
 
@@ -338,14 +338,21 @@ class asistenciasController extends Controller
                 "),
 
                     DB::raw("MIN(CASE WHEN a.evento = 'ENTRANCE' THEN a.hora END) AS hora_entrada"),
-                    DB::raw("MAX(CASE WHEN a.evento = 'EXIT' THEN a.hora END) AS hora_salida")
+                    DB::raw("MAX(CASE WHEN a.evento = 'EXIT' THEN a.hora END) AS hora_salida"),
+                    DB::raw("
+                                    CASE
+                                        WHEN a.dispositivo LIKE '%Windows NT%' THEN 'Computadora'
+                                        WHEN a.dispositivo LIKE '%Android%' THEN 'Celular'
+                                        ELSE 'Otro'
+                                    END AS medio
+                                ")
                 )
                 ->whereBetween('a.fecha', [$fecha_inicio, $fecha_fin])
                 ->when($id_empleado, function ($q) use ($id_empleado) {
                     return $q->where('u.id', $id_empleado);
                 })
                 ->whereNotNull('u.id')
-                ->groupBy('a.fecha', 'u.id', 'u.name')
+                ->groupBy('a.fecha', 'u.id', 'u.name', 'a.dispositivo')
                 ->orderBy('a.fecha')
                 ->get();
 

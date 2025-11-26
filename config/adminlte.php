@@ -688,6 +688,16 @@ return [
                             'url' => 'resumenventas',
                             'icon' => 'fas fa-chart-line',
                         ],
+                        [
+                            'text' => 'Ventas por Cliente',
+                            'url' => 'ventascliente',
+                            'icon' => 'fas fa-chart-line',
+                        ],
+                        [
+                            'text' => 'Ventas por Producto',
+                            'url' => 'ventasproducto',
+                            'icon' => 'fas fa-chart-line',
+                        ],
 
                     ],
                 ],

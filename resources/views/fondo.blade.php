@@ -165,6 +165,8 @@
                     }
                 });
 
+                $('a.nav-link[href$="cortedecajaespecial"]').closest('li').hide();
+                $('a[href*="edicioncliente"]').closest('li.nav-item').remove();
 
                 $('a.nav-link[href="https://gprogyms.com.mx/asistenciageneral"]').remove();
                 $('a.nav-link[href="https://gprogyms.com.mx/calendario"]').remove();
