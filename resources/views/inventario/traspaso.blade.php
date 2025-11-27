@@ -544,49 +544,31 @@
             res.columns.pop();
 
             doc.autoTable({
-                startY: nextY + 4, // o 38 en la segunda función, PERO la misma posición
-                head: [
-                    ['Código', 'Cantidad', 'Descripción']
-                ],
-                body: tableData, // o productos HTML
+                startY: 38,
+                head: [res.columns],
+                body: res.data,
                 styles: {
                     fontSize: 6,
-                    fontStyle: 'bold',
+                    fontStyle: "bold",
                     overflow: 'linebreak',
-                    cellPadding: 2
-                },
-                columnStyles: {
-                    0: {
-                        cellWidth: 25
-                    },
-                    1: {
-                        cellWidth: 20
-                    },
-                    2: {
-                        cellWidth: 120
-                    }
-                },
-                margin: {
-                    left: 10
+                    cellPadding: 2,
                 },
                 headStyles: {
-                    fillColor: [200, 200, 200],
+                    fillColor: null,
                     textColor: 0,
-                    fontStyle: 'bold'
+                },
+                bodyStyles: {
+                    fillColor: "#FFFFFF",
+                    textColor: 0,
+                },
+                margin: {
+                    left: 5,
+                    right: 5
                 }
             });
 
             doc.save(`traspaso_${documento}.pdf`);
             Swal.fire("Traspaso impreso!", "", "success");
-
-
-            setTimeout(function() {
-                window.location.reload();
-            }, 5000);
         }
-
-
-
-
     </script>
 @stop

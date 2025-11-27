@@ -137,7 +137,8 @@ class reportesController extends Controller
                     'r.total',
                     'p.nombre as tipo_de_precio',
                     'r.reparto',
-                    'c.nombre'
+                    'c.nombre',
+                    'r.id'
                 )
                 ->leftJoin('clients as c', 'r.cliente', '=', 'c.id')
                 ->leftJoin('prices as p', 'r.tipo_de_precio', '=', 'p.id')
