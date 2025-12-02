@@ -422,7 +422,7 @@
                     }
                 },
                 excel: {
-                    exportOptions: {wwwww
+                    exportOptions: {
                         columns: ':visible'
                     }
                 },

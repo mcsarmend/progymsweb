@@ -1,6 +1,8 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\brand;
+use App\Models\category;
 use App\Models\clients;
 use App\Models\product;
 use App\Models\stockMovements;
@@ -85,18 +87,20 @@ class reportesController extends Controller
     }
     public function ventascliente()
     {
-        $type    = $this->gettype();
-        $clientes  = clients::select('clients.id', 'clients.nombre', 'clients.telefono', 'prices.nombre as precio')
+        $type     = $this->gettype();
+        $clientes = clients::select('clients.id', 'clients.nombre', 'clients.telefono', 'prices.nombre as precio')
             ->leftJoin('prices', 'clients.precio', '=', 'prices.id')
             ->get();
 
-        return view('reportes.remisiones.ventascliente', ['type' => $type, 'clientes' => $clientes ]);
+        return view('reportes.remisiones.ventascliente', ['type' => $type, 'clientes' => $clientes]);
     }
     public function ventasproducto()
     {
-        $type     = $this->gettype();
-        $products = product::all();
-        return view('reportes.remisiones.ventasproducto', ['type' => $type, 'products' => $products]);
+        $type       = $this->gettype();
+        $categorias = category::all();
+        $marcas     = brand::all();
+
+        return view('reportes.remisiones.ventasproducto', ['type' => $type, 'categorias' => $categorias, 'marcas' => $marcas]);
     }
 
     public function reporteclienteslista()
@@ -125,7 +129,7 @@ class reportesController extends Controller
     public function generarreporteventascliente(Request $request)
     {
         try {
-
+            return $request;
             $idcliente   = $request->idcliente ?? 0;
             $fechainicio = $request->fechainicio ?? null;
             $fechafin    = $request->fechafin ?? null;
@@ -163,8 +167,6 @@ class reportesController extends Controller
             // CANTIDAD DE REMISIONES
             $cantidad_remisiones = $remisiones->count();
 
-
-
             // VENTAS POR DÍA
             $cantidadesPorDia = $remisiones->groupBy('fecha')->map(function ($grupo) {
                 return [
@@ -172,8 +174,6 @@ class reportesController extends Controller
                     'total'    => $grupo->sum('total'),
                 ];
             });
-
-
 
             return response()->json([
                 'message'             => 'Reporte Generado Correctamente',
@@ -191,20 +191,186 @@ class reportesController extends Controller
 
     public function generarreporteventasproducto(Request $request)
     {
-
         try {
-            $sucursal = $request->sucursal ?? 0; // Default to 0 if not provided
 
-            $query = 'CALL sp_reporteexistencias(' . $sucursal . ')';
+            $fechainicio = $request->fechainicio ?? null;
+            $fechafin    = $request->fechafin ?? null;
+            $marca       = $request->marcas ? strtok($request->marcas, ' ') : null;
+            $categoria   = $request->categorias ? strtok($request->categorias, ' ') : null;
 
-            $products = DB::select($query);
+            // ===================== CONSULTA BASE =====================
+            $query = DB::table('referrals as r')
+                ->select(
+                    'r.fecha',
+                    'r.forma_pago',
+                    'r.total',
+                    'p.nombre as tipo_de_precio',
+                    'r.reparto',
+                    'c.nombre as cliente_nombre',
+                    'r.id',
+                    'w.nombre as almacen_nombre', // ← CAMBIO
+                    'r.productos'
+                )
+                ->leftJoin('clients as c', 'r.cliente', '=', 'c.id')
+                ->leftJoin('prices as p', 'r.tipo_de_precio', '=', 'p.id')
+                ->leftJoin('warehouse as w', 'r.almacen', '=', 'w.id');
 
-            return response()->json(['message' => 'Reporte Generado Correctamente', 'products' => $products], 200);
+            if ($fechainicio) {
+                $query->where('r.fecha', '>=', $fechainicio);
+            }
+            if ($fechafin) {
+                $query->where('r.fecha', '<=', $fechafin);
+            }
+
+            $remisiones = $query->get();
+
+            // ==========================================================
+            //           ARMAR PRODUCTOS GLOBALES
+            // ==========================================================
+
+            $productosGlobal = [];
+
+            foreach ($remisiones as $r) {
+
+                $items = json_decode($r->productos, true);
+
+                if (! $items) {
+                    continue;
+                }
+
+                foreach ($items as $prod) {
+
+                    $codigo   = $prod["Codigo"];
+                    $cantidad = (int) $prod["Cantidad"];
+                    $nombre   = $prod["Nombre"];
+                    $almacen  = $r->almacen_nombre; // ← CAMBIO
+                    $cliente  = $r->cliente_nombre;
+
+                    // Crear si no existe
+                    if (! isset($productosGlobal[$codigo])) {
+                        $productosGlobal[$codigo] = [
+                            "codigo"         => $codigo,
+                            "nombre"         => $nombre,
+                            "cantidad_total" => 0,
+                            "almacenes"      => [], // almacén => cantidad
+                            "clientes"       => [], // clientes únicos
+                        ];
+                    }
+
+                    // Total global
+                    $productosGlobal[$codigo]["cantidad_total"] += $cantidad;
+
+                    // Cantidad por almacén
+                    if ($almacen) {
+                        $productosGlobal[$codigo]["almacenes"][$almacen] =
+                            ($productosGlobal[$codigo]["almacenes"][$almacen] ?? 0) + $cantidad;
+                    }
+
+                    // Cliente sin repetir
+                    if ($cliente) {
+                        $productosGlobal[$codigo]["clientes"][$cliente] = true;
+                    }
+                }
+            }
+
+            // Convertir clientes a array plano
+            foreach ($productosGlobal as &$p) {
+                $p["clientes"] = array_values(array_unique($p["clientes"]));
+            }
+
+            // Agregar marca y categoría a cada producto
+            foreach ($productosGlobal as $codigo => &$p) {
+                $producto = product::where('id', $codigo)->first();
+                if ($producto) {
+                    $p['marca']     = $producto->marca;
+                    $p['categoria'] = $producto->categoria;
+                } else {
+                    $p['marca']     = 'Desconocida';
+                    $p['categoria'] = 'Desconocida';
+                }
+            }
+            unset($p); // Romper referencia
+
+
+            //Aplicar filtros de marca y categoría
+            if ($marca) {
+                $productosGlobal = array_filter($productosGlobal, function ($p) use ($marca) {
+                    return $p['marca'] == $marca;
+                });
+            }
+
+            if ($categoria) {
+                $productosGlobal = array_filter($productosGlobal, function ($p) use ($categoria) {
+                    return $p['categoria'] == $categoria;
+                });
+            }
+
+
+            // ==========================================================
+            //      TOP 10 PRODUCTOS MÁS VENDIDOS
+            // ==========================================================
+
+            usort($productosGlobal, fn($a, $b) =>
+                $b["cantidad_total"] <=> $a["cantidad_total"]
+            );
+
+            $top10 = array_slice($productosGlobal, 0, 10);
+
+            // ==========================================================
+            //    LISTA DE ALMACENES ÚNICOS PARA LA GRÁFICA
+            // ==========================================================
+
+            $almacenes_unicos = [];
+
+            foreach ($top10 as $p) {
+                foreach ($p["almacenes"] as $alm => $cant) {
+                    $almacenes_unicos[$alm] = true;
+                }
+            }
+
+            $almacenes_unicos = array_keys($almacenes_unicos);
+
+            // ==========================================================
+            //   SERIES PARA HIGHCHARTS (UN PRODUCTO = UNA LÍNEA)
+            // ==========================================================
+
+            $series = [];
+
+            foreach ($top10 as $p) {
+
+                $serie = [
+                    "name" => $p["nombre"],
+                    "data" => [],
+                ];
+
+                // ordenar cifras según orden de almacenes
+                foreach ($almacenes_unicos as $alm) {
+                    $serie["data"][] = $p["almacenes"][$alm] ?? 0;
+                }
+
+                $series[] = $serie;
+            }
+
+            // ==========================================================
+            //     DATOS FINALES PARA EL BLADE
+            // ==========================================================
+
+            return response()->json([
+                'message'   => 'Reporte Generado Correctamente',
+                'top10'     => $top10,
+                'almacenes' => $almacenes_unicos,
+                'series'    => $series,
+                'clientes'  => array_column($top10, "clientes", "codigo"),
+            ], 200);
+
         } catch (\Throwable $th) {
 
-            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+            return response()->json([
+                'message' => 'Error al generar el reporte: ' . $th->getMessage(),
+            ], 500);
         }
     }
+
     public function reportesoloexistencias(Request $request)
     {
 
@@ -384,9 +550,8 @@ class reportesController extends Controller
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
         }
     }
-    public function
-
-    generarreportecortecaja(Request $request) {
+    public function generarreportecortecaja(Request $request)
+    {
         try {
             $timezone = 'America/Mexico_City';
 
