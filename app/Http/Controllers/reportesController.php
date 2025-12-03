@@ -206,12 +206,10 @@ class reportesController extends Controller
                     'r.total',
                     'p.nombre as tipo_de_precio',
                     'r.reparto',
-                    'c.nombre as cliente_nombre',
                     'r.id',
                     'w.nombre as almacen_nombre', // ← CAMBIO
                     'r.productos'
                 )
-                ->leftJoin('clients as c', 'r.cliente', '=', 'c.id')
                 ->leftJoin('prices as p', 'r.tipo_de_precio', '=', 'p.id')
                 ->leftJoin('warehouse as w', 'r.almacen', '=', 'w.id');
 
@@ -244,7 +242,7 @@ class reportesController extends Controller
                     $cantidad = (int) $prod["Cantidad"];
                     $nombre   = $prod["Nombre"];
                     $almacen  = $r->almacen_nombre; // ← CAMBIO
-                    $cliente  = $r->cliente_nombre;
+
 
                     // Crear si no existe
                     if (! isset($productosGlobal[$codigo])) {
@@ -253,7 +251,6 @@ class reportesController extends Controller
                             "nombre"         => $nombre,
                             "cantidad_total" => 0,
                             "almacenes"      => [], // almacén => cantidad
-                            "clientes"       => [], // clientes únicos
                         ];
                     }
 
@@ -266,17 +263,10 @@ class reportesController extends Controller
                             ($productosGlobal[$codigo]["almacenes"][$almacen] ?? 0) + $cantidad;
                     }
 
-                    // Cliente sin repetir
-                    if ($cliente) {
-                        $productosGlobal[$codigo]["clientes"][$cliente] = true;
-                    }
+
                 }
             }
 
-            // Convertir clientes a array plano
-            foreach ($productosGlobal as &$p) {
-                $p["clientes"] = array_values(array_unique($p["clientes"]));
-            }
 
             // Agregar marca y categoría a cada producto
             foreach ($productosGlobal as $codigo => &$p) {
@@ -360,7 +350,7 @@ class reportesController extends Controller
                 'top10'     => $top10,
                 'almacenes' => $almacenes_unicos,
                 'series'    => $series,
-                'clientes'  => array_column($top10, "clientes", "codigo"),
+                'productos' => $productosGlobal,
             ], 200);
 
         } catch (\Throwable $th) {

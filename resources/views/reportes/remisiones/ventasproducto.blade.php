@@ -18,7 +18,7 @@
 
                 <div class="d-flex flex-column">
                     <label class="mb-1">Categorías</label>
-                    <input list="listacategorias" id="categorias" name="categorias" class="form-control" >
+                    <input list="listacategorias" id="categorias" name="categorias" class="form-control">
                     <datalist id="listacategorias">
                         @foreach ($categorias as $c)
                             <option value="{{ $c->id }} - {{ $c->nombre }}"></option>
@@ -28,7 +28,7 @@
 
                 <div class="d-flex flex-column">
                     <label class="mb-1">Marcas</label>
-                    <input list="listamarcas" id="marcas" name="marcas" class="form-control" >
+                    <input list="listamarcas" id="marcas" name="marcas" class="form-control">
                     <datalist id="listamarcas">
                         @foreach ($marcas as $m)
                             <option value="{{ $m->id }} - {{ $m->nombre }}"></option>
@@ -66,6 +66,9 @@
                 <h3 class="text-center">Ventas por Producto y Almacén</h3>
                 <div id="graficaSucursales" style="height: 420px;"></div>
             </div>
+
+            <br>
+            <button id="exportar"  class="btn btn-primary">Exportar Excel</button>
         </div>
     </div>
 
@@ -77,7 +80,7 @@
     <script src="https://code.highcharts.com/highcharts.js"></script>
 
     <script>
-        // ========================== FORM ==========================
+        excelproductos = [];
         $('#formReporte').on('submit', function(e) {
             e.preventDefault();
 
@@ -90,12 +93,14 @@
                 },
                 success: function(res) {
 
-                    renderTop10(res.top10, res.clientes);
+                    renderTop10(res.top10);
 
                     renderGraficaSucursales(
                         res.almacenes,
                         res.series
                     );
+
+                    excelproductos = res.productos;
                 }
             });
         });
@@ -103,23 +108,21 @@
         // ==============================================================
         //                     TOP 10 PRODUCTOS
         // ==============================================================
-        function renderTop10(top10, clientesData) {
+        function renderTop10(top10) {
 
             let html = "";
             let fontSize = 40;
 
             top10.forEach((p, index) => {
 
-                let clientes = clientesData[p.codigo]
-                    .map(c => `<span class="badge bg-info text-dark me-1">${c}</span>`)
-                    .join('');
+
 
                 html += `
                     <div class="p-3 mb-3 border rounded shadow"
                         style="font-size:${fontSize}px; background:#f7f7f7;">
 
                         <strong>${index+1}. ${p.nombre}</strong>
-                        <span class="text-primary">(${p.cantidad_total} ventas)</span>
+                        <span class="text-primary">(${p.cantidad_total} unidades vendidas)</span>
 
                     </div>
                 `;
@@ -166,5 +169,37 @@
                 series: series
             });
         }
+
+
+        $("#exportar").on("click", function() {
+
+            // 1. Obtener todas las columnas de almacenes
+            let almacenesColumnas = new Set();
+            excelproductos.forEach(item => {
+                Object.keys(item.almacenes).forEach(a => almacenesColumnas.add(a));
+            });
+            almacenesColumnas = Array.from(almacenesColumnas);
+
+            // 2. Convertir a filas planas
+            let rows = excelproductos.map(item => {
+                let row = {
+                    codigo: item.codigo,
+                    nombre: item.nombre,
+                    marca: item.marca,
+                    categoria: item.categoria,
+                    cantidad_total: item.cantidad_total
+                };
+                almacenesColumnas.forEach(a => {
+                    row[a] = item.almacenes[a] ?? 0;
+                });
+                return row;
+            });
+
+            // 3. Crear Excel
+            let worksheet = XLSX.utils.json_to_sheet(rows);
+            let workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte");
+            XLSX.writeFile(workbook, "reporte.xlsx");
+        });
     </script>
 @stop
