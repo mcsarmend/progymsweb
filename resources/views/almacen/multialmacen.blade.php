@@ -29,10 +29,9 @@
                                 <th>Frecuente</th>
                                 <th>Mayoreo</th>
                                 <th>Distribuidor</th>
-                                <th>Black</th>
                                 <th>Platinum</th>
                                 <th>Existencias Totales</th>
-                                <th>Almacèn Principal</th>
+                                <th>Almacén Principal</th>
                                 <th>Viveros</th>
                                 <th>TownCenter</th>
                                 <th>Coacalco</th>
@@ -149,15 +148,7 @@
                             return '$' + data;
                         }
                     },
-                    {
-                        "data": "black",
-                        "render": function(data) {
-                            if (data == 0 || data == "0") {
-                                return 'NO APLICA';
-                            }
-                            return '$' + data;
-                        }
-                    },
+
                     {
                         "data": "platinum",
                         "render": function(data) {

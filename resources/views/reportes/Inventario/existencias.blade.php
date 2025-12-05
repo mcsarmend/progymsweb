@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Multialmacén')
+@section('title', 'Existencias y Costos')
 
 @section('content_header')
 
@@ -16,9 +16,7 @@
                     <h1>Precios y existencias</h1>
                 </div>
                 <div class="card-body">
-                    <div class="col-auto">
-                        <p>Selecciona el almacen del que quieres obtener sus existencias</p>
-                    </div>
+
                     <form method="POST" id="existencias_form">
                         @csrf
                         <div class="row justify-content-center align-items-center text-center">
@@ -43,7 +41,7 @@
                     <div class="col-12 col-md-6 mb-3 mx-auto">
                         <div class="card bg-primary text-white shadow h-100">
                             <div class="card-body text-center">
-                                <h3><i class="fas fa-dollar-sign"></i> Total Costos</h3>
+                                <h3><i class=""></i> Total Costos</h3>
                                 <h1 id="total_costos" class="display-4" style="color: #00ffa6;">$0.00</h1>
                             </div>
                         </div>
@@ -61,7 +59,6 @@
                                 <th>Frecuente</th>
                                 <th>Mayoreo</th>
                                 <th>Distribuidor</th>
-                                <th>Black</th>
                                 <th>Platinum</th>
                                 <th>Existencias Totales</th>
                                 <th>Almacèn Principal</th>
@@ -186,12 +183,6 @@
                     },
                     {
                         "data": "distribuidor",
-                        "render": function(data, type, row) {
-                            return '$' + data;
-                        }
-                    },
-                    {
-                        "data": "black",
                         "render": function(data, type, row) {
                             return '$' + data;
                         }

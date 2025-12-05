@@ -16,6 +16,8 @@ use App\Http\Controllers\reportesController;
 use App\Http\Controllers\usersController;
 use App\Http\Controllers\vendedorController;
 use App\Http\Controllers\ventasController;
+use App\Http\Controllers\marcasController;
+use App\Http\Controllers\categoriasController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -124,6 +126,32 @@ Route::get('verdireccioncliente', [clientesController::class, 'verdireccionclien
 Route::post('crearcliente', [clientesController::class, 'crearcliente'])->middleware(['auth']);
 Route::post('eliminarcliente', [clientesController::class, 'eliminarcliente'])->middleware(['auth']);
 Route::post('editarcliente', [clientesController::class, 'editarcliente'])->middleware(['auth']);
+
+//MARCAS
+Route::get('marcas', [marcasController::class, 'marcas'])->middleware(['auth']);
+Route::get('altamarca', [marcasController::class, 'altamarca'])->middleware(['auth']);
+Route::get('bajamarca', [marcasController::class, 'bajamarca'])->middleware(['auth']);
+Route::get('edicionmarca', [marcasController::class, 'edicionmarca'])->middleware(['auth']);
+
+
+Route::post('crearmarca', [marcasController::class, 'crearmarca'])->middleware(['auth']);
+Route::post('eliminarmarca', [marcasController::class, 'eliminarmarca'])->middleware(['auth']);
+Route::post('editarmarca', [marcasController::class, 'editarmarca'])->middleware(['auth']);
+
+
+//CATEGORIAS
+Route::get('categorias', [categoriasController::class, 'categorias'])->middleware(['auth']);
+Route::get('altacategoria', [categoriasController::class, 'altacategoria'])->middleware(['auth']);
+Route::get('bajacategoria', [categoriasController::class, 'bajacategoria'])->middleware(['auth']);
+Route::get('edicioncategoria', [categoriasController::class, 'edicioncategoria'])->middleware(['auth']);
+
+
+Route::post('crearcategoria', [categoriasController::class, 'crearcategoria'])->middleware(['auth']);
+Route::post('eliminarcategoria', [categoriasController::class, 'eliminarcategoria'])->middleware(['auth']);
+Route::post('editarcategoria', [categoriasController::class, 'editarcategoria'])->middleware(['auth']);
+
+
+
 
 //PROVEEDORES
 Route::get('proveedores', [proveedoresController::class, 'proveedores'])->middleware(['auth']);

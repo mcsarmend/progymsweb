@@ -129,7 +129,6 @@ class reportesController extends Controller
     public function generarreporteventascliente(Request $request)
     {
         try {
-            return $request;
             $idcliente   = $request->idcliente ?? 0;
             $fechainicio = $request->fechainicio ?? null;
             $fechafin    = $request->fechafin ?? null;

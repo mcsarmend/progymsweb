@@ -505,7 +505,60 @@ return [
             ],
 
         ],
-
+        [
+            'text'    => 'Marcas',
+            'icon'    => 'fas fa-tags',
+            'url'     => '#',
+            'submenu' => [
+                [
+                    'text' => 'Alta',
+                    'url'  => 'altamarca',
+                    'icon' => 'fas fa-plus-square',
+                ],
+                [
+                    'text' => 'Baja',
+                    'url'  => 'bajamarca',
+                    'icon' => 'fas fa-minus-square',
+                ],
+                [
+                    'text' => 'Edicion',
+                    'url'  => 'edicionmarca',
+                    'icon' => 'fas fa-edit',
+                ],
+                [
+                    'text' => 'Lista',
+                    'url'  => 'marcas',
+                    'icon' => 'fas fa-tags',
+                ],
+            ],
+        ],
+                [
+            'text'    => 'Categorias',
+            'icon'    => 'fas fa-layer-group',
+            'url'     => '#',
+            'submenu' => [
+                [
+                    'text' => 'Alta',
+                    'url'  => 'altacategoria',
+                    'icon' => 'fas fa-plus-square',
+                ],
+                [
+                    'text' => 'Baja',
+                    'url'  => 'bajacategoria',
+                    'icon' => 'fas fa-minus-square',
+                ],
+                [
+                    'text' => 'Edicion',
+                    'url'  => 'edicioncategoria',
+                    'icon' => 'fas fa-edit',
+                ],
+                [
+                    'text' => 'Lista',
+                    'url'  => 'categorias',
+                    'icon' => 'fas fa-layer-group',
+                ],
+            ],
+        ],
         [
             'text'    => 'Proveedores',
             'icon'    => 'fas fa-truck-loading',

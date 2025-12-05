@@ -548,7 +548,7 @@
                 head: [res.columns],
                 body: res.data,
                 styles: {
-                    fontSize: 6,
+                    fontSize: 10,
                     fontStyle: "bold",
                     overflow: 'linebreak',
                     cellPadding: 2,
