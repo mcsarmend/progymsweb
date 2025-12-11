@@ -504,14 +504,14 @@
             </thead>
             <tbody>
                 ${productos.map(p => `
-                                                                                    <tr>
-                                                                                        <td>${p.codigo || ''}</td>
-                                                                                        <td>${p.cantidad || ''}</td>
-                                                                                        <td>${p.descripcion || ''}</td>
-                                                                                        <td>${p.precio ? '$' + p.precio: ''}</td>
-                                                                                        <td>${p.total ? '$' + p.total : ''}</td>
-                                                                                    </tr>
-                                                                                `).join('')}
+                                                                                        <tr>
+                                                                                            <td>${p.codigo || ''}</td>
+                                                                                            <td>${p.cantidad || ''}</td>
+                                                                                            <td>${p.descripcion || ''}</td>
+                                                                                            <td>${p.precio ? '$' + p.precio: ''}</td>
+                                                                                            <td>${p.total ? '$' + p.total : ''}</td>
+                                                                                        </tr>
+                                                                                    `).join('')}
                 <tr>
                     <td colspan="4" style="text-align: right;">TOTAL:</td>
                     <td>$${total ? total.toFixed(2) : '0.00'}</td>
@@ -568,7 +568,18 @@
             doc.text('después de la fecha de compra.', 10, doc.autoTable.previous.finalY + 20);
 
             // Guardar PDF
-            doc.save(`remision_${numeroRemision}.pdf`);
+            // Convertir a blob y abrir en una nueva pestaña para imprimir
+            const pdfBlob = doc.output('blob');
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+
+            // Abrir en otra pestaña
+            const printWindow = window.open(pdfUrl);
+
+            // Esperar un poco para asegurar que cargue y mandar imprimir
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+
             Swal.fire('Ticket impreso!', '', 'success');
         }
     </script>

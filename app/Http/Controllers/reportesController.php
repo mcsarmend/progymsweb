@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\backup_warehouse;
 use App\Models\brand;
 use App\Models\category;
 use App\Models\clients;
@@ -125,13 +126,87 @@ class reportesController extends Controller
         $type        = $this->gettype();
         return view('proveedores.proveedores', ['type' => $type, 'suppliers' => $proveedores]);
     }
+    public function reportehistoricoinventario()
+    {
+        $proveedores = supplier::all();
+        $type        = $this->gettype();
+        return view('reportes.inventario.historicoinventario', ['type' => $type, 'suppliers' => $proveedores]);
+    }
 
+    public function generarreportehistorico(Request $request)
+    {
+        try {
+            $fechainicio = ($request->fechainicio ?? null)
+                ? $request->fechainicio . ' 00:00:00'
+                : null;
+
+            $fechafin = ($request->fechafin ?? null)
+                ? $request->fechafin . ' 23:59:59'
+                : null;
+
+
+            $query = backup_warehouse::query()
+                ->select(
+                    'id',
+                    'fecha',
+                    'total_compra',
+                    'total_productos'
+                );
+
+            if ($fechainicio) {
+                $query->where('fecha', '>=', $fechainicio);
+            }
+            if ($fechafin) {
+                $query->where('fecha', '<=', $fechafin);
+            }
+            $historico = $query->get();
+
+            return response()->json([
+                'message'   => 'Reporte Generado Correctamente',
+                'historico' => $historico,
+
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte: ' . $th->getMessage()], 500);
+        }
+    }
+    public function verproductoshistorico(Request $request)
+    {
+        try {
+
+            $query = backup_warehouse::query()
+                ->select(
+                    'datos',
+                    'fecha'
+                )
+                ->where('id', $request->id);
+
+            $products = $query->get();
+
+            return response()->json([
+                'message' => 'Reporte Generado Correctamente',
+                'data'    => $products,
+
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte: ' . $th->getMessage()], 500);
+        }
+    }
     public function generarreporteventascliente(Request $request)
     {
         try {
             $idcliente   = $request->idcliente ?? 0;
-            $fechainicio = $request->fechainicio ?? null;
-            $fechafin    = $request->fechafin ?? null;
+            $fechainicio = ($request->fechainicio ?? null)
+                ? $request->fechainicio . ' 00:00:00'
+                : null;
+
+            $fechafin = ($request->fechafin ?? null)
+                ? $request->fechafin . ' 23:59:59'
+                : null;
 
             $query = DB::table('referrals as r')
                 ->select(
@@ -192,8 +267,13 @@ class reportesController extends Controller
     {
         try {
 
-            $fechainicio = $request->fechainicio ?? null;
-            $fechafin    = $request->fechafin ?? null;
+            $fechainicio = ($request->fechainicio ?? null)
+                ? $request->fechainicio . ' 00:00:00'
+                : null;
+
+            $fechafin = ($request->fechafin ?? null)
+                ? $request->fechafin . ' 23:59:59'
+                : null;
             $marca       = $request->marcas ? strtok($request->marcas, ' ') : null;
             $categoria   = $request->categorias ? strtok($request->categorias, ' ') : null;
 
@@ -242,7 +322,6 @@ class reportesController extends Controller
                     $nombre   = $prod["Nombre"];
                     $almacen  = $r->almacen_nombre; // ← CAMBIO
 
-
                     // Crear si no existe
                     if (! isset($productosGlobal[$codigo])) {
                         $productosGlobal[$codigo] = [
@@ -262,10 +341,8 @@ class reportesController extends Controller
                             ($productosGlobal[$codigo]["almacenes"][$almacen] ?? 0) + $cantidad;
                     }
 
-
                 }
             }
-
 
             // Agregar marca y categoría a cada producto
             foreach ($productosGlobal as $codigo => &$p) {
@@ -280,7 +357,6 @@ class reportesController extends Controller
             }
             unset($p); // Romper referencia
 
-
             //Aplicar filtros de marca y categoría
             if ($marca) {
                 $productosGlobal = array_filter($productosGlobal, function ($p) use ($marca) {
@@ -293,7 +369,6 @@ class reportesController extends Controller
                     return $p['categoria'] == $categoria;
                 });
             }
-
 
             // ==========================================================
             //      TOP 10 PRODUCTOS MÁS VENDIDOS
@@ -383,6 +458,9 @@ class reportesController extends Controller
 
             $dateStart = Carbon::parse($request->fechainicio)->startOfDay();
             $dateEnd   = Carbon::parse($request->fechafin)->endOfDay();
+
+
+
             $sucursal  = $request->sucursal;
 
             $query = DB::table('referrals as r')

@@ -234,6 +234,7 @@ Route::get('reporteinventarioexistenciascostos', [reportesController::class, 're
 Route::get('reporteclienteslista', [reportesController::class, 'reporteclienteslista'])->middleware(['auth']);
 Route::get('reporteclientescompras', [reportesController::class, 'reporteclientescompras'])->middleware(['auth']);
 Route::get('reporteproveedoreslista', [reportesController::class, 'reporteproveedoreslista'])->middleware(['auth']);
+Route::get('reportehistoricoinventario', [reportesController::class, 'reportehistoricoinventario'])->middleware(['auth']);
 Route::get('verproductosmovimiento', [reportesController::class, 'verproductosmovimiento'])->middleware(['auth']);
 Route::get('reportecortecaja', [reportesController::class, 'reportecortecaja'])->middleware(['auth']);
 Route::get('productomovimiento', [reportesController::class, 'productomovimiento'])->middleware(['auth']);
@@ -252,6 +253,8 @@ Route::get('generarreportetraspasos', [reportesController::class, 'generarreport
 Route::get('generarreportemermas', [reportesController::class, 'generarreportemermas'])->middleware(['auth']);
 Route::get('generarreporteentradas', [reportesController::class, 'generarreporteentradas'])->middleware(['auth']);
 Route::get('generarreportesalidas', [reportesController::class, 'generarreportesalidas'])->middleware(['auth']);
+Route::get('generarreportehistorico', [reportesController::class, 'generarreportehistorico'])->middleware(['auth']);
+Route::get('verproductoshistorico', [reportesController::class, 'verproductoshistorico'])->middleware(['auth']);
 
 Route::post('generarreporteventascliente', [reportesController::class, 'generarreporteventascliente'])->middleware(['auth']);
 Route::post('generarreporteventasproducto', [reportesController::class, 'generarreporteventasproducto'])->middleware(['auth']);

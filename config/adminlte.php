@@ -724,6 +724,11 @@ return [
                             'url'  => 'productomovimiento',
                             'icon' => 'fas fa-exchange-alt',
                         ],
+                        [
+                            'text' => 'Historico de Inventario',
+                            'url'  => 'reportehistoricoinventario',
+                            'icon' => 'fas fa-history',
+                        ],
 
                     ],
                 ],

@@ -650,12 +650,14 @@
                     var cliente = $('#cliente').val();
                     var forma_pago = $('#metodo_pago').val();
                     var $productoTableClone2 = $('#productos').clone();
-                    var reparto =   $('#reparto').is(':checked') ? 1 : 0;
+                    var reparto = $('#reparto').is(':checked') ? 1 : 0;
                     var vendedor_reparto = $('#vendedor_reparto').val();
-                    var tipo_tarjeta = $('#tipo_tarjeta').val()==undefined ? "" : $('#tipo_tarjeta').val();
+                    var tipo_tarjeta = $('#tipo_tarjeta').val() == undefined ? "" : $('#tipo_tarjeta')
+                .val();
 
                     numeroRemision = validarRemision(
-                        idsucursal, hora, nota, vendedor, cliente, forma_pago, $productoTableClone2,reparto,vendedor_reparto,tipo_tarjeta
+                        idsucursal, hora, nota, vendedor, cliente, forma_pago, $productoTableClone2,
+                        reparto, vendedor_reparto, tipo_tarjeta
                     );
                 }
             });
@@ -713,7 +715,8 @@
             });
         });
 
-        function validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago, numeroRemision,reparto,vendedor_reparto,tipo_tarjeta ) {
+        function validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago, numeroRemision, reparto,
+            vendedor_reparto, tipo_tarjeta) {
 
             var $productoTableClone = $('#productosClone').clone();
 
@@ -855,7 +858,20 @@
                                 'después de la fecha de compra.',
                                 10, doc.autoTable.previous.finalY + 20);
                             // Guardar y mostrar el PDF
-                            doc.save(`remision_${numeroRemision}.pdf`);
+                            // Convertir a blob y abrir en una nueva pestaña para imprimir
+                            const pdfBlob = doc.output('blob');
+                            const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                            // Abrir en otra pestaña
+                            const printWindow = window.open(pdfUrl);
+
+                            // Esperar un poco para asegurar que cargue y mandar imprimir
+                            printWindow.onload = function() {
+                                printWindow.print();
+                            };
+
+
+
                             Swal.fire('Ticket impreso!', '', 'success');
 
                             setTimeout(function() {

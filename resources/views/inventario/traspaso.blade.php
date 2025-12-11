@@ -567,7 +567,18 @@
                 }
             });
 
-            doc.save(`traspaso_${documento}.pdf`);
+            // Convertir a blob y abrir en una nueva pestaña para imprimir
+            const pdfBlob = doc.output('blob');
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+
+            // Abrir en otra pestaña
+            const printWindow = window.open(pdfUrl);
+
+            // Esperar un poco para asegurar que cargue y mandar imprimir
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+
             Swal.fire("Traspaso impreso!", "", "success");
         }
     </script>
