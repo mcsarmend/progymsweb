@@ -341,18 +341,48 @@ return [
                         ],
                     ],
                 ],
-                // [
-                //     'text' => 'Pedidos',
-                //     'icon' => 'fas fa-shopping-cart',
-                //     'url' => '#',
-                //     'submenu' => [
-                //         [
-                //             'text' => 'Nuevo',
-                //             'icon' => 'fas fa-plus-circle',
-                //             'url' => 'altapedidos',
-                //         ],
-                //     ],
-                // ],
+                [
+                    'text'    => 'Pedidos',
+                    'icon'    => 'fas fa-shopping-cart',
+                    'url'     => '#',
+                    'submenu' => [
+                        [
+                            'text' => 'Nuevo',
+                            'icon' => 'fas fa-plus-circle',
+                            'url'  => 'pedidosnuevo',
+                        ],
+                        [
+                            'text' => 'Selección',
+                            'icon' => 'fas fa-check-circle',
+                            'url'  => 'pedidosseleccionar',
+                        ],
+                        [
+                            'text' => 'Ver',
+                            'icon' => 'fas fa-eye',
+                            'url'  => 'pedidosver',
+                        ],
+                        [
+                            'text' => 'Ruta',
+                            'icon' => 'fas fa-route',
+                            'url'  => 'pedidosruta',
+                        ],
+                        [
+                            'text' => 'Reporte',
+                            'icon' => 'fas fa-file-alt',
+                            'url'  => 'pedidosreporte',
+                        ],
+                        [
+                            'text' => 'Cancelar',
+                            'icon' => 'fas fa-times-circle',
+                            'url'  => 'pedidoscancelar',
+                        ],
+                        [
+                            'text' => 'Remisionar',
+                            'icon' => 'fas fa-file-invoice',
+                            'url'  => 'pedidosremisionar',
+                        ],
+                    ],
+                ],
             ],
         ],
         [
@@ -532,7 +562,7 @@ return [
                 ],
             ],
         ],
-                [
+        [
             'text'    => 'Categorias',
             'icon'    => 'fas fa-layer-group',
             'url'     => '#',

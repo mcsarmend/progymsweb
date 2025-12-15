@@ -71,13 +71,24 @@ Route::get('cortedecajaespecial', [ventasController::class, 'cortedecajaespecial
 
 Route::post('infocortecaja', [ventasController::class, 'infocortecaja'])->middleware(['auth']);
 Route::post('enviarinfocortecaja', [ventasController::class, 'enviarinfocortecaja'])->middleware(['auth']);
-
-
 Route::post('buscarprecio', [ventasController::class, 'buscarprecio'])->middleware(['auth']);
 Route::post('buscaridprecio', [ventasController::class, 'buscaridprecio'])->middleware(['auth']);
 Route::post('buscarexistencias', [ventasController::class, 'buscarexistencias'])->middleware(['auth']);
 Route::post('validarremision', [ventasController::class, 'validarremision'])->middleware(['auth']);
 Route::post('cancelarremision', [ventasController::class, 'cancelarremision'])->middleware(['auth']);
+
+
+// PEDIDOS
+
+Route::get('pedidosnuevo', [pedidosController::class, 'pedidosnuevo'])->middleware(['auth']);
+Route::get('pedidosseleccionar', [pedidosController::class, 'pedidosseleccionar'])->middleware(['auth']);
+Route::get('pedidosver', [pedidosController::class, 'pedidosver'])->middleware(['auth']);
+Route::get('pedidosruta', [pedidosController::class, 'pedidosruta'])->middleware(['auth']);
+Route::get('pedidosreporte', [pedidosController::class, 'pedidosreporte'])->middleware(['auth']);
+Route::get('pedidoscancelar', [pedidosController::class, 'pedidoscancelar'])->middleware(['auth']);
+Route::get('pedidosremisionar', [pedidosController::class, 'pedidosremisionar'])->middleware(['auth']);
+
+Route::post('infocortecaja', [pedidosController::class, 'infocortecaja'])->middleware(['auth']);
 
 //ALMACEN
 Route::get('multialmacen', [multialmacenController::class, 'multialmacen'])->middleware(['auth']);
