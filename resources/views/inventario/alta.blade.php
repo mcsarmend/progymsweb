@@ -25,7 +25,7 @@
 
                     <div class="col">
                         <label for="name">Codigo de Barras:</label>
-                        <input type="text" name="codigo" required minlength="12" maxlength="12" class="form-control"
+                        <input type="text" name="codigo" required minlength="11" maxlength="12" class="form-control"
                             placeholder="">
                         <br>
 

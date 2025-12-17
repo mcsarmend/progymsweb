@@ -1,7 +1,6 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\backup_warehouse;
 use App\Models\brand;
 use App\Models\category;
 use App\Models\clients;
@@ -126,87 +125,14 @@ class reportesController extends Controller
         $type        = $this->gettype();
         return view('proveedores.proveedores', ['type' => $type, 'suppliers' => $proveedores]);
     }
-    public function reportehistoricoinventario()
-    {
-        $proveedores = supplier::all();
-        $type        = $this->gettype();
-        return view('reportes.inventario.historicoinventario', ['type' => $type, 'suppliers' => $proveedores]);
-    }
 
-    public function generarreportehistorico(Request $request)
-    {
-        try {
-            $fechainicio = ($request->fechainicio ?? null)
-                ? $request->fechainicio . ' 00:00:00'
-                : null;
-
-            $fechafin = ($request->fechafin ?? null)
-                ? $request->fechafin . ' 23:59:59'
-                : null;
-
-
-            $query = backup_warehouse::query()
-                ->select(
-                    'id',
-                    'fecha',
-                    'total_compra',
-                    'total_productos'
-                );
-
-            if ($fechainicio) {
-                $query->where('fecha', '>=', $fechainicio);
-            }
-            if ($fechafin) {
-                $query->where('fecha', '<=', $fechafin);
-            }
-            $historico = $query->get();
-
-            return response()->json([
-                'message'   => 'Reporte Generado Correctamente',
-                'historico' => $historico,
-
-            ], 200);
-
-        } catch (\Throwable $th) {
-
-            return response()->json(['message' => 'Error al generar el reporte: ' . $th->getMessage()], 500);
-        }
-    }
-    public function verproductoshistorico(Request $request)
-    {
-        try {
-
-            $query = backup_warehouse::query()
-                ->select(
-                    'datos',
-                    'fecha'
-                )
-                ->where('id', $request->id);
-
-            $products = $query->get();
-
-            return response()->json([
-                'message' => 'Reporte Generado Correctamente',
-                'data'    => $products,
-
-            ], 200);
-
-        } catch (\Throwable $th) {
-
-            return response()->json(['message' => 'Error al generar el reporte: ' . $th->getMessage()], 500);
-        }
-    }
     public function generarreporteventascliente(Request $request)
     {
         try {
-            $idcliente   = $request->idcliente ?? 0;
-            $fechainicio = ($request->fechainicio ?? null)
-                ? $request->fechainicio . ' 00:00:00'
-                : null;
 
-            $fechafin = ($request->fechafin ?? null)
-                ? $request->fechafin . ' 23:59:59'
-                : null;
+            $idcliente   = $request->idcliente ?? 0;
+            $fechainicio = $request->fechainicio ?? null;
+            $fechafin    = $request->fechafin ?? null;
 
             $query = DB::table('referrals as r')
                 ->select(
@@ -267,13 +193,8 @@ class reportesController extends Controller
     {
         try {
 
-            $fechainicio = ($request->fechainicio ?? null)
-                ? $request->fechainicio . ' 00:00:00'
-                : null;
-
-            $fechafin = ($request->fechafin ?? null)
-                ? $request->fechafin . ' 23:59:59'
-                : null;
+            $fechainicio = $request->fechainicio ?? null;
+            $fechafin    = $request->fechafin ?? null;
             $marca       = $request->marcas ? strtok($request->marcas, ' ') : null;
             $categoria   = $request->categorias ? strtok($request->categorias, ' ') : null;
 
@@ -322,6 +243,7 @@ class reportesController extends Controller
                     $nombre   = $prod["Nombre"];
                     $almacen  = $r->almacen_nombre; // ← CAMBIO
 
+
                     // Crear si no existe
                     if (! isset($productosGlobal[$codigo])) {
                         $productosGlobal[$codigo] = [
@@ -341,8 +263,10 @@ class reportesController extends Controller
                             ($productosGlobal[$codigo]["almacenes"][$almacen] ?? 0) + $cantidad;
                     }
 
+
                 }
             }
+
 
             // Agregar marca y categoría a cada producto
             foreach ($productosGlobal as $codigo => &$p) {
@@ -357,6 +281,7 @@ class reportesController extends Controller
             }
             unset($p); // Romper referencia
 
+
             //Aplicar filtros de marca y categoría
             if ($marca) {
                 $productosGlobal = array_filter($productosGlobal, function ($p) use ($marca) {
@@ -369,6 +294,7 @@ class reportesController extends Controller
                     return $p['categoria'] == $categoria;
                 });
             }
+
 
             // ==========================================================
             //      TOP 10 PRODUCTOS MÁS VENDIDOS
@@ -458,9 +384,6 @@ class reportesController extends Controller
 
             $dateStart = Carbon::parse($request->fechainicio)->startOfDay();
             $dateEnd   = Carbon::parse($request->fechafin)->endOfDay();
-
-
-
             $sucursal  = $request->sucursal;
 
             $query = DB::table('referrals as r')
@@ -679,6 +602,7 @@ class reportesController extends Controller
                                         WHEN stock_movements.movimiento = 'ENTRANCEMERCH' THEN 'ENTRADA'
                                         WHEN stock_movements.movimiento = 'REMISSIONISSUED' THEN 'REMISION'
                                         WHEN stock_movements.movimiento = 'EXITMERCH' THEN 'SALIDA'
+                                        WHEN stock_movements.movimiento = 'NEW_PRODUCT' THEN 'NUEVO_PRODUCTO'
                                         ELSE stock_movements.movimiento
                                     END as movimiento"),
                     'stock_movements.documento as documento',
@@ -686,6 +610,7 @@ class reportesController extends Controller
                     'u.name as autor'
                 )
                 ->whereBetween('fecha', [$dateStart, $dateEnd])
+                 ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'movimientos' => $movimientos], 200);
@@ -712,6 +637,7 @@ class reportesController extends Controller
                     'u.name as autor'
                 )
                 ->where('movimiento', 'TRANSFER')
+                 ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'traspasos' => $traspasos], 200);
@@ -730,6 +656,7 @@ class reportesController extends Controller
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
                 ->select('stock_movements.id as id', 'stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
                 ->where('movimiento', 'DECREASE')
+                 ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'mermas' => $mermas], 200);
@@ -755,6 +682,7 @@ class reportesController extends Controller
                     'u.name as autor'
                 )
                 ->where('movimiento', 'ENTRANCEMERCH')
+                 ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'entradas' => $entradas], 200);
@@ -773,6 +701,7 @@ class reportesController extends Controller
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
                 ->select('stock_movements.id as id', 'stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
                 ->where('movimiento', 'EXITMERCH')
+                ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'salidas' => $salidas], 200);

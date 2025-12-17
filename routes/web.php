@@ -88,7 +88,7 @@ Route::get('pedidosreporte', [pedidosController::class, 'pedidosreporte'])->midd
 Route::get('pedidoscancelar', [pedidosController::class, 'pedidoscancelar'])->middleware(['auth']);
 Route::get('pedidosremisionar', [pedidosController::class, 'pedidosremisionar'])->middleware(['auth']);
 
-Route::post('infocortecaja', [pedidosController::class, 'infocortecaja'])->middleware(['auth']);
+
 
 //ALMACEN
 Route::get('multialmacen', [multialmacenController::class, 'multialmacen'])->middleware(['auth']);

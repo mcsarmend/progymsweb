@@ -287,7 +287,7 @@
                         $('#contenido-corte').html(response.html);
 
                         // Recalcular totales
-                        calculateTotals();
+                        recalcular();
                     },
                     error: function(response) {
                         Swal.fire("Error", "No se pudo obtener la información.", "error");
@@ -357,7 +357,11 @@
                 });
             });
 
-
+            var type = parseInt(@json($type));
+            if (type != 4) {
+                sucursal = $('#sucursal').val();
+                data.sucursal = sucursal;
+            }
 
 
 
@@ -390,6 +394,7 @@
         }
 
         function addInput(containerId) {
+            var type = parseInt(@json($type));
             const container = document.getElementById(containerId);
 
             // Crear un grupo para los inputs
@@ -401,7 +406,12 @@
             montoInput.type = 'number';
             montoInput.placeholder = 'Monto';
             montoInput.required = true;
-            montoInput.addEventListener('input', calculateTotals); // Asegúrate de recalcular al escribir
+            if (type != 4) {
+                montoInput.addEventListener('input', recalcular);
+            } else {
+                montoInput.addEventListener('input', calculateTotals);
+            }
+
 
             // Crear input para el concepto
             const conceptoInput = document.createElement('input');
@@ -415,7 +425,11 @@
             removeButton.classList.add('remove-button');
             removeButton.onclick = function() {
                 container.removeChild(inputGroup);
-                calculateTotals(); // Recalcular después de eliminar
+                if (type != 4) {
+                    recalcular()
+                } else {
+                    calculateTotals();
+                }
             };
 
             // Agregar inputs y botón al grupo
@@ -427,7 +441,12 @@
             container.appendChild(inputGroup);
 
             // Recalcular totales inmediatamente después de agregar un input
-            calculateTotals();
+
+            if (type != 4) {
+                recalcular();
+            } else {
+                calculateTotals();
+            }
         }
 
         function calculateTotals() {
@@ -456,26 +475,24 @@
                 totalPorMercadoPago +
                 totalPorVales;
 
-            // 🔹 TOTAL GENERAL (solo debe sumar: otras ventas + efectivo + electrónicos)
+            // TOTAL GENERAL
             totalGeneral =
                 totalPorEfectivo +
                 totalElectronico;
 
             // 🔹 TOTAL EFECTIVO A ENTREGAR
             totalEfectivo =
-                totalPorEfectivo + // efectivo normal
-                otrasVentas + // otras ventas
-                remesaRecibida - // suma remesa recibida
-                remesaEntregada - // resta remesa entregada
-                gastosEnGeneral + // suma gastos
+                totalPorEfectivo +
+                otrasVentas +
+                remesaRecibida -
+                remesaEntregada -
+                gastosEnGeneral +
                 ajusteCobros; // resta ajuste cobros
 
             // Mostrar en pantalla
             document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
             document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
         }
-
-
 
         function sumContainerInputs(containerId) {
             let total = 0;
@@ -485,6 +502,77 @@
             return total;
         }
 
+        function recalcular() {
+            let totalGeneral = 0;
+            let totalEfectivo = 0;
 
+            // Suma de inputs adicionales
+            let remesaRecibida = sumContainerInputs('remesa-recibida-container');
+            let otrasVentas = sumContainerInputs('otras-ventas-container');
+            let remesaEntregada = sumContainerInputs('remesa-entregada-container');
+            let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
+            let ajusteCobros = sumContainerInputs('ajuste-cobros-container');
+
+            // Inicializar totales individuales
+            let totalPorEfectivo = 0;
+            let totalPorTransferencia = 0;
+            let totalPorTerminal = 0;
+            let totalPorClip = 0;
+            let totalPorMercadoPago = 0;
+            let totalPorVales = 0;
+
+            // Leer cada tabla generada por forma de pago
+            document.querySelectorAll("table").forEach(table => {
+                let titleElement = table.previousElementSibling;
+                if (!titleElement || !titleElement.textContent.includes("Forma de Pago:")) return;
+
+                let formaPago = titleElement.textContent.replace("Forma de Pago: ", "").trim().toLowerCase();
+
+                // Sumar totales de la columna TOTAL
+                let totalPago = 0;
+                table.querySelectorAll("tbody tr").forEach(row => {
+                    let td = row.querySelector("td:nth-child(4)");
+                    if (td) {
+                        let valor = parseFloat(td.textContent.replace(/[^0-9.-]/g, '')) || 0;
+                        totalPago += valor;
+                    }
+                });
+
+                // Acumular en variables según forma de pago
+                if (formaPago === "efectivo") totalPorEfectivo += totalPago;
+                if (formaPago === "transferencia") totalPorTransferencia += totalPago;
+                if (formaPago === "terminal") totalPorTerminal += totalPago;
+                if (formaPago === "clip") totalPorClip += totalPago;
+                if (formaPago === "mercado_pago") totalPorMercadoPago += totalPago;
+                if (formaPago === "vales") totalPorVales += totalPago;
+            });
+
+            // Calcular electrónico
+            let totalElectronico =
+                totalPorTransferencia +
+                totalPorTerminal +
+                totalPorClip +
+                totalPorMercadoPago +
+                totalPorVales;
+
+            // TOTAL GENERAL
+            totalGeneral =
+                totalPorEfectivo +
+                totalElectronico;
+
+
+            // Calcular total efectivo real a entregar
+            totalEfectivo =
+                totalPorEfectivo +
+                otrasVentas +
+                remesaRecibida -
+                remesaEntregada -
+                gastosEnGeneral +
+                ajusteCobros;
+
+            // Actualizar pantalla
+            document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
+            document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
+        }
     </script>
 @stop

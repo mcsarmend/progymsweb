@@ -162,13 +162,45 @@ class inventarioController extends Controller
         try {
 
             /* Registra el producto */
-            $product            = new Product;
-            $product->id        = $request['codigo'];
-            $product->nombre    = $request['name'];
-            $product->marca     = $request['marca'];
-            $product->categoria = $request['categoria'];
-            $product->costo     = $request['costo'];
+            $product                 = new Product;
+            $product->id             = $request['codigo'];
+            $product->nombre         = $request['name'];
+            $product->marca          = $request['marca'];
+            $product->categoria      = $request['categoria'];
+            $product->costo          = $request['costo'];
+            $product->costo_promedio = $request['costo'];
+            $product->estatus = "1";
+
             $product->save();
+
+            /*
+            Registrar el movimiento de stock
+             */
+            $movimiento             = new stockMovements();
+            $movimiento->movimiento = "NEW_PRODUCT";
+            $autor                  = Auth::user()->id;
+            $movimiento->autor      = $autor;
+            $productos              = $product;
+            date_default_timezone_set('America/Mexico_City');
+            $documento             = date('dmyHis') . 'NEW_PRODUCT';
+            $movimiento->documento = $documento;
+            $movimiento->importe   = $request['costo'];
+            $now                   = new DateTime();
+            $fdate                 = $now->format('Y-m-d H:i:s');
+            $fechaMysql            = $fdate;
+            $movimiento->fecha     = $fechaMysql;
+            $producto              = [
+                [
+                    "Codigo"          =>  $request['codigo'],
+                    "Cantidad"        => $request['existencia'],
+                    "Nombre"          => $product->nombre,
+                    "Precio Unitario" => $request['costo'],
+                    "Subtotal"        => $request['costo'] * $request['existencia'],
+                ],
+            ];
+            $movimiento->productos = json_encode($producto); // Convertir el array de productos a JSON
+
+            $movimiento->save();
 
             /* Registrar los precios */
 
@@ -426,7 +458,7 @@ class inventarioController extends Controller
             $movimiento->save();
 
             foreach ($productos as $producto) {
-                $idproducto = $producto->Codigo;
+                $idproducto        = $producto->Codigo;
                 $existenciasActual = productwarehouse::select('existencias')
                     ->where('idproducto', intVal($idproducto))
                     ->where('idwarehouse', intVal($almacen))
@@ -436,15 +468,15 @@ class inventarioController extends Controller
                     ->where('idproducto', $idproducto)
                     ->sum('existencias');
 
-                $costo_promedio = 0;
-                $costo          = 0;
-                $cambiocosto    = false;
-                $costo_anterior = 0;
-                $productTemp    = Product::find($idproducto);
-                $costo = $producto->{"Costo en Compra"};
-                $costo_anterior              = $productTemp->costo;
-                $cambiocosto                 = $costo !== $productTemp->costo ? true : false;
-                $productTemp->costo          = $costo;
+                $costo_promedio     = 0;
+                $costo              = 0;
+                $cambiocosto        = false;
+                $costo_anterior     = 0;
+                $productTemp        = Product::find($idproducto);
+                $costo              = $producto->{"Costo en Compra"};
+                $costo_anterior     = $productTemp->costo;
+                $cambiocosto        = $costo !== $productTemp->costo ? true : false;
+                $productTemp->costo = $costo;
                 if ($existenciasGeneral > 0) {
                     $costoPromedio               = ($costo + $productTemp->costo_promedio) / 2;
                     $productTemp->costo_promedio = $costoPromedio;

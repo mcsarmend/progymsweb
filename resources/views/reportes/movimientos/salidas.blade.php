@@ -129,6 +129,7 @@
                         dom: 'Blfrtip',
                         destroy: true,
                         processing: true,
+                        order: [[0, 'desc']],
                         sort: true,
                         paging: true,
                         lengthMenu: [

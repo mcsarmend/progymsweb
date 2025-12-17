@@ -617,11 +617,10 @@ class ventasController extends Controller
     public function enviarinfocortecaja(Request $request)
     {
         DB::beginTransaction();
-
         try {
 
             $vendedor = auth()->id() ?? 1;
-            $almacen = Auth::user()->warehouse;
+
             $fechaHoy   = now('America/Mexico_City')->toDateString(); // YYYY-mm-dd
 
             // Verificar si ya existe un corte de caja hoy para el vendedor
@@ -652,7 +651,13 @@ class ventasController extends Controller
             if ($vendedor == 28) { // USUARIO DE MONTSERAT
                 $corteCaja->almacen = 1;
             } else {
-                $corteCaja->almacen = Auth::user()->warehouse;
+                $type = Auth::user()->type;
+                if ($type != 4){
+                    $corteCaja->almacen = $request->sucursal;
+                }else{
+                    $corteCaja->almacen = Auth::user()->warehouse;
+                }
+
             }
 
             // Guardar el usuario en la base de datos
