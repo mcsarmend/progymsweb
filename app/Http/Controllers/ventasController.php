@@ -167,10 +167,12 @@ class ventasController extends Controller
         $idprice   = clients::where('id', '=', $idcliente)->value('precio');
         $precio    = prices::where('id', '=', $idprice)
             ->value('nombre');
+        $sucursal = clients::where('id', '=', $idcliente)->value('sucursal');
 
         return response()->json([
             'nombreprecio' => $precio,
             'idprecio'     => $idprice,
+            'sucursal'     => $sucursal,
         ]);
     }
     public function buscarexistencias(Request $request)

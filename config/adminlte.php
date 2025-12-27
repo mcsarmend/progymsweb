@@ -352,34 +352,15 @@ return [
                             'url'  => 'pedidosnuevo',
                         ],
                         [
-                            'text' => 'Selección',
-                            'icon' => 'fas fa-check-circle',
-                            'url'  => 'pedidosseleccionar',
+                            'text' => 'Estatus',
+                            'icon' => 'fas fa-toggle-on',
+                            'url'  => 'pedidosestatus',
                         ],
-                        [
-                            'text' => 'Ver',
-                            'icon' => 'fas fa-eye',
-                            'url'  => 'pedidosver',
-                        ],
-                        [
-                            'text' => 'Ruta',
-                            'icon' => 'fas fa-route',
-                            'url'  => 'pedidosruta',
-                        ],
+
                         [
                             'text' => 'Reporte',
                             'icon' => 'fas fa-file-alt',
                             'url'  => 'pedidosreporte',
-                        ],
-                        [
-                            'text' => 'Cancelar',
-                            'icon' => 'fas fa-times-circle',
-                            'url'  => 'pedidoscancelar',
-                        ],
-                        [
-                            'text' => 'Remisionar',
-                            'icon' => 'fas fa-file-invoice',
-                            'url'  => 'pedidosremisionar',
                         ],
                     ],
                 ],

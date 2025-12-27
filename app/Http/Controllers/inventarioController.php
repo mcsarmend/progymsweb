@@ -53,8 +53,8 @@ class inventarioController extends Controller
         $type       = $this->gettype();
         $sucursales = warehouse::all();
         $productos  = Product::leftjoin('brand as b', 'product.marca', '=', 'b.id')
-
             ->select('product.*', 'b.nombre as nombre_marca')
+            ->where('product.estatus', '=', '1')
             ->get();
         $proveedores = supplier::all();
 

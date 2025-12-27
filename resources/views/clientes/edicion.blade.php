@@ -54,10 +54,12 @@
                                 <label for="price">Precio:</label>
                             </div>
                             <div class="col">
-                                <select name="id_price" id="id_price" class="form-control">
-                                    @foreach ($prices as $price)
-                                        <option value="{{ encrypt($price->id) }}">{{ $price->nombre }}</option>
-                                    @endforeach
+                                <select name="tipo_precio" id="tipo_precio" class="form-control">
+                                    <option value="1">Publico</option>
+                                    <option value="2">Frecuente</option>
+                                    <option value="3">Mayoreo</option>
+                                    <option value="4">Distribuidor</option>
+                                    <option value="6">Platinum</option>
                                 </select>
                             </div>
                         </div>
@@ -69,7 +71,7 @@
                             <div class="col">
                                 <select name="id_sucursal" id="id_sucursal" class="form-control">
                                     @foreach ($sucursales as $sucursal)
-                                        <option value="{{ encrypt($sucursal->id) }}">{{ $sucursal->nombre }}</option>
+                                        <option value="{{ $sucursal->id }}">{{ $sucursal->nombre }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -236,6 +238,38 @@
                         return direccion;
                     }
                 });
+            });
+        });
+
+        $('#cliente').on('change', function() {
+            var cliente = $(this).val();
+            var idcliente = obtenerNumerosHastaGuion(cliente);
+
+            // Hacer la llamada AJAX
+            $.ajax({
+                url: 'buscaridprecio', // Cambia esta URL a la correcta
+                type: 'POST',
+                data: {
+                    idcliente: idcliente
+                },
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    // Actualizar el valor del input #tipo con el valor recibido
+                    if (response.nombreprecio == null) {
+                        $('#tipo_precio').val("Publico");
+                    } else {
+                        $('#tipo_precio').val(response.idprecio);
+                          $('#id_sucursal').val(response.sucursal).trigger('change');
+
+                    }
+
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
             });
         });
 

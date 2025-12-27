@@ -81,15 +81,19 @@ Route::post('cancelarremision', [ventasController::class, 'cancelarremision'])->
 // PEDIDOS
 
 Route::get('pedidosnuevo', [pedidosController::class, 'pedidosnuevo'])->middleware(['auth']);
-Route::get('pedidosseleccionar', [pedidosController::class, 'pedidosseleccionar'])->middleware(['auth']);
-Route::get('pedidosver', [pedidosController::class, 'pedidosver'])->middleware(['auth']);
-Route::get('pedidosruta', [pedidosController::class, 'pedidosruta'])->middleware(['auth']);
+Route::get('pedidosestatus', [pedidosController::class, 'pedidosestatus'])->middleware(['auth']);
 Route::get('pedidosreporte', [pedidosController::class, 'pedidosreporte'])->middleware(['auth']);
 Route::get('pedidoscancelar', [pedidosController::class, 'pedidoscancelar'])->middleware(['auth']);
 Route::get('pedidosremisionar', [pedidosController::class, 'pedidosremisionar'])->middleware(['auth']);
+Route::get('verproductospedidos', [pedidosController::class, 'verproductospedidos'])->middleware(['auth']);
+Route::get('verubicacioncliente', [pedidosController::class, 'verubicacioncliente'])->middleware(['auth']);
 
-
-
+Route::post('crearnuevopedido', [pedidosController::class, 'crearnuevopedido'])->middleware(['auth']);
+Route::post('seleccionarpedido', [pedidosController::class, 'seleccionarpedido'])->middleware(['auth']);
+Route::post('despacharpedido', [pedidosController::class, 'despacharpedido'])->middleware(['auth']);
+Route::post('entregarpedido', [pedidosController::class, 'entregarpedido'])->middleware(['auth']);
+Route::post('cancelarpedido', [pedidosController::class, 'cancelarpedido'])->middleware(['auth']);
+Route::post('remisionarpedido', [pedidosController::class, 'remisionarpedido'])->middleware(['auth']);
 //ALMACEN
 Route::get('multialmacen', [multialmacenController::class, 'multialmacen'])->middleware(['auth']);
 Route::get('altalmacen', [multialmacenController::class, 'altalmacen'])->middleware(['auth']);

@@ -61,12 +61,15 @@
                                 <th>Distribuidor</th>
                                 <th>Platinum</th>
                                 <th>Existencias Totales</th>
-                                <th>Almacèn Principal</th>
+                                <th>Almacén Principal</th>
+                                <th>Bodega</th>
                                 <th>Viveros</th>
                                 <th>TownCenter</th>
                                 <th>Coacalco</th>
                                 <th>Villas</th>
                                 <th>Naucalpan</th>
+                                <th>Tienda Piso</th>
+                                <th>Pedidos</th>
 
                             </tr>
                         </thead>
@@ -149,7 +152,8 @@
                         "data": "codigo"
                     },
                     {
-                        "data": "producto"
+                        "data": "producto",
+                        "width": "350px"
                     },
                     {
                         "data": "marca"
@@ -200,6 +204,9 @@
                         "data": "almacen_principal"
                     },
                     {
+                        "data": "bodega"
+                    },
+                    {
                         "data": "viveros"
                     },
                     {
@@ -213,6 +220,12 @@
                     },
                     {
                         "data": "naucalpan"
+                    },
+                    {
+                        "data": "tienda_piso"
+                    },
+                    {
+                        "data": "pedidos"
                     }
 
                 ],
