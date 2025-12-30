@@ -425,12 +425,17 @@ class inventarioController extends Controller
         $nombre     = product::where('id', '=', $idproducto)->value('nombre');
         $costo      = product::where('id', '=', $idproducto)->value('costo');
         $idsucursal = $request->sucursal;
+        $marca = brand::select('brand.nombre')
+            ->join('product as p', 'brand.id', '=', 'p.marca')
+            ->where('p.id', $idproducto)
+            ->first();
 
         return response()->json([
             'idproducto' => $idproducto,
             'costo'      => $costo,
             'nombre'     => $nombre,
             'cantidad'   => $cantidad,
+            'marca'      => $marca->nombre,
         ]);
 
     }

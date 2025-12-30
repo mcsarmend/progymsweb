@@ -329,10 +329,16 @@ return [
                             'icon' => 'fas fa-file-signature',
                             'url'  => 'remisiones',
                         ],
+
                         [
                             'text' => 'Corte de caja',
                             'icon' => 'fas fa-money-bill-wave',
                             'url'  => 'cortedecaja',
+                        ],
+                        [
+                            'text' => 'Historico Corte de caja',
+                            'icon' => 'fas fa-file-signature',
+                            'url'  => 'historicocortedecaja',
                         ],
                         [
                             'text' => 'Corte de caja especial',

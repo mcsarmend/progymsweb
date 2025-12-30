@@ -218,9 +218,6 @@ class ventasController extends Controller
                 $remision->vendedor_reparto = $request->vendedor_reparto;
             }
 
-
-
-
             $productos           = json_decode($request->productos);
             $remision->productos = json_encode($productos); // Convertir el array de productos a JSON
 
@@ -555,6 +552,37 @@ class ventasController extends Controller
         ]);
     }
 
+    public function historicocortedecaja()
+    {
+        $type = $this->gettype();
+
+        return view('ventas.historicocortedecaja', ['type' => $type]);
+    }
+
+    public function generarreportecortecajaindividual(Request $request)
+    {
+        try {
+            $timezone = 'America/Mexico_City';
+
+            $hoy_inicio = $request->dateStart . " 00:00:00";
+            $hoy_fin    = $request->dateEnd . " 23:59:59";
+            $almacen    = Auth::user()->warehouse;
+            $query = 'CALL reportecortecaja("' . $hoy_inicio . '","' . $hoy_fin . '")';
+
+            $resultados = DB::select($query);
+
+            // Convertimos a Collection para poder filtrar
+            $cortecaja = collect($resultados);
+
+            $cortecaja = $cortecaja->where('almacen', $almacen)->values();
+
+
+            return response()->json(['message' => 'Reporte Generado Correctamente', 'cortecaja' => $cortecaja], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
     public function cancelarremision(Request $request)
     {
         try {
@@ -623,7 +651,7 @@ class ventasController extends Controller
 
             $vendedor = auth()->id() ?? 1;
 
-            $fechaHoy   = now('America/Mexico_City')->toDateString(); // YYYY-mm-dd
+            $fechaHoy = now('America/Mexico_City')->toDateString(); // YYYY-mm-dd
 
             // Verificar si ya existe un corte de caja hoy para el vendedor
             $existeCorte = cash_closure::where('vendedor', $vendedor)
@@ -632,11 +660,9 @@ class ventasController extends Controller
 
             if ($existeCorte) {
                 return response()->json([
-                    'error' => true,
+                    'error'   => true,
                     'message' => 'Ya existe un corte de caja registrado hoy para este vendedor.',
                 ], 409); // 409 Conflict
-
-
 
             }
             $corteCaja                          = new cash_closure();
@@ -645,18 +671,18 @@ class ventasController extends Controller
             $corteCaja->formas_pago             = json_encode($request->formas_pago);              // Convertir a JSON
             $corteCaja->inputs_adicionales      = json_encode($request->inputs_adicionales ?? []); // Convertir a JSON
 
-            $corteCaja->vendedor                = $vendedor;
-            $corteCaja->estado                  = 'pendiente';
-            $corteCaja->fecha_cierre            = now('America/Mexico_City')->format('Y-m-d H:i:s');
-            $corteCaja->observaciones           = $request->observaciones ?? null;
+            $corteCaja->vendedor      = $vendedor;
+            $corteCaja->estado        = 'pendiente';
+            $corteCaja->fecha_cierre  = now('America/Mexico_City')->format('Y-m-d H:i:s');
+            $corteCaja->observaciones = $request->observaciones ?? null;
 
             if ($vendedor == 28) { // USUARIO DE MONTSERAT
                 $corteCaja->almacen = 1;
             } else {
                 $type = Auth::user()->type;
-                if ($type != 4){
+                if ($type != 4) {
                     $corteCaja->almacen = $request->sucursal;
-                }else{
+                } else {
                     $corteCaja->almacen = Auth::user()->warehouse;
                 }
 

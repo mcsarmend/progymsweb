@@ -182,7 +182,8 @@
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
                             success: function(data) {
-                                agregarFila(data.idproducto, data.cantidad, data.nombre, data
+                                nombre = data.nombre + " - " + data.marca;
+                                agregarFila(data.idproducto, data.cantidad, nombre, data
                                     .costo);
                             },
                             error: function(xhr, status, error) {
