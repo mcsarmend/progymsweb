@@ -226,14 +226,14 @@ class ventasController extends Controller
                 $idproducto = $producto->Codigo;
 
                 $existenciasActual = productwarehouse::select('existencias')
-                    ->where('idproducto', intVal($idproducto))
+                    ->where('idproducto', $idproducto)
                     ->where('idwarehouse', intVal($almacen))
                     ->first();
 
                 $CantidadDescontar = $producto->Cantidad;
                 $nuevaexistencia   = $existenciasActual->existencias - intVal($CantidadDescontar);
 
-                productwarehouse::where('idproducto', intVal($idproducto))
+                productwarehouse::where('idproducto', $idproducto)
                     ->where('idwarehouse', intVal($almacen))
                     ->update([
                         'existencias' => $nuevaexistencia,
@@ -562,19 +562,19 @@ class ventasController extends Controller
     public function generarreportecortecajaindividual(Request $request)
     {
         try {
-            $timezone = 'America/Mexico_City';
 
             $hoy_inicio = $request->dateStart . " 00:00:00";
             $hoy_fin    = $request->dateEnd . " 23:59:59";
             $almacen    = Auth::user()->warehouse;
+
             $query = 'CALL reportecortecaja("' . $hoy_inicio . '","' . $hoy_fin . '")';
 
             $resultados = DB::select($query);
-
+            $sucursal = warehouse::where('id', $almacen)->value('nombre');
             // Convertimos a Collection para poder filtrar
             $cortecaja = collect($resultados);
 
-            $cortecaja = $cortecaja->where('almacen', $almacen)->values();
+            $cortecaja = $cortecaja->where('almacen', $sucursal)->values();
 
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'cortecaja' => $cortecaja], 200);
@@ -598,14 +598,14 @@ class ventasController extends Controller
                 $idproducto = $producto->Codigo;
 
                 $existenciasActual = productwarehouse::select('existencias')
-                    ->where('idproducto', intVal($idproducto))
+                    ->where('idproducto', $idproducto)
                     ->where('idwarehouse', intVal($almacen))
                     ->first();
 
                 $CantidadSumar   = $producto->Cantidad;
                 $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadSumar);
 
-                productwarehouse::where('idproducto', intVal($idproducto))
+                productwarehouse::where('idproducto', $idproducto)
                     ->where('idwarehouse', intVal($almacen))
                     ->update([
                         'existencias' => $nuevaexistencia,
@@ -679,7 +679,7 @@ class ventasController extends Controller
             if ($vendedor == 28) { // USUARIO DE MONTSERAT
                 $corteCaja->almacen = 1;
             } else {
-                $type = Auth::user()->type;
+                $type = $this->gettype();
                 if ($type != 4) {
                     $corteCaja->almacen = $request->sucursal;
                 } else {

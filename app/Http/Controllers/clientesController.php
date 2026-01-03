@@ -120,7 +120,7 @@ class clientesController extends Controller
             $idcliente    = $request->idcliente;
             $nuevo_nombre = $request->nombre;
             $idsucursal   = intval($request->id_sucursal);
-            $idprecio     = intval($request->id_price);
+            $idprecio     = intval($request->tipo_precio);
             $telefono     = $request->telefono;
             $direccion1   = $request->direccion;
             $direccion2   = $request->direccion2;

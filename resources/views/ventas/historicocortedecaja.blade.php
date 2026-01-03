@@ -121,11 +121,13 @@
 
             // Realizar la solicitud AJAX con jQuery
             $.ajax({
-                url: '/generarreportecortecaja', // Ruta al controlador de Laravel
-                type: 'GET',
+                url: '/generarreportecortecajaindividual', // Ruta al controlador de Laravel
+                type: 'POST',
                 // data: datosFormulario, // Enviar los datos del formulario
                 data: datosFormulario,
-
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 success: function(response) {
                     Swal.fire(
                         '¡Gracias por esperar!',

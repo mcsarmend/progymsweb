@@ -125,6 +125,12 @@ class reportesController extends Controller
         $type        = $this->gettype();
         return view('proveedores.proveedores', ['type' => $type, 'suppliers' => $proveedores]);
     }
+    public function reportehistoricoinventario()
+    {
+        $proveedores = supplier::all();
+        $type        = $this->gettype();
+        return view('reportes.inventario.historicoinventario', ['type' => $type, 'suppliers' => $proveedores]);
+    }
 
     public function generarreporteventascliente(Request $request)
     {
@@ -243,7 +249,6 @@ class reportesController extends Controller
                     $nombre   = $prod["Nombre"];
                     $almacen  = $r->almacen_nombre; // ← CAMBIO
 
-
                     // Crear si no existe
                     if (! isset($productosGlobal[$codigo])) {
                         $productosGlobal[$codigo] = [
@@ -263,10 +268,8 @@ class reportesController extends Controller
                             ($productosGlobal[$codigo]["almacenes"][$almacen] ?? 0) + $cantidad;
                     }
 
-
                 }
             }
-
 
             // Agregar marca y categoría a cada producto
             foreach ($productosGlobal as $codigo => &$p) {
@@ -281,7 +284,6 @@ class reportesController extends Controller
             }
             unset($p); // Romper referencia
 
-
             //Aplicar filtros de marca y categoría
             if ($marca) {
                 $productosGlobal = array_filter($productosGlobal, function ($p) use ($marca) {
@@ -294,7 +296,6 @@ class reportesController extends Controller
                     return $p['categoria'] == $categoria;
                 });
             }
-
 
             // ==========================================================
             //      TOP 10 PRODUCTOS MÁS VENDIDOS
@@ -610,7 +611,7 @@ class reportesController extends Controller
                     'u.name as autor'
                 )
                 ->whereBetween('fecha', [$dateStart, $dateEnd])
-                 ->orderBy('stock_movements.fecha', 'desc')
+                ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'movimientos' => $movimientos], 200);
@@ -637,7 +638,7 @@ class reportesController extends Controller
                     'u.name as autor'
                 )
                 ->where('movimiento', 'TRANSFER')
-                 ->orderBy('stock_movements.fecha', 'desc')
+                ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'traspasos' => $traspasos], 200);
@@ -656,7 +657,7 @@ class reportesController extends Controller
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
                 ->select('stock_movements.id as id', 'stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
                 ->where('movimiento', 'DECREASE')
-                 ->orderBy('stock_movements.fecha', 'desc')
+                ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'mermas' => $mermas], 200);
@@ -682,7 +683,7 @@ class reportesController extends Controller
                     'u.name as autor'
                 )
                 ->where('movimiento', 'ENTRANCEMERCH')
-                 ->orderBy('stock_movements.fecha', 'desc')
+                ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'entradas' => $entradas], 200);
@@ -705,6 +706,63 @@ class reportesController extends Controller
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'salidas' => $salidas], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+    public function generarreportehistorico(Request $request)
+    {
+        try {
+            $dateStart = Carbon::parse($request->fechainicio)->startOfDay();
+            $dateEnd   = Carbon::parse($request->fechafin)->endOfDay();
+
+            $backup = DB::table('backup_warehouse')
+                ->whereBetween('fecha', [$dateStart, $dateEnd])
+                ->select(
+                    'id',
+                    'datos',
+                    'total_compra',
+                    'total_productos',
+                    'fecha'
+                )
+                ->orderBy('fecha', 'desc')
+                ->get();
+
+            return response()->json([
+                'message'   => 'Reporte generado correctamente',
+                'historico' => $backup,
+            ], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+    public function verproductoshistorico(Request $request)
+    {
+
+        try {
+            $id = $request->id;
+
+            $registro = DB::table('backup_warehouse')
+                ->select('fecha', 'datos')
+                ->where('id', $id)
+                ->first();
+
+            if (! $registro) {
+                return response()->json([
+                    'data' => [],
+                ]);
+            }
+
+            return response()->json([
+                'data' => [
+                    [
+                        'fecha' => $registro->fecha,
+                        'datos' => $registro->datos,
+                    ],
+                ],
+            ]);
         } catch (\Throwable $th) {
 
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
