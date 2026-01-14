@@ -165,6 +165,7 @@ class ventasController extends Controller
 
         $idcliente = $request->idcliente;
         $idprice   = clients::where('id', '=', $idcliente)->value('precio');
+        $telefono   = clients::where('id', '=', $idcliente)->value('telefono');
         $precio    = prices::where('id', '=', $idprice)
             ->value('nombre');
         $sucursal = clients::where('id', '=', $idcliente)->value('sucursal');
@@ -173,6 +174,7 @@ class ventasController extends Controller
             'nombreprecio' => $precio,
             'idprecio'     => $idprice,
             'sucursal'     => $sucursal,
+            'telefono'     => $telefono,
         ]);
     }
     public function buscarexistencias(Request $request)
@@ -231,7 +233,11 @@ class ventasController extends Controller
                     ->first();
 
                 $CantidadDescontar = $producto->Cantidad;
+                if ( $existenciasActual->existencias < intVal($CantidadDescontar)){
+                    return response()->json(['message' => 'Error: No hay existencias suficientes del producto con código ' . $idproducto], 500);
+                }
                 $nuevaexistencia   = $existenciasActual->existencias - intVal($CantidadDescontar);
+
 
                 productwarehouse::where('idproducto', $idproducto)
                     ->where('idwarehouse', intVal($almacen))
@@ -255,8 +261,7 @@ class ventasController extends Controller
             $movimiento->productos  = $productos;
             $movimiento->documento  = "REMISS" . $idCreado;
             $movimiento->importe    = $request->importe;
-            $now                    = new DateTime();
-            $fdate                  = $now->format('Y-m-d H:i:s');
+            $fdate                  =$date->format('Y-m-d H:i:s');
             $fechaMysql             = $fdate;
             $movimiento->fecha      = $fechaMysql;
             $productos              = json_decode($request->productos);

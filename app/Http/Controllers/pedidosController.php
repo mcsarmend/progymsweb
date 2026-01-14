@@ -43,7 +43,14 @@ class pedidosController extends Controller
     public function pedidosestatus()
     {
         $type    = $this->gettype();
-        $pedidos = orders::all();
+        $pedidos = orders::leftJoin('users', 'orders.vendedor', '=', 'users.id')
+            ->leftJoin('clients', 'orders.cliente', '=', 'clients.id')
+            ->select(
+                'orders.*',
+                'users.name as vendedor_nombre',
+                'clients.nombre as cliente_nombre'
+            )
+            ->get();
 
         return view('ventas.pedidos.estatus', ['type' => $type, 'pedidos' => $pedidos]);
 
@@ -71,14 +78,13 @@ class pedidosController extends Controller
     public function verubicacioncliente(Request $request)
     {
         $ubicacion = address::find($request->id);
-        $cliente = clients::find($request->id);
-
+        $cliente   = clients::find($request->id);
 
         return response()->json([
-            'cliente'    => $cliente->nombre,
-            'direccion'  => $ubicacion->direccion,
-            'lat'        => $ubicacion->latitud,
-            'lng'        => $ubicacion->longitud,
+            'cliente'   => $cliente->nombre,
+            'direccion' => $ubicacion->direccion,
+            'lat'       => $ubicacion->latitud,
+            'lng'       => $ubicacion->longitud,
         ]);
     }
 

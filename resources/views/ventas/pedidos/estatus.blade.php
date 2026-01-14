@@ -21,6 +21,7 @@
                             <tr>
                                 <th>No.</th>
                                 <th>Estatus</th>
+                                <th>Fecha ultimo movimiento</th>
                                 <th>Vendedor</th>
                                 <th>Cliente</th>
                                 <th>Productos</th>
@@ -166,10 +167,13 @@
                     },
 
                     {
-                        "data": "vendedor"
+                        "data": "fecha"
                     },
                     {
-                        "data": "cliente"
+                        "data": "vendedor_nombre"
+                    },
+                    {
+                        "data": "cliente_nombre"
                     },
                     {
                         "data": "productos",

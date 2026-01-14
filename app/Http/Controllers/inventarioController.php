@@ -105,10 +105,10 @@ class inventarioController extends Controller
                 'p.nombre',
                 'b.nombre as marca',
                 'c.nombre as categoria',
-
             )
             ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
             ->leftJoin('category as c', 'p.categoria', '=', 'c.id')
+            ->where('p.estatus', 1)
             ->get();
 
         $almacenes = warehouse::all();

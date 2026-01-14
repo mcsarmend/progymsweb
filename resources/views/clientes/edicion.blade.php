@@ -262,7 +262,8 @@
                         $('#tipo_precio').val("Publico");
                     } else {
                         $('#tipo_precio').val(response.idprecio);
-                          $('#id_sucursal').val(response.sucursal).trigger('change');
+                        $('#id_sucursal').val(response.sucursal).trigger('change');
+                        $('#telefono').val(response.telefono);
 
                     }
 
