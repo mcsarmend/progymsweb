@@ -213,15 +213,6 @@
                     </a>
                 </div>
                 <br>
-
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215643018711" class="btn section-btn smoothScroll" target="_blank"
-                        style="background:white;">
-                        <i class="fab fa-whatsapp" style="color:#25D366; font-size:28px; margin-right:6px;"></i>
-                        <span style="color:#25D366; font-weight:bold;">Villas de la Hacienda (Cuautitlan
-                            Izcalli)</span>
-                    </a>
-                </div>
             </div>
 
     </section>

@@ -8,7 +8,6 @@ use App\Models\prices;
 use App\Models\warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 
 class clientesController extends Controller
 {
@@ -106,7 +105,8 @@ class clientesController extends Controller
             // Encuentra el usuario por su ID
             $id       = $request->cliente;
             $clientid = $this->extraerNumeroInicial($id);
-            clients::findOrFail($clientid)->delete();
+            clients::where('id', '=', $clientid)
+                ->update(['estatus' => 0]);
             return response()->json(['message' => 'cliente eliminado correctamente'], 200);
         } catch (\Throwable $e) {
             // Devolver una respuesta de error

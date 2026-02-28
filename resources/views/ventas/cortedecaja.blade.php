@@ -16,21 +16,29 @@
                 @if ($type != 4)
                     <div class="d-flex justify-content-center">
                         <form action="" method="post" class="text-center" id="infocortecaja">
-                            <p class="text-center">Selecciona la sucursal que quieres realizar el corte</p>
+                            <p class="text-center">Selecciona la sucursal y el período para realizar el corte</p>
 
-                            <div class="mb-3">
-                                <label for="sucursal" class="form-label">Sucursal:</label>
-                                <select name="sucursal" id="sucursal" class="form-control">
-                                    @foreach ($idssucursales as $almacen)
-                                        <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
-                                    @endforeach
-                                </select>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="sucursal" class="form-label">Sucursal:</label>
+                                    <select name="sucursal" id="sucursal" class="form-control">
+                                        @foreach ($idssucursales as $almacen)
+                                            <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="fecha" class="form-label">Fecha:</label>
+                                    <input type="date" name="fecha" id="fecha" class="form-control"
+                                        required>
+                                </div>
+
                             </div>
 
                             <button type="submit" class="btn btn-info">Obtener información</button>
                         </form>
                     </div>
-
                 @endif
                 <form id="cortecajaform">
 
@@ -307,7 +315,8 @@
                 total_efectivo_entregar: parseFloat($("#total-efectivo-entregar").text().replace("$", "").trim()) || 0,
                 inputs_adicionales: {},
                 formas_pago: [],
-                observaciones: $("#observaciones").val() || "Sin Observaciones"
+                observaciones: $("#observaciones").val() || "Sin Observaciones",
+                fecha: $('#fecha').val() || null
             };
 
             // Recopilar los datos de los inputs adicionales (CXC, REMESA RECIBIDA, etc.)

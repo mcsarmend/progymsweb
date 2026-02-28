@@ -119,7 +119,7 @@ class inventarioController extends Controller
     {
         $type      = $this->gettype();
         $almacenes = warehouse::all();
-        $productos = product::all();
+        $productos = Product::where('estatus', 1)->get();
         return view('inventario.ingreso', ['type' => $type, 'sucursales' => $almacenes, 'productos' => $productos]);
     }
     public function salidainventario()
@@ -127,7 +127,7 @@ class inventarioController extends Controller
         $type = $this->gettype();
 
         $almacenes = warehouse::all();
-        $productos = product::all();
+        $productos = Product::where('estatus', 1)->get();
         return view('inventario.salida', ['type' => $type, 'sucursales' => $almacenes, 'productos' => $productos]);
     }
     public function productosinventario(Request $request)
@@ -228,9 +228,19 @@ class inventarioController extends Controller
 
             $productwarehouse              = new productwarehouse();
             $productwarehouse->idproducto  = $request['codigo'];
-            $productwarehouse->idwarehouse = 1;
+            $productwarehouse->idwarehouse = 8; //BODEGA
             $productwarehouse->existencias = $request['existencia'];
             $productwarehouse->save();
+
+            $almacenes_adicionales = [2, 3, 4, 7, 9, 10];
+
+            foreach ($almacenes_adicionales as $id_almacen) {
+                $nuevo_registro = new productwarehouse();
+                $nuevo_registro->idproducto = $request['codigo'];
+                $nuevo_registro->idwarehouse = $id_almacen;
+                $nuevo_registro->existencias = 0; // Existencia cero
+                $nuevo_registro->save();
+            }
 
             return response()->json(['message' => 'Producto creado correctamente'], 200);
         } catch (\Throwable $th) {
@@ -245,7 +255,10 @@ class inventarioController extends Controller
             $id = $request->id;
 
             $productid = Crypt::decrypt($id);
-            product::findOrFail($productid)->delete();
+            product::where('idproducto', '=', $productid)
+                ->update(['estatus' => 0]);
+
+
             return response()->json(['message' => 'Producto eliminado correctamente'], 200);
         } catch (\Throwable $e) {
             // Devolver una respuesta de error
@@ -372,28 +385,28 @@ class inventarioController extends Controller
                 $cantidad   = $producto->Cantidad;
                 // ACUTALIZAR ALMACEN ORIGEN
                 $existencias_origen = productwarehouse::select('existencias')
-                    ->where('idproducto', 'like', '%' . $idproducto . '%')
-                    ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
+                    ->where('idproducto', '=', $idproducto)
+                    ->where('idwarehouse', '=', $almacen_origen )
                     ->get();
 
                 if ($existencias_origen != '[]') {
                     $ExisOr                = $existencias_origen[0]["existencias"];
                     $nuevaExistenciaOrigen = $ExisOr - intval($cantidad);
-                    ProductWarehouse::where('idproducto', 'like', '%' . $idproducto . '%')
-                        ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
+                    ProductWarehouse::where('idproducto', '=',$idproducto)
+                        ->where('idwarehouse', '=', $almacen_origen)
                         ->update(['existencias' => $nuevaExistenciaOrigen]);
 
                     // ACTUALIZAR ALMACEN DESTINO
                     $existencias_destino = productwarehouse::select('existencias')
-                        ->where('idproducto', 'like', '%' . $idproducto . '%')
-                        ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
+                        ->where('idproducto', '=',$idproducto)
+                        ->where('idwarehouse', '=',$almacen_destino)
                         ->get();
 
                     if ($existencias_destino != '[]') {
                         $ExisDest               = $existencias_destino[0]["existencias"];
                         $nuevaExistenciaDestino = $ExisDest + intval($cantidad);
-                        ProductWarehouse::where('idproducto', 'like', '%' . $idproducto . '%')
-                            ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
+                        ProductWarehouse::where('idproducto', '=',  $idproducto)
+                            ->where('idwarehouse', '=',  $almacen_destino)
                             ->update(['existencias' => $nuevaExistenciaDestino]);
                     } else {
                         $nueva_existencia_destino              = new ProductWarehouse();
@@ -501,21 +514,14 @@ class inventarioController extends Controller
                 /* VALIDACION DE COSTOS */
                 $CantidadDSumar = $producto->Cantidad;
 
-                if ($existenciasActual == "") {
-                    $nuevaexistencia = intVal($CantidadDSumar);
-                    productwarehouse::insert([
-                        'idproducto'  => intval($idproducto),
-                        'idwarehouse' => intval(1),
+
+                $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
+                productwarehouse::where('idproducto', intVal($idproducto))
+                    ->where('idwarehouse', intVal(8)) // BODEGA
+                    ->update([
                         'existencias' => $nuevaexistencia,
                     ]);
-                } else {
-                    $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
-                    productwarehouse::where('idproducto', intVal($idproducto))
-                        ->where('idwarehouse', intVal(1))
-                        ->update([
-                            'existencias' => $nuevaexistencia,
-                        ]);
-                }
+
 
             }
 
@@ -560,7 +566,7 @@ class inventarioController extends Controller
                     $nuevaexistencia = intVal($CantidadDSumar);
                     productwarehouse::insert([
                         'idproducto'  => intval($idproducto),
-                        'idwarehouse' => intval(1),
+                        'idwarehouse' => intval($almacen),
                         'existencias' => $nuevaexistencia,
                     ]);
                 } else {
@@ -568,7 +574,7 @@ class inventarioController extends Controller
                     $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
 
                     $ok = productwarehouse::where('idproducto', intVal($idproducto))
-                        ->where('idwarehouse', intVal(1))
+                        ->where('idwarehouse', intVal($almacen))
                         ->update([
                             'existencias' => $nuevaexistencia,
                         ]);

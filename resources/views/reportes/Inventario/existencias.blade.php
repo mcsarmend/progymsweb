@@ -61,12 +61,10 @@
                                 <th>Distribuidor</th>
                                 <th>Platinum</th>
                                 <th>Existencias Totales</th>
-                                <th>Almacén Principal</th>
                                 <th>Bodega</th>
                                 <th>Viveros</th>
                                 <th>TownCenter</th>
                                 <th>Coacalco</th>
-                                <th>Villas</th>
                                 <th>Naucalpan</th>
                                 <th>Tienda Piso</th>
                                 <th>Pedidos</th>
@@ -201,9 +199,6 @@
                         "data": "totales"
                     },
                     {
-                        "data": "almacen_principal"
-                    },
-                    {
                         "data": "bodega"
                     },
                     {
@@ -214,9 +209,6 @@
                     },
                     {
                         "data": "coacalco"
-                    },
-                    {
-                        "data": "villas"
                     },
                     {
                         "data": "naucalpan"

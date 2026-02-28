@@ -45,54 +45,7 @@ class ventasController extends Controller
 
         return view('ventas.remisionar', ['type' => $type, 'idssucursales' => $idssucursales, 'idsucursal' => $idsucursal, 'nombresucursal' => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor' => $vendedor, 'clientes' => $clientes, 'productos' => $productos, 'vendedores' => $vendedores]);
     }
-    public function remisionarlistablack()
-    {
-        $idsucursal     = Auth::user()->warehouse;
-        $vendedor       = Auth::user()->name;
-        $idvendedor     = Auth::user()->id;
-        $nombresucursal = warehouse::select('nombre')
-            ->where('id', '=', $idsucursal)
-            ->first();
-        $idssucursales = warehouse::select('id', 'nombre')
-            ->get();
-        $vendedores = user::all();
 
-        $clientes = clients::all();
-        $type     = $this->gettype();
-
-        $productos = Product::leftJoin('product_warehouse', 'product.id', '=', 'product_warehouse.idproducto')
-            ->leftJoin('brand', 'product.marca', '=', 'brand.id')
-            ->where('product_warehouse.idwarehouse', $idsucursal)
-            ->select('product.*', 'brand.nombre as nombre_marca') // Selecciona las columnas de la tabla principal y el nombre de la marca
-            ->get();
-
-        return view('ventas.remisionarlistablack', ['type' => $type, 'idssucursales'        => $idssucursales, 'idsucursal' => $idsucursal,
-            'nombresucursal'                                   => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor'      => $vendedor, 'clientes' => $clientes, 'vendedores' => $vendedores, 'productos' => $productos]);
-    }
-    public function remisionarlistaplatinum()
-    {
-        $idsucursal     = Auth::user()->warehouse;
-        $vendedor       = Auth::user()->name;
-        $idvendedor     = Auth::user()->id;
-        $nombresucursal = warehouse::select('nombre')
-            ->where('id', '=', $idsucursal)
-            ->first();
-        $idssucursales = warehouse::select('id', 'nombre')
-            ->get();
-        $vendedores = user::all();
-
-        $clientes = clients::all();
-        $type     = $this->gettype();
-
-        $productos = Product::leftJoin('product_warehouse', 'product.id', '=', 'product_warehouse.idproducto')
-            ->leftJoin('brand', 'product.marca', '=', 'brand.id')
-            ->where('product_warehouse.idwarehouse', $idsucursal)
-            ->select('product.*', 'brand.nombre as nombre_marca') // Selecciona las columnas de la tabla principal y el nombre de la marca
-            ->get();
-
-        return view('ventas.remisionarlistaplatinum', ['type' => $type, 'idssucursales'        => $idssucursales, 'idsucursal' => $idsucursal,
-            'nombresucursal'                                      => $nombresucursal, 'idvendedor' => $idvendedor, 'vendedor'      => $vendedor, 'clientes' => $clientes, 'vendedores' => $vendedores, 'productos' => $productos]);
-    }
     public function remisiones()
     {
 
@@ -114,11 +67,6 @@ class ventasController extends Controller
         return view('ventas.reportes', ['type' => $type]);
     }
 
-    public function validarcortecaja(Request $request)
-    {
-        $sucursal = $request->sucursal;
-
-    }
     public function buscarprecio(Request $request)
     {
         $idproducto = $request->id_producto;
@@ -165,7 +113,7 @@ class ventasController extends Controller
 
         $idcliente = $request->idcliente;
         $idprice   = clients::where('id', '=', $idcliente)->value('precio');
-        $telefono   = clients::where('id', '=', $idcliente)->value('telefono');
+        $telefono  = clients::where('id', '=', $idcliente)->value('telefono');
         $precio    = prices::where('id', '=', $idprice)
             ->value('nombre');
         $sucursal = clients::where('id', '=', $idcliente)->value('sucursal');
@@ -233,11 +181,10 @@ class ventasController extends Controller
                     ->first();
 
                 $CantidadDescontar = $producto->Cantidad;
-                if ( $existenciasActual->existencias < intVal($CantidadDescontar)){
+                if ($existenciasActual->existencias < intVal($CantidadDescontar)) {
                     return response()->json(['message' => 'Error: No hay existencias suficientes del producto con código ' . $idproducto], 500);
                 }
-                $nuevaexistencia   = $existenciasActual->existencias - intVal($CantidadDescontar);
-
+                $nuevaexistencia = $existenciasActual->existencias - intVal($CantidadDescontar);
 
                 productwarehouse::where('idproducto', $idproducto)
                     ->where('idwarehouse', intVal($almacen))
@@ -261,7 +208,7 @@ class ventasController extends Controller
             $movimiento->productos  = $productos;
             $movimiento->documento  = "REMISS" . $idCreado;
             $movimiento->importe    = $request->importe;
-            $fdate                  =$date->format('Y-m-d H:i:s');
+            $fdate                  = $date->format('Y-m-d H:i:s');
             $fechaMysql             = $fdate;
             $movimiento->fecha      = $fechaMysql;
             $productos              = json_decode($request->productos);
@@ -342,10 +289,13 @@ class ventasController extends Controller
     {
         $idSucursal = $request->sucursal;
 
-        $type       = $this->gettype();
-        $timezone   = 'America/Mexico_City';
-        $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString();
-        $hoy_fin    = Carbon::today($timezone)->endOfDay()->toDateTimeString();
+        $idSucursal   = $request->sucursal;
+        $fecha_inicio = Carbon::parse($request->fecha)->startOfDay()->toDateTimeString();
+        $fecha_fin    = Carbon::parse($request->fecha)->endOfDay()->toDateTimeString();
+        $type         = $this->gettype();
+        $timezone     = 'America/Mexico_City';
+        $hoy_inicio   = $fecha_inicio;
+        $hoy_fin      = $fecha_fin;
 
         // Ejecutar SP con la sucursal seleccionada
         $remisiones = collect(DB::select('CALL obtenerremisionescorte(?, ?, ?)', [
@@ -483,79 +433,6 @@ class ventasController extends Controller
             'total_general'       => $total_general,
         ]);
     }
-    public function cortedecajaespecial()
-    {
-        $type       = $this->gettype();
-        $timezone   = 'America/Mexico_City';
-        $hoy_inicio = Carbon::today($timezone)->startOfDay()->toDateTimeString();
-        $hoy_fin    = Carbon::today($timezone)->endOfDay()->toDateTimeString();
-        $id         = Auth::user()->warehouse;
-
-        $remisiones = collect(DB::select('CALL obtenerremisionescorteespecial(?, ?)', [$hoy_inicio, $hoy_fin]));
-
-        // Define las formas de pago que siempre quieres mostrar
-        $formas_pago_base = ['efectivo', 'transferencia', 'terminal', 'clip', 'mercado_pago', 'vales'];
-
-        // Agrupar remisiones por forma de pago
-        $remisiones_por_pago = $remisiones->groupBy('forma_pago');
-
-        // Añadir formas de pago sin datos (si no existen en los resultados)
-        foreach ($formas_pago_base as $forma_pago) {
-            if (! $remisiones_por_pago->has($forma_pago)) {
-                $remisiones_por_pago[$forma_pago] = collect(); // Agregar un grupo vacío
-            }
-        }
-
-        $datos = json_decode($remisiones_por_pago, true);
-
-        // Filtrar cada método de pago
-        $resultado = [];
-        foreach ($datos as $metodo => $ventas) {
-            // Si no hay ventas, mantener el array vacío
-            if (empty($ventas)) {
-                $resultado[$metodo] = [];
-                continue;
-            }
-
-            // Filtrar solo las ventas con estatus "emitida"
-            $ventasFiltradas = array_filter($ventas, function ($venta) {
-                return $venta['estatus'] === 'emitida';
-            });
-
-            // Reindexar el array (opcional, para que no queden huecos en los índices)
-            $resultado[$metodo] = array_values($ventasFiltradas);
-        }
-
-        $remisiones_por_pago = $resultado;
-
-        $remisiones_por_pago = array_map(function ($metodo) {
-            return array_map(function ($remision) {
-                return (object) $remision; // Convierte cada array a objeto
-            }, $metodo);
-        }, $remisiones_por_pago);
-
-        $totales_por_pago = [
-            "efectivo"      => array_sum(array_column($remisiones_por_pago["efectivo"], "total")),
-            "transferencia" => array_sum(array_column($remisiones_por_pago["transferencia"], "total")),
-            "clip"          => array_sum(array_column($remisiones_por_pago["clip"], "total")),
-            "terminal"      => array_sum(array_column($remisiones_por_pago["terminal"], "total")),
-            "mercado_pago"  => array_sum(array_column($remisiones_por_pago["mercado_pago"], "total")),
-            "vales"         => array_sum(array_column($remisiones_por_pago["vales"], "total")),
-        ];
-
-        $total_general = array_sum($totales_por_pago);
-
-        $idssucursales = warehouse::select('id', 'nombre')
-            ->get();
-
-        return view('ventas.cortedecajaespecial', [
-            'idssucursales'       => $idssucursales,
-            'type'                => $type,
-            'remisiones_por_pago' => $remisiones_por_pago,
-            'totales_por_pago'    => $totales_por_pago,
-            'total_general'       => $total_general,
-        ]);
-    }
 
     public function historicocortedecaja()
     {
@@ -575,12 +452,11 @@ class ventasController extends Controller
             $query = 'CALL reportecortecaja("' . $hoy_inicio . '","' . $hoy_fin . '")';
 
             $resultados = DB::select($query);
-            $sucursal = warehouse::where('id', $almacen)->value('nombre');
+            $sucursal   = warehouse::where('id', $almacen)->value('nombre');
             // Convertimos a Collection para poder filtrar
             $cortecaja = collect($resultados);
 
             $cortecaja = $cortecaja->where('almacen', $sucursal)->values();
-
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'cortecaja' => $cortecaja], 200);
         } catch (\Throwable $th) {
@@ -653,14 +529,24 @@ class ventasController extends Controller
     {
         DB::beginTransaction();
         try {
-
             $vendedor = auth()->id() ?? 1;
 
-            $fechaHoy = now('America/Mexico_City')->toDateString(); // YYYY-mm-dd
+            $type         = $this->gettype();
+            $fechavalidar = null;
+            $fechavalidar = null;
+
+            if ($type != 4) {
+                // TODOS LOS USUARIOS EXCEPTO VENDEDORES
+                // Para usuarios que no son vendedores, usar la fecha seleccionada con hora fija 20:00:00
+                $fechavalidar = Carbon::parse($request->fecha)->setTime(20, 0, 0); // 20:00:00 horas
+            } else {
+                                                            // Para vendedores (type=4), usar fecha/hora actual de México
+                $fechavalidar = now('America/Mexico_City'); // Fecha y hora actual
+            }
 
             // Verificar si ya existe un corte de caja hoy para el vendedor
             $existeCorte = cash_closure::where('vendedor', $vendedor)
-                ->whereDate('fecha_cierre', $fechaHoy)
+                ->whereDate('fecha_cierre', $fechavalidar->toDateString())
                 ->exists();
 
             if ($existeCorte) {
@@ -678,21 +564,13 @@ class ventasController extends Controller
 
             $corteCaja->vendedor      = $vendedor;
             $corteCaja->estado        = 'pendiente';
-            $corteCaja->fecha_cierre  = now('America/Mexico_City')->format('Y-m-d H:i:s');
+            $corteCaja->fecha_cierre  = $fechavalidar->format('Y-m-d H:i:s');
             $corteCaja->observaciones = $request->observaciones ?? null;
-
-            if ($vendedor == 28) { // USUARIO DE MONTSERAT
-                $corteCaja->almacen = 1;
+            if ($type != 4) {
+                $corteCaja->almacen = $request->sucursal;
             } else {
-                $type = $this->gettype();
-                if ($type != 4) {
-                    $corteCaja->almacen = $request->sucursal;
-                } else {
-                    $corteCaja->almacen = Auth::user()->warehouse;
-                }
-
+                $corteCaja->almacen = Auth::user()->warehouse;
             }
-
             // Guardar el usuario en la base de datos
             $corteCaja->save();
 
