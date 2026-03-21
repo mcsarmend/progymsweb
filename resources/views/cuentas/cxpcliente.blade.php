@@ -71,7 +71,6 @@
                             <div class="col">
                                 <input type="text" id="cliente" name="cliente" list="client-list" class="form-control">
                                 <datalist id="client-list">
-                                    <option value="Mostrador">
                                         @foreach ($clientes as $cliente)
                                     <option value="{{ $cliente->id }}-{{ $cliente->nombre }}">
                                         @endforeach

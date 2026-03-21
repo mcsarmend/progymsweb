@@ -140,87 +140,116 @@ class ventasController extends Controller
 
     public function validarremision(Request $request)
     {
-
         try {
-            // Crear una nueva instancia del modelo referrals
-            $remision             = new referrals();
-            $date                 = DateTime::createFromFormat('j/n/Y, H:i:s', $request->fecha);
-            $fechaMysql           = $date->format('Y-m-d H:i:s');
-            $remision->fecha      = $fechaMysql;
-            $remision->nota       = $request->nota;
-            $remision->forma_pago = $request->forma_pago;
-            $remision->vendedor   = $request->vendedor;
 
-            $remision->cliente          = $this->extraerNumeroInicial($request->cliente);
-            $almacen                    = $request->almacen;
-            $remision->almacen          = $almacen;
-            $remision->total            = $request->total;
-            $remision->estatus          = "emitida";
-            $remision->tipo_de_precio   = $request->tipo_precio;
-            $remision->vendedor_reparto = $request->vendedor_reparto;
-            $remision->tipo_tarjeta     = $request->tipo_tarjeta;
+            return DB::transaction(function () use ($request) {
 
-            if ($request->reparto == null) {
-                $remision->reparto = 0;
-
-            } else {
-                $remision->reparto          = $request->reparto;
-                $remision->vendedor_reparto = $request->vendedor_reparto;
-            }
-
-            $productos           = json_decode($request->productos);
-            $remision->productos = json_encode($productos); // Convertir el array de productos a JSON
-
-            foreach ($productos as $producto) {
-
-                $idproducto = $producto->Codigo;
-
-                $existenciasActual = productwarehouse::select('existencias')
-                    ->where('idproducto', $idproducto)
-                    ->where('idwarehouse', intVal($almacen))
-                    ->first();
-
-                $CantidadDescontar = $producto->Cantidad;
-                if ($existenciasActual->existencias < intVal($CantidadDescontar)) {
-                    return response()->json(['message' => 'Error: No hay existencias suficientes del producto con código ' . $idproducto], 500);
+                // 🔹 Validaciones básicas
+                if (! $request->productos) {
+                    return response()->json(['message' => 'No se recibieron productos'], 400);
                 }
-                $nuevaexistencia = $existenciasActual->existencias - intVal($CantidadDescontar);
 
-                productwarehouse::where('idproducto', $idproducto)
-                    ->where('idwarehouse', intVal($almacen))
-                    ->update([
-                        'existencias' => $nuevaexistencia,
-                    ]);
-            }
+                $productos = json_decode($request->productos);
 
-            // Guardar la remisión en la base de datos
-            $remision->save();
+                if (! $productos || count($productos) == 0) {
+                    return response()->json(['message' => 'Lista de productos vacía'], 400);
+                }
 
-            // Obtener el ID recién creado
-            $idCreado = $remision->id;
+                // 🔹 Validar fecha
+                $date = \DateTime::createFromFormat('j/n/Y, H:i:s', $request->fecha);
+                if (! $date) {
+                    return response()->json(['message' => 'Formato de fecha inválido'], 400);
+                }
 
-            // REGISTRAR EL MOVIMIENTO
+                $fechaMysql = $date->format('Y-m-d H:i:s');
 
-            $movimiento             = new stockMovements();
-            $movimiento->movimiento = "REMISSIONISSUED";
-            $autor                  = Auth::user()->id;
-            $movimiento->autor      = $autor;
-            $movimiento->productos  = $productos;
-            $movimiento->documento  = "REMISS" . $idCreado;
-            $movimiento->importe    = $request->importe;
-            $fdate                  = $date->format('Y-m-d H:i:s');
-            $fechaMysql             = $fdate;
-            $movimiento->fecha      = $fechaMysql;
-            $productos              = json_decode($request->productos);
-            $movimiento->productos  = json_encode($productos); // Convertir el array de productos a JSON
-            $movimiento->importe    = $request->total;
-            $movimiento->save();
+                // 🔹 Crear remisión (SIN guardar aún)
+                $remision                 = new referrals();
+                $remision->fecha          = $fechaMysql;
+                $remision->nota           = $request->nota;
+                $remision->forma_pago     = $request->forma_pago;
+                $remision->vendedor       = $request->vendedor;
+                $remision->cliente        = $this->extraerNumeroInicial($request->cliente);
+                $remision->almacen        = (int) $request->almacen;
+                $remision->total          = $request->total;
+                $remision->estatus        = "emitida";
+                $remision->tipo_de_precio = $request->tipo_precio;
+                $remision->tipo_tarjeta   = $request->tipo_tarjeta;
 
-            // Devolver una respuesta de éxito con el ID
-            return response()->json(['message' => 'Remisión creada correctamente', 'id' => $idCreado], 200);
+                if ($request->reparto == null) {
+                    $remision->reparto = 0;
+                } else {
+                    $remision->reparto          = $request->reparto;
+                    $remision->vendedor_reparto = $request->vendedor_reparto;
+                }
+
+                $remision->productos = json_encode($productos);
+
+                $almacen = (int) $request->almacen;
+
+                // 🔹 Validar y descontar inventario con bloqueo
+                foreach ($productos as $producto) {
+
+                    $idproducto        = $producto->Codigo;
+                    $CantidadDescontar = (int) $producto->Cantidad;
+
+                    $existenciasActual = productwarehouse::where('idproducto', $idproducto)
+                        ->where('idwarehouse', $almacen)
+                        ->lockForUpdate()
+                        ->first();
+
+                    // ❌ Producto no existe en almacén
+                    if (! $existenciasActual) {
+                        throw new \Exception("Producto no encontrado en almacén: {$idproducto}");
+                    }
+
+                    // ❌ Sin inventario suficiente
+                    if ($existenciasActual->existencias < $CantidadDescontar) {
+                        throw new \Exception("Sin existencias suficientes para el producto: {$idproducto}");
+                    }
+
+                    $nuevaexistencia = $existenciasActual->existencias - $CantidadDescontar;
+
+                    $updated = productwarehouse::where('idproducto', $idproducto)
+                        ->where('idwarehouse', $almacen)
+                        ->update([
+                            'existencias' => $nuevaexistencia,
+                        ]);
+
+                    if (! $updated) {
+                        throw new \Exception("Error al actualizar inventario del producto: {$idproducto}");
+                    }
+                }
+
+                // 🔹 Guardar remisión
+                $remision->save();
+
+                $idCreado = $remision->id;
+
+                // 🔹 Registrar movimiento
+                $movimiento             = new stockMovements();
+                $movimiento->movimiento = "REMISSIONISSUED";
+                $movimiento->autor      = Auth::user()->id;
+                $movimiento->productos  = json_encode($productos);
+                $movimiento->documento  = "REMISS" . $idCreado;
+                $movimiento->importe    = $request->total;
+                $movimiento->fecha      = $fechaMysql;
+
+                $movimiento->save();
+
+                return response()->json([
+                    'message' => 'Remisión creada correctamente',
+                    'id'      => $idCreado,
+                ], 200);
+
+            });
+
         } catch (\Throwable $th) {
 
-            return response()->json(['message' => 'Error al realizar remisión' . $th->getMessage()], 500);
+            return response()->json([
+                'message' => 'Error al realizar remisión',
+                'error'   => $th->getMessage(),
+            ], 500);
         }
     }
 
@@ -536,8 +565,8 @@ class ventasController extends Controller
             $fechavalidar = null;
 
             if ($type != 4) {
-                // TODOS LOS USUARIOS EXCEPTO VENDEDORES
-                // Para usuarios que no son vendedores, usar la fecha seleccionada con hora fija 20:00:00
+                                                                                   // TODOS LOS USUARIOS EXCEPTO VENDEDORES
+                                                                                   // Para usuarios que no son vendedores, usar la fecha seleccionada con hora fija 20:00:00
                 $fechavalidar = Carbon::parse($request->fecha)->setTime(20, 0, 0); // 20:00:00 horas
             } else {
                                                             // Para vendedores (type=4), usar fecha/hora actual de México

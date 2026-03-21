@@ -24,6 +24,8 @@
 </head>
 
 <style>
+
+
     .img-responsive {
         position: relative;
         bottom: 1em;
@@ -98,6 +100,81 @@
     #productos_distribuidor_filter input {
         color: black !important;
     }
+
+    <style>
+
+    /* PAGINADO TABLA DISTRIBUIDOR */
+    #productos_distribuidor_paginate {
+        background: black;
+        padding: 12px;
+        text-align: center;
+        border-radius: 6px;
+    }
+
+    /* BOTONES PAGINADO */
+    #productos_distribuidor_paginate .paginate_button {
+        background: white !important;
+        color: black !important;
+        padding: 6px 12px !important;
+        margin: 3px !important;
+        border-radius: 4px !important;
+        border: none !important;
+    }
+
+    /* BOTON ACTIVO */
+    #productos_distribuidor_paginate .paginate_button.current {
+        background: #337AB7 !important;
+        color: white !important;
+    }
+
+    /* HOVER */
+    #productos_distribuidor_paginate .paginate_button:hover {
+        background: #ddd !important;
+    }
+
+    /* AJUSTE DE TABLA */
+    #productos_distribuidor {
+        width: 100% !important;
+        table-layout: auto;
+    }
+
+    #productos_distribuidor th {
+        white-space: nowrap;
+    }
+
+
+    /* CONTENEDOR PAGINADO */
+    #productos_distribuidor_paginate {
+        background: black;
+        padding: 12px;
+        border-radius: 6px;
+        white-space: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        width: 100%;
+    }
+
+    /* CENTRAR CONTENIDO */
+    #productos_distribuidor_paginate span {
+        display: inline-block;
+    }
+
+    /* BOTONES */
+    #productos_distribuidor_paginate .paginate_button {
+        background: white !important;
+        color: black !important;
+        padding: 6px 12px !important;
+        margin: 3px !important;
+        border-radius: 4px !important;
+        border: none !important;
+    }
+
+    /* BOTON ACTIVO */
+    #productos_distribuidor_paginate .paginate_button.current {
+        background: #337AB7 !important;
+        color: white !important;
+    }
+</style>
 </style>
 
 <body>
@@ -676,31 +753,27 @@
 
 
     <div class="modal fade" id="modalPrecios" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 95%;">
-            <!-- Solo estilo agregado -->
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width:99%;">
             <div class="modal-content">
 
-
-                <!-- SOLO SE AGREGARON ESTILOS AQUÍ -->
-                <div class="modal-body modal-almacenes-body" style="overflow-x: auto; max-height: 75vh;">
+                <div class="modal-body modal-almacenes-body" style="overflow-x:auto; max-height:75vh;">
 
                     <table id="productos_distribuidor" class="table table-striped table-almacenes"
-                        style="min-width: 900px;">
-                        <!-- ancho mínimo para que no se aplaste -->
+                        style="min-width:900px; width:100%;">
+
                         <thead class="table-almacenes-header">
                             <tr>
                                 <th>Producto</th>
                                 <th>Marca</th>
                                 <th>Categoria</th>
                                 <th>Distribuidor</th>
-
                                 <th>Platinum</th>
                                 <th>Existencias</th>
-
                             </tr>
                         </thead>
-                        <tbody>
-                        </tbody>
+
+                        <tbody></tbody>
+
                     </table>
 
                 </div>
@@ -708,7 +781,6 @@
             </div>
         </div>
     </div>
-
 
 
     <!-- SCRIPTS -->
@@ -901,7 +973,6 @@
 
                     {
                         "data": "totales",
-
                     },
 
 
@@ -915,7 +986,9 @@
 
 
 
-
+            $('#modalPrecios').on('shown.bs.modal', function() {
+                $('#productos_distribuidor').DataTable().columns.adjust();
+            });
 
 
             $('#table-products tbody').on('click', '.btn-ver-almacenes', function() {
