@@ -18,7 +18,7 @@ class pedidosController extends Controller
 {
     public function pedidosnuevo()
     {
-        $idsucursal     = 8;
+        $idsucursal     = Auth::user()->warehouse;
         $vendedor       = Auth::user()->name;
         $idvendedor     = Auth::user()->id;
         $nombresucursal = warehouse::select('nombre')

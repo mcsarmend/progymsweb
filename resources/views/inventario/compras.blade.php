@@ -275,7 +275,7 @@
             // Calcular la suma de la última columna
             var sum = 0;
             $productoTableClone.find('tr').each(function() {
-                var $lastTd = $(this).find('td:last-child');
+                var $lastTd = $(this).find('td:nth-last-child(2)');
                 if ($lastTd.length) {
                     var value = parseFloat($lastTd.text());
                     if (!isNaN(value)) {

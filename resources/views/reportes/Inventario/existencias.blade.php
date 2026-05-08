@@ -62,7 +62,6 @@
                                 <th>Platinum</th>
                                 <th>Existencias Totales</th>
                                 <th>Bodega</th>
-                                <th>Viveros</th>
                                 <th>TownCenter</th>
                                 <th>Coacalco</th>
                                 <th>Naucalpan</th>
@@ -200,9 +199,6 @@
                     },
                     {
                         "data": "bodega"
-                    },
-                    {
-                        "data": "viveros"
                     },
                     {
                         "data": "towncenter"

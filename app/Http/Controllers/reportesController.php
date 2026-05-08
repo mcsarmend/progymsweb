@@ -102,6 +102,14 @@ class reportesController extends Controller
 
         return view('reportes.remisiones.ventasproducto', ['type' => $type, 'categorias' => $categorias, 'marcas' => $marcas]);
     }
+    public function ventasvendedor()
+    {
+        $type       = $this->gettype();
+        $categorias = category::all();
+        $marcas     = brand::all();
+
+        return view('reportes.remisiones.ventasvendedor', ['type' => $type, 'categorias' => $categorias, 'marcas' => $marcas]);
+    }
 
     public function reporteclienteslista()
     {

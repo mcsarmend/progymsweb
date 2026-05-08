@@ -257,6 +257,7 @@ Route::get('productomovimiento', [reportesController::class, 'productomovimiento
 Route::get('resumenventas', [reportesController::class, 'resumenventas'])->middleware(['auth']);
 Route::get('ventascliente', [reportesController::class, 'ventascliente'])->middleware(['auth']);
 Route::get('ventasproducto', [reportesController::class, 'ventasproducto'])->middleware(['auth']);
+Route::get('ventasvendedor', [reportesController::class, 'ventasvendedor'])->middleware(['auth']);
 
 
 
