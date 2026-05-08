@@ -21,14 +21,18 @@
                         @csrf
                         <div class="row">
                             <div class="col">
-                                <label for="almacen">Cliente:</label>
+                                <label for="usuario">Cliente:</label>
                             </div>
                             <div class="col">
-                                <select name="id" id="id" class="form-control">
-                                    @foreach ($clients as $client)
-                                        <option value="{{ encrypt($client->id) }}">{{ $client->nombre }}</option>
-                                    @endforeach
-                                </select>
+                                <div class="col">
+                                    <input type="text" id="cliente" name="cliente" list="client-list"
+                                        class="form-control">
+                                    <datalist id="client-list">
+                                            @foreach ($clients as $cliente)
+                                        <option value="{{ $cliente->id }}-{{ $cliente->nombre }}">
+                                            @endforeach
+                                    </datalist>
+                                </div>
                             </div>
 
                         </div>

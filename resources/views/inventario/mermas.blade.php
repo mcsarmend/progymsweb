@@ -186,7 +186,7 @@
 
         function generateOptions() {
             return new Promise((resolve, reject) => {
-                var sucursal = $('#almacen_origen').val();
+                var sucursal = $('#sucursal').val();
 
                 $.ajax({
                     url: 'productosinventario',
@@ -219,7 +219,7 @@
             const idProducto = obtenerNumerosHastaGuion(productoInput.value); // Usa tu función existente
 
             if (!idProducto) return; // Si no hay ID válido, no hacer nada
-            const idsucursal = $('#almacen_origen').val();
+            const idsucursal = $('#sucursal').val();
 
             const data = {
                 id_producto: idProducto,
@@ -344,14 +344,14 @@
                 }
             });
 
-            if (sum == 0) {
-                Swal.fire({
-                    title: 'No hay productos agregados',
-                    text: 'Debe agregar al menos un producto',
-                    icon: 'error'
-                });
-                return;
-            }
+            // if (sum == 0) {
+            //     Swal.fire({
+            //         title: 'No hay productos agregados',
+            //         text: 'Debe agregar al menos un producto',
+            //         icon: 'error'
+            //     });
+            //     return;
+            // }
 
 
 
@@ -403,9 +403,9 @@
                         text: response.message,
                         icon: 'success'
                     });
-                    // setTimeout(function() {
-                    //     window.location.reload();
-                    // }, 3000);
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 3000);
 
                 },
                 error: function(xhr, status, error) {

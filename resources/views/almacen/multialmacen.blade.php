@@ -29,16 +29,14 @@
                                 <th>Frecuente</th>
                                 <th>Mayoreo</th>
                                 <th>Distribuidor</th>
-                                <th>Black</th>
                                 <th>Platinum</th>
                                 <th>Existencias Totales</th>
-                                <th>Almacèn Principal</th>
-                                <th>Viveros</th>
+                                <th>Bodega</th>
                                 <th>TownCenter</th>
                                 <th>Coacalco</th>
-                                <th>Villas</th>
                                 <th>Naucalpan</th>
-
+                                <th>Tienda Piso</th>
+                                <th>Pedidos</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -117,7 +115,8 @@
                         "data": "codigo"
                     },
                     {
-                        "data": "producto"
+                        "data": "producto",
+                        "width": "350px"
                     },
                     {
                         "data": "marca"
@@ -149,15 +148,7 @@
                             return '$' + data;
                         }
                     },
-                    {
-                        "data": "black",
-                        "render": function(data) {
-                            if (data == 0 || data == "0") {
-                                return 'NO APLICA';
-                            }
-                            return '$' + data;
-                        }
-                    },
+
                     {
                         "data": "platinum",
                         "render": function(data) {
@@ -171,10 +162,7 @@
                         "data": "totales"
                     },
                     {
-                        "data": "almacen_principal"
-                    },
-                    {
-                        "data": "viveros"
+                        "data": "bodega"
                     },
                     {
                         "data": "towncenter"
@@ -183,12 +171,14 @@
                         "data": "coacalco"
                     },
                     {
-                        "data": "villas"
+                        "data": "naucalpan"
                     },
                     {
-                        "data": "naucalpan"
+                        "data": "tienda_piso"
+                    },
+                    {
+                        "data": "pedidos"
                     }
-
                 ]
             });
             drawTriangles();

@@ -69,6 +69,9 @@
                                 <th>Codigo</th>
                                 <th>Cantidad</th>
                                 <th>Nombre</th>
+                                <th>Costo Anterior</th>
+                                <th>Costo en Compra</th>
+                                <th>Cambio Costo</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -164,7 +167,6 @@
                             {
                                 "data": "documento"
                             },
-
                             {
                                 "data": "productos",
                                 "render": function(data, type, row) {
@@ -172,6 +174,7 @@
                                         ')" class="btn btn-primary">Ver</button>';
                                 }
                             },
+
 
 
                         ]
@@ -244,7 +247,29 @@
                             },
                             {
                                 "data": "Nombre"
+                            },
+                            {
+                                "data": "Costo Unitario"
+                            },
+                            {
+                                "data": "Costo en Compra"
+                            },
+                            {
+                                "data": null,
+                                "render": function(data, type, row) {
+                                    let unit = parseFloat(row["Costo Unitario"]);
+                                    let compra = parseFloat(row["Costo en Compra"]);
+
+                                    if (compra < unit) {
+                                        return "Bajó";
+                                    } else if (compra > unit) {
+                                        return "Subió";
+                                    } else {
+                                        return "No aplica";
+                                    }
+                                }
                             }
+
                         ]
                     });
                 }

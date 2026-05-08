@@ -28,5 +28,6 @@ class referrals extends Model
         'isar',
         'reparto',
         'vendedor_reparto',
+        'tipo_tarjeta'
     ];
 }

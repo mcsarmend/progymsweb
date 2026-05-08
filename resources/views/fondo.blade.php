@@ -165,6 +165,11 @@
                     }
                 });
 
+                $('a.nav-link[href$="cortedecajaespecial"]').closest('li').hide();
+                $('a:contains("Pedidos")').closest('.nav-item.has-treeview').hide();
+
+
+                $('a[href*="edicioncliente"]').closest('li.nav-item').remove();
 
                 $('a.nav-link[href="https://gprogyms.com.mx/asistenciageneral"]').remove();
                 $('a.nav-link[href="https://gprogyms.com.mx/calendario"]').remove();
@@ -180,6 +185,8 @@
                 $('li.nav-item.has-treeview:has(a.nav-link:contains("Reportes"))').remove();
                 $('li.nav-item.has-treeview:has(a.nav-link:contains("Reconocimientos"))').remove();
                 $('li.nav-item.has-treeview:has(a.nav-link:contains("CxC"))').remove();
+                $('li.nav-item.has-treeview:has(a.nav-link:contains("Categorias"))').remove();
+                $('li.nav-item.has-treeview:has(a.nav-link:contains("Marcas"))').remove();
 
 
                 break;

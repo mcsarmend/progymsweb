@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Multialmacén')
+@section('title', 'Existencias y Costos')
 
 @section('content_header')
 
@@ -16,6 +16,7 @@
                     <h1>Precios y existencias</h1>
                 </div>
                 <div class="card-body">
+
                     <form method="POST" id="existencias_form">
                         @csrf
                         <div class="row justify-content-center align-items-center text-center">
@@ -32,12 +33,19 @@
                             <div class="col-auto">
                                 <button type="submit" class="btn btn-success">Descargar</button>
                             </div>
-                            <div class="col-auto">
-                                <p>Selecciona el almacen del que quieres obtener sus existencias</p>
-                            </div>
+
                         </div>
                     </form>
                     <br>
+
+                    <div class="col-12 col-md-6 mb-3 mx-auto">
+                        <div class="card bg-primary text-white shadow h-100">
+                            <div class="card-body text-center">
+                                <h3><i class=""></i> Total Costos</h3>
+                                <h1 id="total_costos" class="display-4" style="color: #00ffa6;">$0.00</h1>
+                            </div>
+                        </div>
+                    </div>
                     <table id="productos" class="table">
                         <thead>
                             <tr>
@@ -45,17 +53,20 @@
                                 <th>Nombre</th>
                                 <th>Marca</th>
                                 <th>Categoria</th>
+                                <th>Costo</th>
+                                <th>Costo Promedio</th>
                                 <th>Público</th>
                                 <th>Frecuente</th>
                                 <th>Mayoreo</th>
                                 <th>Distribuidor</th>
+                                <th>Platinum</th>
                                 <th>Existencias Totales</th>
-                                <th>Almacèn Principal</th>
-                                <th>Viveros</th>
+                                <th>Bodega</th>
                                 <th>TownCenter</th>
                                 <th>Coacalco</th>
-                                <th>Villas</th>
                                 <th>Naucalpan</th>
+                                <th>Tienda Piso</th>
+                                <th>Pedidos</th>
 
                             </tr>
                         </thead>
@@ -81,12 +92,22 @@
 @stop
 
 @section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.datatables.net/fixedheader/3.2.0/js/dataTables.fixedHeader.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.0/css/fixedHeader.dataTables.min.css">
 
     <script>
         $(document).ready(function() {
             var products = @json($products);
+            var total_costos = @json($total_costos);
+            $('#total_costos').text(
+                '$' + Number(total_costos).toLocaleString('es-MX', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })
+            );
+
             $('#productos').DataTable({
                 destroy: true,
                 scrollX: true,
@@ -97,7 +118,7 @@
                     "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
                 },
                 "buttons": [
-                    'copy', 'excel', 'pdf', 'print'
+
                 ],
                 dom: 'Blfrtip',
                 createdRow: function(row, data, dataIndex) {
@@ -122,24 +143,26 @@
                         columns: ':visible' // Exportar solo las columnas visibles
                     }
                 },
-                // Para Excel
-                excel: {
-                    exportOptions: {
-                        columns: ':visible' // Exportar solo las columnas visibles
-                    }
-                },
+
                 "data": products,
                 "columns": [{
                         "data": "codigo"
                     },
                     {
-                        "data": "producto"
+                        "data": "producto",
+                        "width": "350px"
                     },
                     {
                         "data": "marca"
                     },
                     {
                         "data": "categoria"
+                    },
+                    {
+                        "data": "costo"
+                    },
+                    {
+                        "data": "costo_promedio"
                     },
                     {
                         "data": "publico",
@@ -166,13 +189,16 @@
                         }
                     },
                     {
+                        "data": "platinum",
+                        "render": function(data, type, row) {
+                            return '$' + data;
+                        }
+                    },
+                    {
                         "data": "totales"
                     },
                     {
-                        "data": "almacen_principal"
-                    },
-                    {
-                        "data": "viveros"
+                        "data": "bodega"
                     },
                     {
                         "data": "towncenter"
@@ -181,12 +207,18 @@
                         "data": "coacalco"
                     },
                     {
-                        "data": "villas"
+                        "data": "naucalpan"
                     },
                     {
-                        "data": "naucalpan"
+                        "data": "tienda_piso"
+                    },
+                    {
+                        "data": "pedidos"
                     }
 
+                ],
+                order: [
+                    [2, 'asc']
                 ]
             });
             drawTriangles();
@@ -213,7 +245,16 @@
                 success: function(data) {
 
                     products = data.products;
-                    exportarexcel(products, 'SoloExistencias.xlsx');
+
+                    var ahora = new Date();
+                    var fecha = ahora.toISOString().slice(0, 10); // 2025-11-13
+                    var hora = ahora.toTimeString().slice(0, 8); // 11:42:10
+
+                    var resultado = fecha + ' ' + hora;
+                    var nombre = $('#almacen option:selected').text() + resultado + ".xlsx";
+                    exportarexcel(products, nombre);
+                    generarPDF(data.products);
+
 
                 },
                 error: function(xhr, status, error) {
@@ -229,7 +270,39 @@
 
         });
 
+        function generarPDF(data) {
+            const {
+                jsPDF
+            } = window.jspdf;
+            const doc = new jsPDF();
 
+            const columnasPermitidas = ["codigo", "producto", "marca", "categoria", "existencias"];
 
+            const dataFiltrada = data.map(item => {
+                let obj = {};
+                columnasPermitidas.forEach(col => {
+                    obj[col] = item[col];
+                });
+                return obj;
+            });
+
+            // Encabezados desde las claves del JSON
+            const headers = Object.keys(dataFiltrada[0]);
+
+            // Filas desde los valores
+            const rows = dataFiltrada.map(item => Object.values(item));
+
+            doc.autoTable({
+                head: [headers],
+                body: rows
+            });
+            var ahora = new Date();
+            var fecha = ahora.toISOString().slice(0, 10); // 2025-11-13
+            var hora = ahora.toTimeString().slice(0, 8); // 11:42:10
+
+            var resultado = fecha + ' ' + hora;
+            var nombre = $('#almacen option:selected').text() + resultado + ".pdf";
+            doc.save(nombre);
+        }
     </script>
 @stop

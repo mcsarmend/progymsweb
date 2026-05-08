@@ -1,7 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\brand;
+use App\Models\category;
 use App\Models\clients;
+use App\Models\product;
 use App\Models\stockMovements;
 use App\Models\supplier;
 use App\Models\warehouse;
@@ -61,8 +64,51 @@ class reportesController extends Controller
     {
         $type      = $this->gettype();
         $almacenes = warehouse::all();
-        $products  = DB::select('CALL sp_multialmacen()');
-        return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes]);
+        $products  = DB::select('CALL sp_reporteexistencias(0)');
+
+        $total_costos = array_reduce($products, function ($carry, $item) {
+            return $carry + ($item->costo * intval($item->totales));
+        }, 0);
+
+        return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes, 'total_costos' => $total_costos]);
+    }
+    public function productomovimiento()
+    {
+        $type      = $this->gettype();
+        $productos = product::all();
+        return view('reportes.inventario.productomovimiento', ['type' => $type, 'productos' => $productos]);
+    }
+    public function resumenventas()
+    {
+        $type      = $this->gettype();
+        $almacenes = warehouse::all();
+        $products  = DB::select('CALL sp_reporteexistencias(0)');
+        return view('reportes.remisiones.resumenventas', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes]);
+    }
+    public function ventascliente()
+    {
+        $type     = $this->gettype();
+        $clientes = clients::select('clients.id', 'clients.nombre', 'clients.telefono', 'prices.nombre as precio')
+            ->leftJoin('prices', 'clients.precio', '=', 'prices.id')
+            ->get();
+
+        return view('reportes.remisiones.ventascliente', ['type' => $type, 'clientes' => $clientes]);
+    }
+    public function ventasproducto()
+    {
+        $type       = $this->gettype();
+        $categorias = category::all();
+        $marcas     = brand::all();
+
+        return view('reportes.remisiones.ventasproducto', ['type' => $type, 'categorias' => $categorias, 'marcas' => $marcas]);
+    }
+    public function ventasvendedor()
+    {
+        $type       = $this->gettype();
+        $categorias = category::all();
+        $marcas     = brand::all();
+
+        return view('reportes.remisiones.ventasvendedor', ['type' => $type, 'categorias' => $categorias, 'marcas' => $marcas]);
     }
 public function reporteimagendealmacen(){
          $type = $this->gettype();
@@ -90,6 +136,242 @@ public function reporteimagendealmacen(){
         $type        = $this->gettype();
         return view('proveedores.proveedores', ['type' => $type, 'suppliers' => $proveedores]);
     }
+    public function reportehistoricoinventario()
+    {
+        $proveedores = supplier::all();
+        $type        = $this->gettype();
+        return view('reportes.inventario.historicoinventario', ['type' => $type, 'suppliers' => $proveedores]);
+    }
+
+    public function generarreporteventascliente(Request $request)
+    {
+        try {
+
+            $idcliente   = $request->idcliente ?? 0;
+            $fechainicio = $request->fechainicio ?? null;
+            $fechafin    = $request->fechafin ?? null;
+
+            $query = DB::table('referrals as r')
+                ->select(
+                    'r.fecha',
+                    'r.forma_pago',
+                    'r.total',
+                    'p.nombre as tipo_de_precio',
+                    'r.reparto',
+                    'c.nombre',
+                    'r.id'
+                )
+                ->leftJoin('clients as c', 'r.cliente', '=', 'c.id')
+                ->leftJoin('prices as p', 'r.tipo_de_precio', '=', 'p.id')
+                ->where('c.id', $idcliente);
+
+            if ($fechainicio) {
+                $query->where('r.fecha', '>=', $fechainicio);
+            }
+            if ($fechafin) {
+                $query->where('r.fecha', '<=', $fechafin);
+            }
+
+            $remisiones = $query->get();
+
+            // ===================================================
+            // ================ ESTADÍSTICAS ======================
+            // ===================================================
+
+            // TOTAL VENDIDO
+            $total_vendido = $remisiones->sum('total');
+
+            // CANTIDAD DE REMISIONES
+            $cantidad_remisiones = $remisiones->count();
+
+            // VENTAS POR DÍA
+            $cantidadesPorDia = $remisiones->groupBy('fecha')->map(function ($grupo) {
+                return [
+                    'cantidad' => $grupo->count(),
+                    'total'    => $grupo->sum('total'),
+                ];
+            });
+
+            return response()->json([
+                'message'             => 'Reporte Generado Correctamente',
+                'remisiones'          => $remisiones,
+                'total_vendido'       => $total_vendido,
+                'cantidad_remisiones' => $cantidad_remisiones,
+                'cantidadesPorDia'    => $cantidadesPorDia,
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte: ' . $th->getMessage()], 500);
+        }
+    }
+
+    public function generarreporteventasproducto(Request $request)
+    {
+        try {
+
+            $fechainicio = $request->fechainicio ?? null;
+            $fechafin    = $request->fechafin ?? null;
+            $marca       = $request->marcas ? strtok($request->marcas, ' ') : null;
+            $categoria   = $request->categorias ? strtok($request->categorias, ' ') : null;
+
+            // ===================== CONSULTA BASE =====================
+            $query = DB::table('referrals as r')
+                ->select(
+                    'r.fecha',
+                    'r.forma_pago',
+                    'r.total',
+                    'p.nombre as tipo_de_precio',
+                    'r.reparto',
+                    'r.id',
+                    'w.nombre as almacen_nombre', // ← CAMBIO
+                    'r.productos'
+                )
+                ->leftJoin('prices as p', 'r.tipo_de_precio', '=', 'p.id')
+                ->leftJoin('warehouse as w', 'r.almacen', '=', 'w.id');
+
+            if ($fechainicio) {
+                $query->where('r.fecha', '>=', $fechainicio);
+            }
+            if ($fechafin) {
+                $query->where('r.fecha', '<=', $fechafin);
+            }
+
+            $remisiones = $query->get();
+
+            // ==========================================================
+            //           ARMAR PRODUCTOS GLOBALES
+            // ==========================================================
+
+            $productosGlobal = [];
+
+            foreach ($remisiones as $r) {
+
+                $items = json_decode($r->productos, true);
+
+                if (! $items) {
+                    continue;
+                }
+
+                foreach ($items as $prod) {
+
+                    $codigo   = $prod["Codigo"];
+                    $cantidad = (int) $prod["Cantidad"];
+                    $nombre   = $prod["Nombre"];
+                    $almacen  = $r->almacen_nombre; // ← CAMBIO
+
+                    // Crear si no existe
+                    if (! isset($productosGlobal[$codigo])) {
+                        $productosGlobal[$codigo] = [
+                            "codigo"         => $codigo,
+                            "nombre"         => $nombre,
+                            "cantidad_total" => 0,
+                            "almacenes"      => [], // almacén => cantidad
+                        ];
+                    }
+
+                    // Total global
+                    $productosGlobal[$codigo]["cantidad_total"] += $cantidad;
+
+                    // Cantidad por almacén
+                    if ($almacen) {
+                        $productosGlobal[$codigo]["almacenes"][$almacen] =
+                            ($productosGlobal[$codigo]["almacenes"][$almacen] ?? 0) + $cantidad;
+                    }
+
+                }
+            }
+
+            // Agregar marca y categoría a cada producto
+            foreach ($productosGlobal as $codigo => &$p) {
+                $producto = product::where('id', $codigo)->first();
+                if ($producto) {
+                    $p['marca']     = $producto->marca;
+                    $p['categoria'] = $producto->categoria;
+                } else {
+                    $p['marca']     = 'Desconocida';
+                    $p['categoria'] = 'Desconocida';
+                }
+            }
+            unset($p); // Romper referencia
+
+            //Aplicar filtros de marca y categoría
+            if ($marca) {
+                $productosGlobal = array_filter($productosGlobal, function ($p) use ($marca) {
+                    return $p['marca'] == $marca;
+                });
+            }
+
+            if ($categoria) {
+                $productosGlobal = array_filter($productosGlobal, function ($p) use ($categoria) {
+                    return $p['categoria'] == $categoria;
+                });
+            }
+
+            // ==========================================================
+            //      TOP 10 PRODUCTOS MÁS VENDIDOS
+            // ==========================================================
+
+            usort($productosGlobal, fn($a, $b) =>
+                $b["cantidad_total"] <=> $a["cantidad_total"]
+            );
+
+            $top10 = array_slice($productosGlobal, 0, 10);
+
+            // ==========================================================
+            //    LISTA DE ALMACENES ÚNICOS PARA LA GRÁFICA
+            // ==========================================================
+
+            $almacenes_unicos = [];
+
+            foreach ($top10 as $p) {
+                foreach ($p["almacenes"] as $alm => $cant) {
+                    $almacenes_unicos[$alm] = true;
+                }
+            }
+
+            $almacenes_unicos = array_keys($almacenes_unicos);
+
+            // ==========================================================
+            //   SERIES PARA HIGHCHARTS (UN PRODUCTO = UNA LÍNEA)
+            // ==========================================================
+
+            $series = [];
+
+            foreach ($top10 as $p) {
+
+                $serie = [
+                    "name" => $p["nombre"],
+                    "data" => [],
+                ];
+
+                // ordenar cifras según orden de almacenes
+                foreach ($almacenes_unicos as $alm) {
+                    $serie["data"][] = $p["almacenes"][$alm] ?? 0;
+                }
+
+                $series[] = $serie;
+            }
+
+            // ==========================================================
+            //     DATOS FINALES PARA EL BLADE
+            // ==========================================================
+
+            return response()->json([
+                'message'   => 'Reporte Generado Correctamente',
+                'top10'     => $top10,
+                'almacenes' => $almacenes_unicos,
+                'series'    => $series,
+                'productos' => $productosGlobal,
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => 'Error al generar el reporte: ' . $th->getMessage(),
+            ], 500);
+        }
+    }
 
     public function reportesoloexistencias(Request $request)
     {
@@ -107,6 +389,119 @@ public function reporteimagendealmacen(){
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
         }
     }
+
+    public function reporteresumenventas(Request $request)
+    {
+        try {
+
+            $dateStart = Carbon::parse($request->fechainicio)->startOfDay();
+            $dateEnd   = Carbon::parse($request->fechafin)->endOfDay();
+            $sucursal  = $request->sucursal;
+
+            $query = DB::table('referrals as r')
+                ->select(
+                    'r.fecha',
+                    'r.forma_pago',
+                    'u.name as vendedor',
+                    'ur.name as vendedor_reparto',
+                    'r.total as total',
+                    'p.nombre as tipo_de_precio',
+                    'r.reparto'
+                )
+                ->leftJoin('users as u', 'r.vendedor', '=', 'u.id')
+                ->leftJoin('users as ur', 'r.vendedor_reparto', '=', 'ur.id')
+                ->leftJoin('warehouse as w', 'w.id', '=', 'r.almacen')
+                ->leftJoin('prices as p', 'p.id', '=', 'r.tipo_de_precio')
+                ->where('r.estatus', 'emitida')
+                ->whereBetween('r.fecha', [$dateStart, $dateEnd]);
+
+            if ($sucursal != 0) {
+                $query->where('r.almacen', $sucursal);
+            }
+
+            /* 1. Total Vendido */
+            $total_vendido = $query->sum('r.total');
+
+            /* Cantidad de remisiones */
+            $cantidad_remisiones = $query->count();
+
+            /* 2. Métodos de pago */
+            $metodosBrutos = (clone $query)
+                ->select(
+                    'r.forma_pago',
+                    DB::raw('COUNT(*) as cantidad'),
+                    DB::raw('SUM(r.total) as total')
+                )
+                ->groupBy('r.forma_pago')
+                ->get()
+                ->keyBy('forma_pago')
+                ->toArray();
+
+            /* 3. Métodos de pago */
+            $cantidadesPorDia = (clone $query)
+                ->select(
+                    DB::raw("DATE(r.fecha) as fecha"),
+                    DB::raw("COUNT(*) as cantidad"),
+                    DB::raw("SUM(r.total) as total")
+                )
+                ->groupBy(DB::raw("DATE(r.fecha)"))
+                ->orderBy(DB::raw("DATE(r.fecha)"))
+                ->get()
+                ->keyBy('fecha')
+                ->toArray();
+
+            $metodos = [
+                'efectivo'      => $metodosBrutos['efectivo'] ?? 0,
+                'terminal'      => $metodosBrutos['terminal'] ?? 0,
+                'mercado_pago'  => $metodosBrutos['mercado_pago'] ?? 0,
+                'clip'          => $metodosBrutos['clip'] ?? 0,
+                'vales'         => $metodosBrutos['vales'] ?? 0,
+                'transferencia' => $metodosBrutos['transferencia'] ?? 0,
+            ];
+
+            /* 4. Tipos de precio */
+            $tipos_precio = (clone $query)
+                ->select(
+                    'p.nombre as tipo_de_precio',
+                    DB::raw('COUNT(*) as cantidad'),
+                    DB::raw('SUM(r.total) as total')
+                )
+                ->groupBy('p.nombre')
+                ->get()
+                ->keyBy('tipo_de_precio') // ← ESTE es el correcto
+                ->toArray();
+
+            /* 5. REPARTO Y MOSTRADOR*/
+            $tipos_remision = (clone $query)
+                ->select(
+                    DB::raw("CASE WHEN r.reparto = 1 THEN 'REPARTO' ELSE 'MOSTRADOR' END AS tipo_remision"),
+                    DB::raw('COUNT(*) as cantidad'),
+                    DB::raw('SUM(r.total) as total')
+                )
+                ->groupBy('tipo_remision')
+                ->get()
+                ->keyBy('tipo_remision')
+                ->toArray();
+
+            return response()->json([
+                'message'             => 'Reporte generado correctamente.',
+                'total_vendido'       => $total_vendido,
+                'metodos'             => $metodos,
+                'cantidadesPorDia'    => $cantidadesPorDia,
+                'tipos_precio'        => $tipos_precio,
+                'tipos_remision'      => $tipos_remision,
+                'metodosBrutos'       => $metodosBrutos,
+                'cantidad_remisiones' => $cantidad_remisiones,
+                'query'               => $query->get(),
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error: ' . $th->getMessage(),
+            ], 500);
+        }
+    }
+
     public function generarreporteremisiones(Request $request)
     {
         try {
@@ -157,9 +552,8 @@ public function reporteimagendealmacen(){
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
         }
     }
-    public function
-
-    generarreportecortecaja(Request $request) {
+    public function generarreportecortecaja(Request $request)
+    {
         try {
             $timezone = 'America/Mexico_City';
 
@@ -201,6 +595,43 @@ public function reporteimagendealmacen(){
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
         }
     }
+
+    public function buscarproductomovimiento(Request $request)
+    {
+        try {
+            $producto  = $request->producto;
+            $dateStart = Carbon::parse($request->fechainicio)->startOfDay();
+            $dateEnd   = Carbon::parse($request->fechafin)->endOfDay();
+
+            $movimientos = stockMovements::where('stock_movements.productos', 'like', '%' . $producto . '%')
+                ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
+                ->select(
+                    'stock_movements.id as id',
+                    'stock_movements.fecha as fecha',
+                    DB::raw("CASE
+                                        WHEN stock_movements.movimiento = 'PURCHASE' THEN 'COMPRA'
+                                        WHEN stock_movements.movimiento = 'TRANSFER' THEN 'TRASPASO'
+                                        WHEN stock_movements.movimiento = 'ENTRANCEMERCH' THEN 'ENTRADA'
+                                        WHEN stock_movements.movimiento = 'REMISSIONISSUED' THEN 'REMISION'
+                                        WHEN stock_movements.movimiento = 'EXITMERCH' THEN 'SALIDA'
+                                        WHEN stock_movements.movimiento = 'NEW_PRODUCT' THEN 'NUEVO_PRODUCTO'
+                                        ELSE stock_movements.movimiento
+                                    END as movimiento"),
+                    'stock_movements.documento as documento',
+                    'stock_movements.productos as productos',
+                    'u.name as autor'
+                )
+                ->whereBetween('fecha', [$dateStart, $dateEnd])
+                ->orderBy('stock_movements.fecha', 'desc')
+                ->get();
+
+            return response()->json(['message' => 'Reporte Generado Correctamente', 'movimientos' => $movimientos], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+
     public function generarreportetraspasos(Request $request)
     {
         try {
@@ -218,6 +649,7 @@ public function reporteimagendealmacen(){
                     'u.name as autor'
                 )
                 ->where('movimiento', 'TRANSFER')
+                ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'traspasos' => $traspasos], 200);
@@ -236,6 +668,7 @@ public function reporteimagendealmacen(){
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
                 ->select('stock_movements.id as id', 'stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
                 ->where('movimiento', 'DECREASE')
+                ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'mermas' => $mermas], 200);
@@ -261,6 +694,7 @@ public function reporteimagendealmacen(){
                     'u.name as autor'
                 )
                 ->where('movimiento', 'ENTRANCEMERCH')
+                ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'entradas' => $entradas], 200);
@@ -279,9 +713,67 @@ public function reporteimagendealmacen(){
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
                 ->select('stock_movements.id as id', 'stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
                 ->where('movimiento', 'EXITMERCH')
+                ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
 
             return response()->json(['message' => 'Reporte Generado Correctamente', 'salidas' => $salidas], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+    public function generarreportehistorico(Request $request)
+    {
+        try {
+            $dateStart = Carbon::parse($request->fechainicio)->startOfDay();
+            $dateEnd   = Carbon::parse($request->fechafin)->endOfDay();
+
+            $backup = DB::table('backup_warehouse')
+                ->whereBetween('fecha', [$dateStart, $dateEnd])
+                ->select(
+                    'id',
+                    'datos',
+                    'total_compra',
+                    'total_productos',
+                    'fecha'
+                )
+                ->orderBy('fecha', 'desc')
+                ->get();
+
+            return response()->json([
+                'message'   => 'Reporte generado correctamente',
+                'historico' => $backup,
+            ], 200);
+        } catch (\Throwable $th) {
+
+            return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);
+        }
+    }
+    public function verproductoshistorico(Request $request)
+    {
+
+        try {
+            $id = $request->id;
+
+            $registro = DB::table('backup_warehouse')
+                ->select('fecha', 'datos')
+                ->where('id', $id)
+                ->first();
+
+            if (! $registro) {
+                return response()->json([
+                    'data' => [],
+                ]);
+            }
+
+            return response()->json([
+                'data' => [
+                    [
+                        'fecha' => $registro->fecha,
+                        'datos' => $registro->datos,
+                    ],
+                ],
+            ]);
         } catch (\Throwable $th) {
 
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);

@@ -182,7 +182,8 @@
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
                             success: function(data) {
-                                agregarFila(data.idproducto, data.cantidad, data.nombre, data
+                                nombre = data.nombre + " - " + data.marca;
+                                agregarFila(data.idproducto, data.cantidad, nombre, data
                                     .costo);
                             },
                             error: function(xhr, status, error) {
@@ -438,93 +439,7 @@
                         if (result.isConfirmed) {
 
 
-                            // Crear el documento PDF
-                            var {
-                                jsPDF
-                            } = window.jspdf;
-                            var doc = new jsPDF({
-                                orientation: "portrait",
-                                unit: "mm",
-                                format: [297, 210],
-                            });
-                            var opciones = {
-                                timeZone: "America/Mexico_City",
-                                hour12: false,
-                            };
-                            var documento = $("#documento").val();
-                            var time = new Date().toLocaleString("es-MX", opciones);
-                            var alm_origen = $('#almacen_origen option:selected').text()
-                                .trim();
-                            var alm_destino = $('#almacen_destino option:selected').text()
-                                .trim();
-                            // Agregar contenido al PDF
-                            doc.setFontSize(12);
-                            doc.setFont("helvetica", "bold");
-                            doc.text("GRUPO PROGYMS", 30, 10);
-                            doc.text(`Documento: ${documento}`, 10, 22);
-                            doc.text(`Fecha: ${time}`, 10, 27);
-                            doc.text(`Almacén Origen: ${alm_origen}`, 10, 31);
-                            doc.text(`Almacén Destino: ${alm_destino}`, 10, 35);
-
-                            var $productoTableClone2 = $("#productos").clone();
-                            // Convertir la tabla HTML a un formato aceptable para jsPDF
-                            var res = doc.autoTableHtmlToJson($productoTableClone2[0]);
-                            // Eliminar la última columna de cada fila (contenido)
-                            res.data = res.data.map((row) => {
-                                row.pop();
-                                return row;
-                            });
-
-                            // Eliminar el encabezado de la última columna (si aplica)
-                            res.columns.pop();
-
-                            doc.autoTable({
-                                startY: 47, // Empieza después del texto introductorio
-                                tableWidth: 'wrap', // Ajuste automático al ancho disponible
-                                margin: {
-                                    left: 5,
-                                    right: 5,
-                                }, // Márgenes mínimos
-                                head: [res.columns], // Encabezados
-                                body: res.data, // Datos
-                                styles: {
-                                    fontSize: 10, // Reducir tamaño de fuente para que quepa más contenido
-                                    fontStyle: "bold",
-                                    overflow: 'linebreak', // Permite que el texto largo se ajuste en varias líneas
-                                },
-                                columnStyles: {
-                                    0: {
-                                        cellWidth: 30, // Reducir el ancho de la primera columna
-                                    },
-                                    1: {
-                                        cellWidth: 20, // Reducir el ancho de la segunda columna
-                                    },
-                                    2: {
-                                        cellWidth: 100, // Ajustar ancho de la tercera columna
-                                    },
-                                    3: {
-                                        cellWidth: 20, // Reducir el ancho de la cuarta columna
-                                    },
-                                    4: {
-                                        cellWidth: 18, // Reducir el ancho de la quinta columna
-                                    },
-                                },
-                                headStyles: {
-                                    fillColor: null,
-                                    textColor: 0,
-                                },
-                                bodyStyles: {
-                                    fillColor: "#FFFFFF",
-                                    textColor: 0,
-                                },
-                                // Opción para manejar varias páginas si la tabla es demasiado grande
-                                pageBreak: 'auto', // La tabla se ajusta automáticamente a varias páginas
-                            });
-
-
-                            // Guardar y mostrar el PDF
-                            doc.save(`traspaso_${documento}.pdf`);
-                            Swal.fire("traspaso impreso!", "", "success");
+                            generarPDF();
                             setTimeout(function() {
                                 window.location.reload();
                             }, 5000);
@@ -579,62 +494,65 @@
                 unit: "mm",
                 format: [297, 210],
             });
+
             var opciones = {
                 timeZone: "America/Mexico_City",
                 hour12: false,
             };
+
             var documento = $("#documento").val();
+            var rfc = $("#rfc").val() || "ASG160718HS6";
+            var numero = $("#numero").val() || ""; // <--- SOLO SI LO USAS
             var time = new Date().toLocaleString("es-MX", opciones);
             var alm_origen = $('#almacen_origen option:selected').text().trim();
             var alm_destino = $('#almacen_destino option:selected').text().trim();
 
-            // Agregar contenido al PDF
+            // ============================
+            // SECCIÓN IZQUIERDA
+            // ============================
             doc.setFontSize(12);
             doc.setFont("helvetica", "bold");
-            doc.text("GRUPO PROGYMS", 30, 10);
-            doc.text(`Documento: ${documento}`, 10, 22);
-            doc.text(`Fecha: ${time}`, 10, 27);
-            doc.text(`Almacén Origen: ${alm_origen}`, 10, 31);
-            doc.text(`Almacén Destino: ${alm_destino}`, 10, 35);
 
-            var $productoTableClone2 = $("#productos").clone();
-            var res = doc.autoTableHtmlToJson($productoTableClone2[0]);
-            res.data = res.data.map((row) => {
+            doc.text("GRUPO PROGYMS", 10, 10);
+            doc.text(`Fecha: ${time}`, 10, 16);
+            doc.text(`Almacén Origen: ${alm_origen}`, 10, 22);
+            doc.text(`Almacén Destino: ${alm_destino}`, 10, 28);
+
+            // ============================
+            // SECCIÓN DERECHA
+            // ============================
+            let posX = 140;
+
+            doc.text(`Documento: ${documento}`, posX, 10);
+            doc.text(`RFC: ${rfc}`, posX, 16);
+            doc.text(`Teléfono: 55 6834 1113`, posX, 22); // <-- OPCIONAL
+
+            // ============================
+            // TABLA
+            // ============================
+            var $clone = $("#productos").clone();
+            var res = doc.autoTableHtmlToJson($clone[0]);
+
+            // Quitar las 2 últimas columnas
+            res.data = res.data.map(row => {
+                row.pop();
+                row.pop();
                 row.pop();
                 return row;
             });
             res.columns.pop();
+            res.columns.pop();
+            res.columns.pop();
 
             doc.autoTable({
-                startY: 47,
-                tableWidth: 'wrap',
-                margin: {
-                    left: 5,
-                    right: 5
-                },
+                startY: 38,
                 head: [res.columns],
                 body: res.data,
                 styles: {
                     fontSize: 10,
                     fontStyle: "bold",
                     overflow: 'linebreak',
-                },
-                columnStyles: {
-                    0: {
-                        cellWidth: 30
-                    },
-                    1: {
-                        cellWidth: 20
-                    },
-                    2: {
-                        cellWidth: 100
-                    },
-                    3: {
-                        cellWidth: 20
-                    },
-                    4: {
-                        cellWidth: 18
-                    },
+                    cellPadding: 2,
                 },
                 headStyles: {
                     fillColor: null,
@@ -644,11 +562,25 @@
                     fillColor: "#FFFFFF",
                     textColor: 0,
                 },
-                pageBreak: 'auto',
+                margin: {
+                    left: 5,
+                    right: 5
+                }
             });
 
-            doc.save(`traspaso_${documento}.pdf`);
-            Swal.fire("traspaso impreso!", "", "success");
+            // Convertir a blob y abrir en una nueva pestaña para imprimir
+            const pdfBlob = doc.output('blob');
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+
+            // Abrir en otra pestaña
+            const printWindow = window.open(pdfUrl);
+
+            // Esperar un poco para asegurar que cargue y mandar imprimir
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+
+            Swal.fire("Traspaso impreso!", "", "success");
         }
     </script>
 @stop

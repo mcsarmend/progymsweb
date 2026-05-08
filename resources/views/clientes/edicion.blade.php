@@ -15,298 +15,161 @@
                     <h1 class="card-title" style ="font-size: 2rem">Editar cliente</h1>
                 </div>
                 <div class="card-body">
-                    @if ($type == 4)
-                        <form id="editar">
-                            @csrf
-                            <div class="row">
-                                <div class="col">
-                                    <label for="usuario">Cliente:</label>
-                                </div>
-                                <div class="col">
-                                    <select name="id" id="id_actualizar" class="form-control">
-                                        @foreach ($clients as $client)
-                                            <option value="{{ encrypt($client->id) }}">{{ $client->nombre }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
 
+                    <form id="editar">
+                        @csrf
+                        <div class="row">
+                            <div class="col">
+                                <label for="usuario">Cliente:</label>
                             </div>
-
-
-                            <br>
-                            <div class="row">
+                            <div class="col">
                                 <div class="col">
-                                    <label for="nombre">Nuevo nombre:</label>
-                                </div>
-                                <div class="col">
-                                    <input type="text" id="nombre" name="nombre" class="form-control">
-                                    <br>
+                                    <input type="text" id="cliente" name="cliente" list="client-list"
+                                        class="form-control">
+                                    <datalist id="client-list">
+                                            @foreach ($clients as $cliente)
+                                        <option value="{{ $cliente->id }}-{{ $cliente->nombre }}">
+                                            @endforeach
+                                    </datalist>
                                 </div>
                             </div>
 
+                        </div>
 
-                            <br>
-                            <div class="row">
-                                <div class="col">
-                                    <label for="sucursal">Sucursal:</label>
-                                </div>
-                                <div class="col">
-                                    <select name="id_sucursal" id="id_sucursal" class="form-control">
-                                        @foreach ($sucursales as $sucursal)
-                                            <option value="{{ encrypt($sucursal->id) }}">{{ $sucursal->nombre }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+
+                        <br>
+                        <div class="row">
+                            <div class="col">
+                                <label for="nombre">Nuevo nombre:</label>
                             </div>
-
-                            <br>
-                            <div class="row">
-                                <div class="col">
-                                    <label for="telefono">Telefono:</label>
-                                </div>
-                                <div class="col">
-                                    <input type="text" id="telefono" name="telefono" class="form-control">
-                                    <br><br>
-                                </div>
+                            <div class="col">
+                                <input type="text" id="nombre" name="nombre" class="form-control">
+                                <br>
                             </div>
-                            <div class="row">
-                                <div class="col">
+                        </div>
 
+                        <div class="row">
+                            <div class="col">
+                                <label for="price">Precio:</label>
+                            </div>
+                            <div class="col">
+                                <select name="tipo_precio" id="tipo_precio" class="form-control">
+                                    <option value="1">Publico</option>
+                                    <option value="2">Frecuente</option>
+                                    <option value="3">Mayoreo</option>
+                                    <option value="4">Distribuidor</option>
+                                    <option value="6">Platinum</option>
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col">
+                                <label for="sucursal">Sucursal:</label>
+                            </div>
+                            <div class="col">
+                                <select name="id_sucursal" id="id_sucursal" class="form-control">
+                                    @foreach ($sucursales as $sucursal)
+                                        <option value="{{ $sucursal->id }}">{{ $sucursal->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <br>
+                        <div class="row">
+                            <div class="col">
+                                <label for="telefono">Telefono:</label>
+                            </div>
+                            <div class="col">
+                                <input type="text" id="telefono" name="telefono" class="form-control">
+                                <br><br>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+
+                                <div class="form-group">
+                                    <label for="direccion">Dirección:</label>
+                                    <input type="text" id="direccion" name="direccion" class="form-control">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button type="button" class="btn btn-info mt-2" id="buscar-maps">Buscar en
+                                            Maps</button>
+                                    </div>
+                                </div>
+                                <br>
+
+                            </div>
+                            <div class="col">
+                                <div class="col">
                                     <div class="form-group">
-                                        <label for="direccion">Dirección:</label>
-                                        <input type="text" id="direccion" name="direccion" class="form-control">
+                                        <label for="latitud">Latitud:</label>
+                                        <input type="text" id="latitud" name="latitud" class="form-control" readonly>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="longitud">Longitud:</label>
+                                    <input type="text" id="longitud" name="longitud" class="form-control" readonly>
+                                </div>
+
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="checkSegundaDireccion">
+                                <label class="form-check-label" for="checkSegundaDireccion">
+                                    ¿Agregar segunda dirección?
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+
+                                <div id="segundaDireccion" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="direccion2">Segunda Dirección:</label>
+                                        <input type="text" id="direccion2" name="direccion2" class="form-control">
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12">
-                                            <button type="button" class="btn btn-info mt-2" id="buscar-maps">Buscar en
+                                            <button type="button" class="btn btn-info mt-2" id="buscar-maps2">Buscar
+                                                en
                                                 Maps</button>
                                         </div>
                                     </div>
-                                    <br>
-
-                                </div>
-                                <div class="col">
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="latitud">Latitud:</label>
-                                            <input type="text" id="latitud" name="latitud" class="form-control"
-                                                readonly>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div class="col">
-                                    <div class="form-group">
-                                        <label for="longitud">Longitud:</label>
-                                        <input type="text" id="longitud" name="longitud" class="form-control" readonly>
-                                    </div>
-
                                 </div>
                             </div>
-                            <br>
-                            <div class="row">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="checkSegundaDireccion">
-                                    <label class="form-check-label" for="checkSegundaDireccion">
-                                        ¿Agregar segunda dirección?
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
+                            <div class="col" id="segundalatitud" style="display: none;">
 
-                                    <div id="segundaDireccion" style="display: none;">
-                                        <div class="form-group">
-                                            <label for="direccion2">Segunda Dirección:</label>
-                                            <input type="text" id="direccion2" name="direccion2" class="form-control">
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <button type="button" class="btn btn-info mt-2" id="buscar-maps2">Buscar en
-                                                    Maps</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col" id="segundalatitud" style="display: none;">
-
-                                    <div class="form-group">
-                                        <label for="latitud2">Latitud 2:</label>
-                                        <input type="text" id="latitud2" name="latitud2" class="form-control" readonly>
-                                    </div>
-
-                                </div>
-                                <div class="col" id="segundalongitud" style="display: none;">
-                                    <div class="form-group">
-                                        <label for="longitud2">Longitud:</label>
-                                        <input type="text" id="longitud2" name="longitud2" class="form-control"
-                                            readonly>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="latitud2">Latitud 2:</label>
+                                    <input type="text" id="latitud2" name="latitud2" class="form-control" readonly>
                                 </div>
 
                             </div>
-                            <div class="row">
-                                <div class="col">
-                                    <input type="submit" value="Actualizar" class="btn btn-primary">
+                            <div class="col" id="segundalongitud" style="display: none;">
+                                <div class="form-group">
+                                    <label for="longitud2">Longitud:</label>
+                                    <input type="text" id="longitud2" name="longitud2" class="form-control" readonly>
                                 </div>
                             </div>
 
-
-                        </form>
-                    @else
-                        <form id="editar">
-                            @csrf
-                            <div class="row">
-                                <div class="col">
-                                    <label for="usuario">Cliente:</label>
-                                </div>
-                                <div class="col">
-                                    <select name="id" id="id_actualizar" class="form-control">
-                                        @foreach ($clients as $client)
-                                            <option value="{{ encrypt($client->id) }}">{{ $client->nombre }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <input type="submit" value="Actualizar" class="btn btn-primary">
                             </div>
+                        </div>
 
 
-                            <br>
-                            <div class="row">
-                                <div class="col">
-                                    <label for="nombre">Nuevo nombre:</label>
-                                </div>
-                                <div class="col">
-                                    <input type="text" id="nombre" name="nombre" class="form-control">
-                                    <br>
-                                </div>
-                            </div>
+                    </form>
 
-                            <div class="row">
-                                <div class="col">
-                                    <label for="price">Precio:</label>
-                                </div>
-                                <div class="col">
-                                    <select name="id_price" id="id_price" class="form-control">
-                                        @foreach ($prices as $price)
-                                            <option value="{{ encrypt($price->id) }}">{{ $price->nombre }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col">
-                                    <label for="sucursal">Sucursal:</label>
-                                </div>
-                                <div class="col">
-                                    <select name="id_sucursal" id="id_sucursal" class="form-control">
-                                        @foreach ($sucursales as $sucursal)
-                                            <option value="{{ encrypt($sucursal->id) }}">{{ $sucursal->nombre }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <br>
-                            <div class="row">
-                                <div class="col">
-                                    <label for="telefono">Telefono:</label>
-                                </div>
-                                <div class="col">
-                                    <input type="text" id="telefono" name="telefono" class="form-control">
-                                    <br><br>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-
-                                    <div class="form-group">
-                                        <label for="direccion">Dirección:</label>
-                                        <input type="text" id="direccion" name="direccion" class="form-control">
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <button type="button" class="btn btn-info mt-2" id="buscar-maps">Buscar en
-                                                Maps</button>
-                                        </div>
-                                    </div>
-                                    <br>
-
-                                </div>
-                                <div class="col">
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <label for="latitud">Latitud:</label>
-                                            <input type="text" id="latitud" name="latitud" class="form-control"
-                                                readonly>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div class="col">
-                                    <div class="form-group">
-                                        <label for="longitud">Longitud:</label>
-                                        <input type="text" id="longitud" name="longitud" class="form-control"
-                                            readonly>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="checkSegundaDireccion">
-                                    <label class="form-check-label" for="checkSegundaDireccion">
-                                        ¿Agregar segunda dirección?
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-
-                                    <div id="segundaDireccion" style="display: none;">
-                                        <div class="form-group">
-                                            <label for="direccion2">Segunda Dirección:</label>
-                                            <input type="text" id="direccion2" name="direccion2"
-                                                class="form-control">
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <button type="button" class="btn btn-info mt-2" id="buscar-maps2">Buscar
-                                                    en
-                                                    Maps</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col" id="segundalatitud" style="display: none;">
-
-                                    <div class="form-group">
-                                        <label for="latitud2">Latitud 2:</label>
-                                        <input type="text" id="latitud2" name="latitud2" class="form-control"
-                                            readonly>
-                                    </div>
-
-                                </div>
-                                <div class="col" id="segundalongitud" style="display: none;">
-                                    <div class="form-group">
-                                        <label for="longitud2">Longitud:</label>
-                                        <input type="text" id="longitud2" name="longitud2" class="form-control"
-                                            readonly>
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <input type="submit" value="Actualizar" class="btn btn-primary">
-                                </div>
-                            </div>
-
-
-                        </form>
-                    @endif
 
                 </div>
             </div>
@@ -377,12 +240,51 @@
             });
         });
 
+        $('#cliente').on('change', function() {
+            var cliente = $(this).val();
+            var idcliente = obtenerNumerosHastaGuion(cliente);
+
+            // Hacer la llamada AJAX
+            $.ajax({
+                url: 'buscaridprecio', // Cambia esta URL a la correcta
+                type: 'POST',
+                data: {
+                    idcliente: idcliente
+                },
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    // Actualizar el valor del input #tipo con el valor recibido
+                    if (response.nombreprecio == null) {
+                        $('#tipo_precio').val("Publico");
+                    } else {
+                        $('#tipo_precio').val(response.idprecio);
+                        $('#id_sucursal').val(response.sucursal).trigger('change');
+                        $('#telefono').val(response.telefono);
+
+                    }
+
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+
 
         $('#editar').submit(function(e) {
             e.preventDefault(); // Evitar la recarga de la página
 
             // Obtener los datos del formulario
-            var datosFormulario = $(this).serialize();
+            var datosFormulario = $(this).serializeArray();
+            var idcliente = obtenerNumerosHastaGuion($('#cliente').val());
+
+            datosFormulario.push({
+                name: 'idcliente',
+                value: idcliente
+            });
 
             // Realizar la solicitud AJAX con jQuery
             $.ajax({
@@ -439,6 +341,10 @@
                     globallng = lng;
                 }
             });
+        }
+
+        function obtenerNumerosHastaGuion(text) {
+            return text.split('-')[0];
         }
 
         function initMap(direction) {

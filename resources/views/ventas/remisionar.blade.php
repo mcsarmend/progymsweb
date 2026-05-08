@@ -74,7 +74,6 @@
                             <div class="col">
                                 <input type="text" id="cliente" name="cliente" list="client-list" class="form-control">
                                 <datalist id="client-list">
-                                    <option value="Mostrador">
                                         @foreach ($clientes as $cliente)
                                     <option value="{{ $cliente->id }}-{{ $cliente->nombre }}">
                                         @endforeach
@@ -97,7 +96,6 @@
                                 <option value="2">Frecuente</option>
                                 <option value="3">Mayoreo</option>
                                 <option value="4">Distribuidor</option>
-                                <option value="5">Black</option>
                                 <option value="6">Platinum</option>
                             </select>
 
@@ -112,7 +110,6 @@
                                 <option value="2">Frecuente</option>
                                 <option value="3">Mayoreo</option>
                                 <option value="4">Distribuidor</option>
-                                <option value="5">Black</option>
                                 <option value="6">Platinum</option>
                             </select>
 
@@ -278,7 +275,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             if (parseInt($('#inputCantidad').val()) > parseInt($('#inputExistencias')
-                            .val())) {
+                                    .val())) {
                                 Swal.fire({
                                     title: '¡Debes ingresar una cantidad menor o igual a las existencias!',
                                     icon: 'warning'
@@ -585,6 +582,25 @@
         `;
             }
 
+            if (
+                $('#metodo_pago').val() == 'terminal' ||
+                $('#metodo_pago').val() == 'clip' ||
+                $('#metodo_pago').val() == 'mercado_pago'
+            ) {
+                elementos += `
+            <div id="bloqueTarjeta" style="margin-top: 20px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 150px;">
+                    <label for="tipo_tarjeta" style="display: block; margin-bottom: 5px;">Tipo de Tarjeta:</label>
+                    <select id="tipo_tarjeta" class="swal2-input" style="width: 75%;">
+                        <option value="" selected disabled>Seleccione...</option>
+                        <option value="credito">Crédito</option>
+                        <option value="debito">Débito</option>
+                    </select>
+                </div>
+            </div>
+        `;
+            }
+
             Swal.fire({
                 title: '¡Se realizará una remisión con los siguientes datos!',
                 html: elementos,
@@ -593,7 +609,23 @@
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Remisionar',
-                width: '80%'
+                width: '80%',
+                preConfirm: () => {
+                    // Validar tipo de tarjeta si aplica
+                    const metodo = $('#metodo_pago').val();
+                    if (
+                        metodo === 'terminal' ||
+                        metodo === 'clip' ||
+                        metodo === 'mercado_pago'
+                    ) {
+                        const tipoTarjeta = document.getElementById('tipo_tarjeta')?.value;
+                        if (!tipoTarjeta) {
+                            Swal.showValidationMessage(
+                                'Debe seleccionar el tipo de tarjeta antes de continuar');
+                            return false;
+                        }
+                    }
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     var nombreSucursal = $("#sucursal option:selected").text();
@@ -618,9 +650,14 @@
                     var cliente = $('#cliente').val();
                     var forma_pago = $('#metodo_pago').val();
                     var $productoTableClone2 = $('#productos').clone();
+                    var reparto = $('#reparto').is(':checked') ? 1 : 0;
+                    var vendedor_reparto = $('#vendedor_reparto').val();
+                    var tipo_tarjeta = $('#tipo_tarjeta').val() == undefined ? "" : $('#tipo_tarjeta')
+                .val();
 
                     numeroRemision = validarRemision(
-                        idsucursal, hora, nota, vendedor, cliente, forma_pago, $productoTableClone2
+                        idsucursal, hora, nota, vendedor, cliente, forma_pago, $productoTableClone2,
+                        reparto, vendedor_reparto, tipo_tarjeta
                     );
                 }
             });
@@ -678,7 +715,8 @@
             });
         });
 
-        function validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago, numeroRemision) {
+        function validarRemision(idsucursal, hora, nota, vendedor, cliente, forma_pago, numeroRemision, reparto,
+            vendedor_reparto, tipo_tarjeta) {
 
             var $productoTableClone = $('#productosClone').clone();
 
@@ -715,7 +753,10 @@
                 cliente: cliente,
                 productos: jsonString,
                 total: total,
-                tipo_precio: tipo_precio
+                tipo_precio: tipo_precio,
+                reparto: reparto,
+                vendedor_reparto: vendedor_reparto,
+                tipo_tarjeta: tipo_tarjeta
             };
             var msg = "";
             $.ajax({
@@ -817,7 +858,20 @@
                                 'después de la fecha de compra.',
                                 10, doc.autoTable.previous.finalY + 20);
                             // Guardar y mostrar el PDF
-                            doc.save(`remision_${numeroRemision}.pdf`);
+                            // Convertir a blob y abrir en una nueva pestaña para imprimir
+                            const pdfBlob = doc.output('blob');
+                            const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                            // Abrir en otra pestaña
+                            const printWindow = window.open(pdfUrl);
+
+                            // Esperar un poco para asegurar que cargue y mandar imprimir
+                            printWindow.onload = function() {
+                                printWindow.print();
+                            };
+
+
+
                             Swal.fire('Ticket impreso!', '', 'success');
 
                             setTimeout(function() {

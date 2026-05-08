@@ -24,6 +24,8 @@
 </head>
 
 <style>
+
+
     .img-responsive {
         position: relative;
         bottom: 1em;
@@ -98,6 +100,81 @@
     #productos_distribuidor_filter input {
         color: black !important;
     }
+
+    <style>
+
+    /* PAGINADO TABLA DISTRIBUIDOR */
+    #productos_distribuidor_paginate {
+        background: black;
+        padding: 12px;
+        text-align: center;
+        border-radius: 6px;
+    }
+
+    /* BOTONES PAGINADO */
+    #productos_distribuidor_paginate .paginate_button {
+        background: white !important;
+        color: black !important;
+        padding: 6px 12px !important;
+        margin: 3px !important;
+        border-radius: 4px !important;
+        border: none !important;
+    }
+
+    /* BOTON ACTIVO */
+    #productos_distribuidor_paginate .paginate_button.current {
+        background: #337AB7 !important;
+        color: white !important;
+    }
+
+    /* HOVER */
+    #productos_distribuidor_paginate .paginate_button:hover {
+        background: #ddd !important;
+    }
+
+    /* AJUSTE DE TABLA */
+    #productos_distribuidor {
+        width: 100% !important;
+        table-layout: auto;
+    }
+
+    #productos_distribuidor th {
+        white-space: nowrap;
+    }
+
+
+    /* CONTENEDOR PAGINADO */
+    #productos_distribuidor_paginate {
+        background: black;
+        padding: 12px;
+        border-radius: 6px;
+        white-space: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        width: 100%;
+    }
+
+    /* CENTRAR CONTENIDO */
+    #productos_distribuidor_paginate span {
+        display: inline-block;
+    }
+
+    /* BOTONES */
+    #productos_distribuidor_paginate .paginate_button {
+        background: white !important;
+        color: black !important;
+        padding: 6px 12px !important;
+        margin: 3px !important;
+        border-radius: 4px !important;
+        border: none !important;
+    }
+
+    /* BOTON ACTIVO */
+    #productos_distribuidor_paginate .paginate_button.current {
+        background: #337AB7 !important;
+        color: white !important;
+    }
+</style>
 </style>
 
 <body>
@@ -148,13 +225,11 @@
                 <div class="slides">
 
 
-                    <img class="slide" src="assets/images/promos/03.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/05.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/06.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/07.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/08.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/09.jpg" alt="Imagen 1">
-                    <img class="slide" src="assets/images/promos/11.jpg" alt="Imagen 1">
                     <img class="slide" src="assets/images/promos/12.jpg" alt="Imagen 1">
 
 
@@ -215,15 +290,6 @@
                     </a>
                 </div>
                 <br>
-
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215643018711" class="btn section-btn smoothScroll" target="_blank"
-                        style="background:white;">
-                        <i class="fab fa-whatsapp" style="color:#25D366; font-size:28px; margin-right:6px;"></i>
-                        <span style="color:#25D366; font-weight:bold;">Villas de la Hacienda (Cuautitlan
-                            Izcalli)</span>
-                    </a>
-                </div>
             </div>
 
     </section>
@@ -311,7 +377,7 @@
         <br>
 
         <div class="row">
-            <p>Última actualización: 24-02-2025</p>
+
 
             <p>Todos los precios están sujetos a cambios sin previo aviso</p>
 
@@ -321,7 +387,6 @@
                 <li><strong>Precio frecuente</strong>: Clientes con compras mayores a **$1500** mensuales</li>
                 <li><strong>Precio mayorista</strong>: Clientes con compras mayores a **$3000** mensuales</li>
                 <li><strong>Precio distribuidor</strong>: Compras en una sola exhibición de más de **$3000**</li>
-                <li><strong>Precio Black</strong>: Compras en una sola exhibición de más de **$4500**</li>
                 <li><strong>Precio Platinum</strong>: Compras en una sola exhibición de más de **$6000**</li>
             </ul>
         </div>
@@ -688,31 +753,27 @@
 
 
     <div class="modal fade" id="modalPrecios" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 95%;">
-            <!-- Solo estilo agregado -->
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width:99%;">
             <div class="modal-content">
 
-
-                <!-- SOLO SE AGREGARON ESTILOS AQUÍ -->
-                <div class="modal-body modal-almacenes-body" style="overflow-x: auto; max-height: 75vh;">
+                <div class="modal-body modal-almacenes-body" style="overflow-x:auto; max-height:75vh;">
 
                     <table id="productos_distribuidor" class="table table-striped table-almacenes"
-                        style="min-width: 900px;">
-                        <!-- ancho mínimo para que no se aplaste -->
+                        style="min-width:900px; width:100%;">
+
                         <thead class="table-almacenes-header">
                             <tr>
                                 <th>Producto</th>
                                 <th>Marca</th>
                                 <th>Categoria</th>
                                 <th>Distribuidor</th>
-                                <th>Black</th>
                                 <th>Platinum</th>
                                 <th>Existencias</th>
-
                             </tr>
                         </thead>
-                        <tbody>
-                        </tbody>
+
+                        <tbody></tbody>
+
                     </table>
 
                 </div>
@@ -720,7 +781,6 @@
             </div>
         </div>
     </div>
-
 
 
     <!-- SCRIPTS -->
@@ -903,12 +963,7 @@
                             return '$' + data;
                         }
                     },
-                    {
-                        "data": "black",
-                        "render": function(data) {
-                            return '$' + data;
-                        }
-                    },
+
                     {
                         "data": "platinum",
                         "render": function(data) {
@@ -917,8 +972,7 @@
                     },
 
                     {
-                        "data": "existencias",
-
+                        "data": "totales",
                     },
 
 
@@ -932,7 +986,9 @@
 
 
 
-
+            $('#modalPrecios').on('shown.bs.modal', function() {
+                $('#productos_distribuidor').DataTable().columns.adjust();
+            });
 
 
             $('#table-products tbody').on('click', '.btn-ver-almacenes', function() {

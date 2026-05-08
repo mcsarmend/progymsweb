@@ -267,18 +267,26 @@
 
 
         function generarpdf(id) {
-            var info = '';
             $.ajax({
-                url: 'verproductosmovimiento', // URL a la que se hace la solicitud
-                type: 'GET', // Tipo de solicitud (GET, POST, etc.)
+                url: 'verproductosmovimiento',
+                type: 'GET',
                 data: {
                     id: id
                 },
+                dataType: 'json',
 
-                dataType: 'json', // Tipo de datos esperados en la respuesta
                 success: function(data) {
-                    info = data.movimiento;
 
+                    let info = data.movimiento;
+
+                    const almacenesMap = {
+                        "ALM": "Almacén Principal",
+                        "VIV": "Viveros",
+                        "TOW": "Town Center",
+                        "COA": "Coacalco",
+                        "VIL": "Villas de la Hacienda",
+                        "NAU": "Naucalpan"
+                    };
 
                     var {
                         jsPDF
@@ -288,60 +296,97 @@
                         unit: "mm",
                         format: [297, 210],
                     });
-                    var opciones = {
-                        timeZone: "America/Mexico_City",
-                        hour12: false,
-                    };
-                    var documento = info.documento;
-                    var time = info.fecha;
+
+                    let documento = info.documento;
+
+                    // Códigos de almacén
+                    let ultimos6 = documento.slice(-6);
+                    let alm_origen_code = ultimos6.slice(0, 3);
+                    let alm_destino_code = ultimos6.slice(3, 6);
+
+                    let alm_origen = almacenesMap[alm_origen_code] ?? alm_origen_code;
+                    let alm_destino = almacenesMap[alm_destino_code] ?? alm_destino_code;
+
+                    let time = info.fecha;
                     let productos = JSON.parse(info.productos);
 
-                    // Agregar contenido al PDF
+                    // ============================
+                    //      ENCABEZADO 2 COLUMNAS
+                    // ============================
+
                     doc.setFontSize(12);
                     doc.setFont("helvetica", "bold");
-                    doc.text("GRUPO PROGYMS", 30, 10);
-                    doc.text(`Documento: ${documento}`, 10, 22);
-                    doc.text(`Fecha: ${time}`, 10, 27);
-                    doc.text(`RFC: ASG160718HS6`, 10, 31);
-                    doc.text('Teléfono: 55 6834 1113', 10, 35);
+
+                    let leftX = 10;
+                    let rightX = 130;
+
+                    let yLeft = 10;
+                    let yRight = 10;
+
+                    // -----------------------------
+                    //         COLUMNA IZQUIERDA
+                    // -----------------------------
+                    doc.text("GRUPO PROGYMS", leftX, yLeft);
+                    yLeft += 6;
+
+                    doc.text(`Fecha: ${time}`, leftX, yLeft);
+                    yLeft += 6;
+
+                    doc.text(`Almacén Origen: ${alm_origen}`, leftX, yLeft);
+                    yLeft += 6;
+
+                    doc.text(`Almacén Destino: ${alm_destino}`, leftX, yLeft);
+                    yLeft += 6;
+
+                    // -----------------------------
+                    //         COLUMNA DERECHA
+                    // -----------------------------
+                    doc.text(`Documento: ${documento}`, rightX, yRight);
+                    yRight += 6;
+
+                    doc.text(`RFC: ASG160718HS6`, rightX, yRight);
+                    yRight += 6;
+
+                    doc.text(`Teléfono: 55 6834 1113`, rightX, yRight);
+                    yRight += 6;
 
 
-                    const tableData = productos.map(producto => [
-                        producto.Codigo,
-                        producto.Cantidad,
-                        producto.Nombre,
-                        producto["Costo Unitario"],
-                        producto["Costo Subtotal"]
+
+                    // Altura final para iniciar tabla
+                    let nextY = Math.max(yLeft, yRight);
+
+                    // ============================
+                    //            TABLA
+                    // ============================
+
+                    const tableData = productos.map(p => [
+                        p.Codigo,
+                        p.Cantidad,
+                        p.Nombre
                     ]);
 
-                    // Crear la tabla
                     doc.autoTable({
-                        startY: 45, // Posición después de los textos iniciales
+                        startY: nextY + 4, // o 38 en la segunda función, PERO la misma posición
                         head: [
-                            ['Código', 'Cantidad', 'Descripción', 'P. Unitario', 'Subtotal']
+                            ['Código', 'Cantidad', 'Descripción']
                         ],
-                        body: tableData,
+                        body: tableData, // o productos HTML
                         styles: {
-                            fontSize: 8,
-                            cellPadding: 2,
-                            overflow: 'linebreak'
+                            fontSize: 10,
+                            fontStyle: 'bold',
+                            overflow: 'linebreak',
+                            cellPadding: 2
                         },
                         columnStyles: {
                             0: {
                                 cellWidth: 25
-                            }, // Código
+                            },
                             1: {
                                 cellWidth: 20
-                            }, // Cantidad
+                            },
                             2: {
-                                cellWidth: 80
-                            }, // Descripción
-                            3: {
-                                cellWidth: 25
-                            }, // P. Unitario
-                            4: {
-                                cellWidth: 25
-                            } // Subtotal
+                                cellWidth: 120
+                            }
                         },
                         margin: {
                             left: 10
@@ -350,20 +395,32 @@
                             fillColor: [200, 200, 200],
                             textColor: 0,
                             fontStyle: 'bold'
-                        },
-                        bodyStyles: {
-                            fillColor: [255, 255, 255],
-                            textColor: 0
                         }
                     });
 
+                    // ============================
+                    //       imprimir PDF
+                    // ============================
 
-                    doc.save(`traspaso_${documento}.pdf`);
+                    // Convertir a blob y abrir en una nueva pestaña para imprimir
+                    const pdfBlob = doc.output('blob');
+                    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                    // Abrir en otra pestaña
+                    const printWindow = window.open(pdfUrl);
+
+                    // Esperar un poco para asegurar que cargue y mandar imprimir
+                    printWindow.onload = function() {
+                        printWindow.print();
+                    };
+
+
+
                     Swal.fire("traspaso impreso!", "", "success");
+
+
                 }
             });
-
-
         }
     </script>
 @stop

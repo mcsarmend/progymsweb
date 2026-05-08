@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -22,7 +21,7 @@ class inventarioController extends Controller
 {
     public function altainventario()
     {
-        $type = $this->gettype();
+        $type   = $this->gettype();
         $marcas = Brand::select('id', 'nombre')
             ->orderBy('nombre', 'asc')
             ->get();
@@ -41,7 +40,7 @@ class inventarioController extends Controller
     public function traspasos()
     {
 
-        $type = $this->gettype();
+        $type      = $this->gettype();
         $almacenes = warehouse::all();
         $productos = product::all();
 
@@ -51,11 +50,11 @@ class inventarioController extends Controller
     public function inventariocompras()
     {
 
-        $type = $this->gettype();
+        $type       = $this->gettype();
         $sucursales = warehouse::all();
-        $productos = Product::leftjoin('brand as b', 'product.marca', '=', 'b.id')
-
+        $productos  = Product::leftjoin('brand as b', 'product.marca', '=', 'b.id')
             ->select('product.*', 'b.nombre as nombre_marca')
+            ->where('product.estatus', '=', '1')
             ->get();
         $proveedores = supplier::all();
 
@@ -65,7 +64,7 @@ class inventarioController extends Controller
     public function inventariomermas()
     {
 
-        $type = $this->gettype();
+        $type      = $this->gettype();
         $almacenes = warehouse::all();
         $productos = product::all();
 
@@ -106,10 +105,10 @@ class inventarioController extends Controller
                 'p.nombre',
                 'b.nombre as marca',
                 'c.nombre as categoria',
-
             )
             ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
             ->leftJoin('category as c', 'p.categoria', '=', 'c.id')
+            ->where('p.estatus', 1)
             ->get();
 
         $almacenes = warehouse::all();
@@ -118,9 +117,9 @@ class inventarioController extends Controller
     }
     public function ingresoinventario()
     {
-        $type = $this->gettype();
+        $type      = $this->gettype();
         $almacenes = warehouse::all();
-        $productos = product::all();
+        $productos = Product::where('estatus', 1)->get();
         return view('inventario.ingreso', ['type' => $type, 'sucursales' => $almacenes, 'productos' => $productos]);
     }
     public function salidainventario()
@@ -128,7 +127,7 @@ class inventarioController extends Controller
         $type = $this->gettype();
 
         $almacenes = warehouse::all();
-        $productos = product::all();
+        $productos = Product::where('estatus', 1)->get();
         return view('inventario.salida', ['type' => $type, 'sucursales' => $almacenes, 'productos' => $productos]);
     }
     public function productosinventario(Request $request)
@@ -136,7 +135,7 @@ class inventarioController extends Controller
         try {
 
             $idsucursal = $request->sucursal;
-            $productos = Product::from('product as p')
+            $productos  = Product::from('product as p')
                 ->leftJoin('product_warehouse as pw', 'p.id', '=', 'pw.idproducto')
                 ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
                 ->where('pw.idwarehouse', $idsucursal)
@@ -145,7 +144,7 @@ class inventarioController extends Controller
                     'p.id',
                     'p.nombre',
                     'b.nombre as nombre_marca',
-                    'pw.existencias'
+                    'pw.existencias',
                 ])
                 ->get();
 
@@ -163,13 +162,45 @@ class inventarioController extends Controller
         try {
 
             /* Registra el producto */
-            $product = new Product;
-            $product->id = $request['codigo'];
-            $product->nombre = $request['name'];
-            $product->marca = $request['marca'];
-            $product->categoria = $request['categoria'];
-            $product->costo = $request['costo'];
+            $product                 = new Product;
+            $product->id             = $request['codigo'];
+            $product->nombre         = $request['name'];
+            $product->marca          = $request['marca'];
+            $product->categoria      = $request['categoria'];
+            $product->costo          = $request['costo'];
+            $product->costo_promedio = $request['costo'];
+            $product->estatus = "1";
+
             $product->save();
+
+            /*
+            Registrar el movimiento de stock
+             */
+            $movimiento             = new stockMovements();
+            $movimiento->movimiento = "NEW_PRODUCT";
+            $autor                  = Auth::user()->id;
+            $movimiento->autor      = $autor;
+            $productos              = $product;
+            date_default_timezone_set('America/Mexico_City');
+            $documento             = date('dmyHis') . 'NEW_PRODUCT';
+            $movimiento->documento = $documento;
+            $movimiento->importe   = $request['costo'];
+            $now                   = new DateTime();
+            $fdate                 = $now->format('Y-m-d H:i:s');
+            $fechaMysql            = $fdate;
+            $movimiento->fecha     = $fechaMysql;
+            $producto              = [
+                [
+                    "Codigo"          =>  $request['codigo'],
+                    "Cantidad"        => $request['existencia'],
+                    "Nombre"          => $product->nombre,
+                    "Precio Unitario" => $request['costo'],
+                    "Subtotal"        => $request['costo'] * $request['existencia'],
+                ],
+            ];
+            $movimiento->productos = json_encode($producto); // Convertir el array de productos a JSON
+
+            $movimiento->save();
 
             /* Registrar los precios */
 
@@ -185,21 +216,31 @@ class inventarioController extends Controller
             $arrayprecios = json_decode($json_precios, true);
 
             foreach ($arrayprecios as $key => $value) {
-                $product_price = new productprice();
-                $numero = $this->extraerNumero($key);
+                $product_price             = new productprice();
+                $numero                    = $this->extraerNumero($key);
                 $product_price->idproducto = $request['codigo'];
-                $product_price->idprice = $numero;
-                $product_price->price = $value;
+                $product_price->idprice    = $numero;
+                $product_price->price      = $value;
                 $product_price->save();
             }
 
             /* Registrar inventario */
 
-            $productwarehouse = new productwarehouse();
-            $productwarehouse->idproducto = $request['codigo'];
-            $productwarehouse->idwarehouse = 1;
+            $productwarehouse              = new productwarehouse();
+            $productwarehouse->idproducto  = $request['codigo'];
+            $productwarehouse->idwarehouse = 8; //BODEGA
             $productwarehouse->existencias = $request['existencia'];
             $productwarehouse->save();
+
+            $almacenes_adicionales = [2, 3, 4, 7, 9, 10];
+
+            foreach ($almacenes_adicionales as $id_almacen) {
+                $nuevo_registro = new productwarehouse();
+                $nuevo_registro->idproducto = $request['codigo'];
+                $nuevo_registro->idwarehouse = $id_almacen;
+                $nuevo_registro->existencias = 0; // Existencia cero
+                $nuevo_registro->save();
+            }
 
             return response()->json(['message' => 'Producto creado correctamente'], 200);
         } catch (\Throwable $th) {
@@ -214,7 +255,10 @@ class inventarioController extends Controller
             $id = $request->id;
 
             $productid = Crypt::decrypt($id);
-            product::findOrFail($productid)->delete();
+            product::where('idproducto', '=', $productid)
+                ->update(['estatus' => 0]);
+
+
             return response()->json(['message' => 'Producto eliminado correctamente'], 200);
         } catch (\Throwable $e) {
             // Devolver una respuesta de error
@@ -230,26 +274,26 @@ class inventarioController extends Controller
             foreach ($productos as $producto) {
                 $numero = 0;
                 /* Registra el producto */
-                $product = new Product;
-                $product->id = $producto[0];
-                $product->nombre = $producto[1];
-                $product->marca = $producto[2];
+                $product            = new Product;
+                $product->id        = $producto[0];
+                $product->nombre    = $producto[1];
+                $product->marca     = $producto[2];
                 $product->categoria = $producto[3];
                 $product->save();
 
                 /* Registrar los precios */
                 for ($i = 1; $i < 5; $i++) {
-                    $product_price = new productprice();
+                    $product_price             = new productprice();
                     $product_price->idproducto = $producto[0];
-                    $product_price->idprice = $i;
-                    $product_price->price = $producto[$i + 4];
+                    $product_price->idprice    = $i;
+                    $product_price->price      = $producto[$i + 4];
                     $product_price->save();
                 }
 
                 /* Registrar inventario */
 
-                $productwarehouse = new productwarehouse();
-                $productwarehouse->idproducto = $producto[0];
+                $productwarehouse              = new productwarehouse();
+                $productwarehouse->idproducto  = $producto[0];
                 $productwarehouse->idwarehouse = 1;
                 $productwarehouse->existencias = $producto[4];
                 $productwarehouse->save();
@@ -274,8 +318,8 @@ class inventarioController extends Controller
     {
 
         try {
-            $idproducto = intval($request->id);
-            $almacen = $request->almacen;
+            $idproducto       = intval($request->id);
+            $almacen          = $request->almacen;
             $nueva_existencia = floatval($request->nueva_existencia);
 
             $id_warehouse = warehouse::select('id')
@@ -294,8 +338,8 @@ class inventarioController extends Controller
     public function enviareditarprecio(Request $request)
     {
         try {
-            $idproducto = intval($request->id);
-            $tipo = $request->tipo;
+            $idproducto   = intval($request->id);
+            $tipo         = $request->tipo;
             $nuevo_precio = floatval($request->nuevo_precio);
 
             $idPrice = prices::select('id')
@@ -316,57 +360,57 @@ class inventarioController extends Controller
     {
         date_default_timezone_set('America/Mexico_City');
         try {
-            $productosTraspaso = 0;
-            $prodcutosNoTraspaso = 0;
-            $almacen_origen = $request->almacen_origen;
-            $almacen_destino = $request->almacen_destino;
-            $movimiento = new stockMovements();
+            $productosTraspaso      = 0;
+            $prodcutosNoTraspaso    = 0;
+            $almacen_origen         = $request->almacen_origen;
+            $almacen_destino        = $request->almacen_destino;
+            $movimiento             = new stockMovements();
             $movimiento->movimiento = $request->movimiento;
-            $autor = Auth::user()->id;
-            $movimiento->autor = $autor;
-            $productos = $request->productos;
-            $movimiento->documento = $request->documento;
-            $movimiento->importe = $request->importe;
-            $now = new DateTime();
-            $fdate = $now->format('Y-m-d H:i:s');
-            $fechaMysql = $fdate;
-            $movimiento->fecha = $fechaMysql;
-            $almacen = $request->sucursal;
-            $productos = json_decode($request->productos);
-            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+            $autor                  = Auth::user()->id;
+            $movimiento->autor      = $autor;
+            $productos              = $request->productos;
+            $movimiento->documento  = $request->documento;
+            $movimiento->importe    = $request->importe;
+            $now                    = new DateTime();
+            $fdate                  = $now->format('Y-m-d H:i:s');
+            $fechaMysql             = $fdate;
+            $movimiento->fecha      = $fechaMysql;
+            $almacen                = $request->sucursal;
+            $productos              = json_decode($request->productos);
+            $movimiento->productos  = json_encode($productos); // Convertir el array de productos a JSON
             $movimiento->save();
 
             foreach ($productos as $producto) {
                 $idproducto = $producto->Codigo;
-                $cantidad = $producto->Cantidad;
+                $cantidad   = $producto->Cantidad;
                 // ACUTALIZAR ALMACEN ORIGEN
                 $existencias_origen = productwarehouse::select('existencias')
-                    ->where('idproducto', 'like', '%' . $idproducto . '%')
-                    ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
+                    ->where('idproducto', '=', $idproducto)
+                    ->where('idwarehouse', '=', $almacen_origen )
                     ->get();
 
                 if ($existencias_origen != '[]') {
-                    $ExisOr = $existencias_origen[0]["existencias"];
+                    $ExisOr                = $existencias_origen[0]["existencias"];
                     $nuevaExistenciaOrigen = $ExisOr - intval($cantidad);
-                    ProductWarehouse::where('idproducto', 'like', '%' . $idproducto . '%')
-                        ->where('idwarehouse', 'like', '%' . $almacen_origen . '%')
+                    ProductWarehouse::where('idproducto', '=',$idproducto)
+                        ->where('idwarehouse', '=', $almacen_origen)
                         ->update(['existencias' => $nuevaExistenciaOrigen]);
 
                     // ACTUALIZAR ALMACEN DESTINO
                     $existencias_destino = productwarehouse::select('existencias')
-                        ->where('idproducto', 'like', '%' . $idproducto . '%')
-                        ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
+                        ->where('idproducto', '=',$idproducto)
+                        ->where('idwarehouse', '=',$almacen_destino)
                         ->get();
 
                     if ($existencias_destino != '[]') {
-                        $ExisDest = $existencias_destino[0]["existencias"];
+                        $ExisDest               = $existencias_destino[0]["existencias"];
                         $nuevaExistenciaDestino = $ExisDest + intval($cantidad);
-                        ProductWarehouse::where('idproducto', 'like', '%' . $idproducto . '%')
-                            ->where('idwarehouse', 'like', '%' . $almacen_destino . '%')
+                        ProductWarehouse::where('idproducto', '=',  $idproducto)
+                            ->where('idwarehouse', '=',  $almacen_destino)
                             ->update(['existencias' => $nuevaExistenciaDestino]);
                     } else {
-                        $nueva_existencia_destino = new ProductWarehouse();
-                        $nueva_existencia_destino->idproducto = $idproducto;
+                        $nueva_existencia_destino              = new ProductWarehouse();
+                        $nueva_existencia_destino->idproducto  = $idproducto;
                         $nueva_existencia_destino->idwarehouse = $almacen_destino;
                         $nueva_existencia_destino->existencias = $cantidad;
                         $nueva_existencia_destino->save();
@@ -389,66 +433,95 @@ class inventarioController extends Controller
     public function buscarpreciocompras(Request $request)
     {
         $idproducto = $request->id_producto;
-        $cantidad = $request->cantidad;
-        $idcliente = $request->idcliente;
-        $nombre = product::where('id', '=', $idproducto)->value('nombre');
-        $costo = product::where('id', '=', $idproducto)->value('costo');
+        $cantidad   = $request->cantidad;
+        $idcliente  = $request->idcliente;
+        $nombre     = product::where('id', '=', $idproducto)->value('nombre');
+        $costo      = product::where('id', '=', $idproducto)->value('costo');
         $idsucursal = $request->sucursal;
+        $marca = brand::select('brand.nombre')
+            ->join('product as p', 'brand.id', '=', 'p.marca')
+            ->where('p.id', $idproducto)
+            ->first();
 
         return response()->json([
             'idproducto' => $idproducto,
-            'costo' => $costo,
-            'nombre' => $nombre,
-            'cantidad' => $cantidad,
+            'costo'      => $costo,
+            'nombre'     => $nombre,
+            'cantidad'   => $cantidad,
+            'marca'      => $marca->nombre,
         ]);
 
     }
 
     public function enviarcompra(Request $request)
     {
+
         date_default_timezone_set('America/Mexico_City');
         try {
-            $movimiento = new stockMovements();
+            $movimiento             = new stockMovements();
             $movimiento->movimiento = $request->movimiento;
-            $autor = Auth::user()->id;
-            $movimiento->autor = $autor;
-            $productos = $request->productos;
-            $movimiento->documento = $request->documento;
-            $movimiento->importe = $request->importe;
-            $now = new DateTime();
-            $fdate = $now->format('Y-m-d H:i:s');
-            $fechaMysql = $fdate;
-            $movimiento->fecha = $fechaMysql;
-            $almacen = $request->sucursal;
-            $productos = json_decode($request->productos);
-            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+            $autor                  = Auth::user()->id;
+            $movimiento->autor      = $autor;
+            $productos              = $request->productos;
+            $movimiento->documento  = $request->documento;
+            $movimiento->importe    = $request->importe;
+            $now                    = new DateTime();
+            $fdate                  = $now->format('Y-m-d H:i:s');
+            $fechaMysql             = $fdate;
+            $movimiento->fecha      = $fechaMysql;
+            $almacen                = $request->sucursal;
+            $productos              = json_decode($request->productos);
+            $movimiento->productos  = json_encode($productos); // Convertir el array de productos a JSON
+
             $movimiento->save();
 
             foreach ($productos as $producto) {
-                $idproducto = $producto->Codigo;
-
+                $idproducto        = $producto->Codigo;
                 $existenciasActual = productwarehouse::select('existencias')
                     ->where('idproducto', intVal($idproducto))
                     ->where('idwarehouse', intVal($almacen))
                     ->first();
+                /* VALIDACION DE COSTOS */
+                $existenciasGeneral = DB::table('product_warehouse')
+                    ->where('idproducto', $idproducto)
+                    ->sum('existencias');
 
+                $costo_promedio     = 0;
+                $costo              = 0;
+                $cambiocosto        = false;
+                $costo_anterior     = 0;
+                $productTemp        = Product::find($idproducto);
+                $costo              = $producto->{"Costo en Compra"};
+                $costo_anterior     = $productTemp->costo;
+                $cambiocosto        = $costo !== $productTemp->costo ? true : false;
+                $productTemp->costo = $costo;
+                if ($existenciasGeneral > 0) {
+                    $costoPromedio               = ($costo + $productTemp->costo_promedio) / 2;
+                    $productTemp->costo_promedio = $costoPromedio;
+
+                } else {
+                    $productTemp->costo_promedio = $costo;
+                    $costo_promedio              = $costo;
+                }
+
+                $producto->costo          = $costo;
+                $producto->cambiocosto    = $cambiocosto;
+                $producto->costo_anterior = $costo_anterior;
+                $producto->costo_promedio = $costo_promedio;
+
+                $productTemp->save();
+
+                /* VALIDACION DE COSTOS */
                 $CantidadDSumar = $producto->Cantidad;
 
-                if ($existenciasActual == "") {
-                    $nuevaexistencia = intVal($CantidadDSumar);
-                    productwarehouse::insert([
-                        'idproducto' => intval($idproducto),
-                        'idwarehouse' => intval(1),
+
+                $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
+                productwarehouse::where('idproducto', intVal($idproducto))
+                    ->where('idwarehouse', intVal(8)) // BODEGA
+                    ->update([
                         'existencias' => $nuevaexistencia,
                     ]);
-                } else {
-                    $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
-                    productwarehouse::where('idproducto', intVal($idproducto))
-                        ->where('idwarehouse', intVal(1))
-                        ->update([
-                            'existencias' => $nuevaexistencia,
-                        ]);
-                }
+
 
             }
 
@@ -463,20 +536,20 @@ class inventarioController extends Controller
 
         try {
             date_default_timezone_set('America/Mexico_City');
-            $movimiento = new stockMovements();
+            $movimiento             = new stockMovements();
             $movimiento->movimiento = $request->movimiento;
-            $autor = Auth::user()->id;
-            $movimiento->autor = $autor;
-            $productos = $request->productos;
-            $movimiento->documento = $request->documento;
-            $movimiento->importe = $request->importe;
-            $now = new DateTime();
-            $fdate = $now->format('Y-m-d H:i:s');
-            $fechaMysql = $fdate;
-            $movimiento->fecha = $fechaMysql;
-            $almacen = $request->sucursal;
-            $productos = json_decode($request->productos);
-            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+            $autor                  = Auth::user()->id;
+            $movimiento->autor      = $autor;
+            $productos              = $request->productos;
+            $movimiento->documento  = $request->documento;
+            $movimiento->importe    = $request->importe;
+            $now                    = new DateTime();
+            $fdate                  = $now->format('Y-m-d H:i:s');
+            $fechaMysql             = $fdate;
+            $movimiento->fecha      = $fechaMysql;
+            $almacen                = $request->sucursal;
+            $productos              = json_decode($request->productos);
+            $movimiento->productos  = json_encode($productos); // Convertir el array de productos a JSON
             $movimiento->save();
 
             foreach ($productos as $producto) {
@@ -492,8 +565,8 @@ class inventarioController extends Controller
                 if ($existenciasActual == "") {
                     $nuevaexistencia = intVal($CantidadDSumar);
                     productwarehouse::insert([
-                        'idproducto' => intval($idproducto),
-                        'idwarehouse' => intval(1),
+                        'idproducto'  => intval($idproducto),
+                        'idwarehouse' => intval($almacen),
                         'existencias' => $nuevaexistencia,
                     ]);
                 } else {
@@ -501,7 +574,7 @@ class inventarioController extends Controller
                     $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
 
                     $ok = productwarehouse::where('idproducto', intVal($idproducto))
-                        ->where('idwarehouse', intVal(1))
+                        ->where('idwarehouse', intVal($almacen))
                         ->update([
                             'existencias' => $nuevaexistencia,
                         ]);
@@ -519,20 +592,20 @@ class inventarioController extends Controller
     {
         date_default_timezone_set('America/Mexico_City');
         try {
-            $movimiento = new stockMovements();
+            $movimiento             = new stockMovements();
             $movimiento->movimiento = $request->movimiento;
-            $autor = Auth::user()->id;
-            $movimiento->autor = $autor;
-            $productos = $request->productos;
-            $movimiento->documento = $request->documento;
-            $movimiento->importe = $request->importe;
-            $now = new DateTime();
-            $fdate = $now->format('Y-m-d H:i:s');
-            $fechaMysql = $fdate;
-            $movimiento->fecha = $fechaMysql;
-            $almacen = $request->sucursal;
-            $productos = json_decode($request->productos);
-            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+            $autor                  = Auth::user()->id;
+            $movimiento->autor      = $autor;
+            $productos              = $request->productos;
+            $movimiento->documento  = $request->documento;
+            $movimiento->importe    = $request->importe;
+            $now                    = new DateTime();
+            $fdate                  = $now->format('Y-m-d H:i:s');
+            $fechaMysql             = $fdate;
+            $movimiento->fecha      = $fechaMysql;
+            $almacen                = $request->sucursal;
+            $productos              = json_decode($request->productos);
+            $movimiento->productos  = json_encode($productos); // Convertir el array de productos a JSON
             $movimiento->save();
 
             foreach ($productos as $producto) {
@@ -543,7 +616,7 @@ class inventarioController extends Controller
                     ->where('idwarehouse', intVal($almacen))
                     ->first();
 
-                $CantidadDSumar = $producto->Cantidad;
+                $CantidadDSumar  = $producto->Cantidad;
                 $nuevaexistencia = $existenciasActual->existencias - intVal($CantidadDSumar);
 
                 productwarehouse::where('idproducto', intVal($idproducto))
@@ -563,20 +636,20 @@ class inventarioController extends Controller
     {
         date_default_timezone_set('America/Mexico_City');
         try {
-            $movimiento = new stockMovements();
+            $movimiento             = new stockMovements();
             $movimiento->movimiento = $request->movimiento;
-            $autor = Auth::user()->id;
-            $movimiento->autor = $autor;
-            $productos = $request->productos;
-            $movimiento->documento = $request->documento;
-            $movimiento->importe = $request->importe;
-            $now = new DateTime();
-            $fdate = $now->format('Y-m-d H:i:s');
-            $fechaMysql = $fdate;
-            $movimiento->fecha = $fechaMysql;
-            $almacen = $request->sucursal;
-            $productos = json_decode($request->productos);
-            $movimiento->productos = json_encode($productos); // Convertir el array de productos a JSON
+            $autor                  = Auth::user()->id;
+            $movimiento->autor      = $autor;
+            $productos              = $request->productos;
+            $movimiento->documento  = $request->documento;
+            $movimiento->importe    = $request->importe;
+            $now                    = new DateTime();
+            $fdate                  = $now->format('Y-m-d H:i:s');
+            $fechaMysql             = $fdate;
+            $movimiento->fecha      = $fechaMysql;
+            $almacen                = $request->sucursal;
+            $productos              = json_decode($request->productos);
+            $movimiento->productos  = json_encode($productos); // Convertir el array de productos a JSON
             $movimiento->save();
 
             foreach ($productos as $producto) {
@@ -587,7 +660,7 @@ class inventarioController extends Controller
                     ->where('idwarehouse', intVal($almacen))
                     ->first();
 
-                $CantidadDSumar = $producto->Cantidad;
+                $CantidadDSumar  = $producto->Cantidad;
                 $nuevaexistencia = $existenciasActual->existencias - intVal($CantidadDSumar);
 
                 productwarehouse::where('idproducto', intVal($idproducto))
