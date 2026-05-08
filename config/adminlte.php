@@ -340,6 +340,11 @@ return [
                             'icon' => 'fas fa-file-signature',
                             'url'  => 'historicocortedecaja',
                         ],
+                        [
+                            'text' => 'Corte de caja especial',
+                            'icon' => 'fas fa-money-bill-wave',
+                            'url'  => 'cortedecajaespecial',
+                        ],
                     ],
                 ],
                 [

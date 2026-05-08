@@ -110,7 +110,10 @@ class reportesController extends Controller
 
         return view('reportes.remisiones.ventasvendedor', ['type' => $type, 'categorias' => $categorias, 'marcas' => $marcas]);
     }
-
+public function reporteimagendealmacen(){
+         $type = $this->gettype();
+        return view('reportes.inventario.imagendeinventario', ['type' => $type]);
+}
     public function reporteclienteslista()
     {
         $type    = $this->gettype();

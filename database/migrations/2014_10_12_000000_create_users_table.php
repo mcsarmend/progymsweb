@@ -29,6 +29,7 @@ class CreateUsersTable extends Migration
             $table->time('hora_salida')->nullable();
             $table->date('fecha_ingreso')->nullable();
             $table->boolean('status')->default(true);
+           
         });
     }
 
