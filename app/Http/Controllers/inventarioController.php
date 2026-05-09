@@ -232,7 +232,7 @@ class inventarioController extends Controller
             $productwarehouse->existencias = $request['existencia'];
             $productwarehouse->save();
 
-            $almacenes_adicionales = [2, 3, 4, 7, 9, 10];
+            $almacenes_adicionales = [3, 4, 7, 9, 10];
 
             foreach ($almacenes_adicionales as $id_almacen) {
                 $nuevo_registro = new productwarehouse();
