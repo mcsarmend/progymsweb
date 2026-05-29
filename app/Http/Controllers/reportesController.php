@@ -64,10 +64,10 @@ class reportesController extends Controller
     {
         $type      = $this->gettype();
         $almacenes = warehouse::all();
-        $products  = DB::select('CALL sp_reporteexistencias(0)');
+        $products  = DB::select('CALL sp_multialmacen()');
 
         $total_costos = array_reduce($products, function ($carry, $item) {
-            return $carry + ($item->costo * intval($item->totales));
+            return $carry + ($item->costo_promedio * intval($item->totales));
         }, 0);
 
         return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes, 'total_costos' => $total_costos]);
@@ -107,13 +107,16 @@ class reportesController extends Controller
         $type       = $this->gettype();
         $categorias = category::all();
         $marcas     = brand::all();
+        $vendedores = DB::table('users')->get();
+        $vendedores = DB::table('users')->whereIn('status', ['1'])->get();
 
-        return view('reportes.remisiones.ventasvendedor', ['type' => $type, 'categorias' => $categorias, 'marcas' => $marcas]);
+        return view('reportes.remisiones.ventasvendedor', ['type' => $type, 'categorias' => $categorias, 'marcas' => $marcas, 'vendedores' => $vendedores]);
     }
-public function reporteimagendealmacen(){
-         $type = $this->gettype();
+    public function reporteimagendealmacen()
+    {
+        $type = $this->gettype();
         return view('reportes.inventario.imagendeinventario', ['type' => $type]);
-}
+    }
     public function reporteclienteslista()
     {
         $type    = $this->gettype();
@@ -202,6 +205,101 @@ public function reporteimagendealmacen(){
 
         } catch (\Throwable $th) {
 
+            return response()->json(['message' => 'Error al generar el reporte: ' . $th->getMessage()], 500);
+        }
+    }
+    public function generarreporteventasvendedor(Request $request)
+    {
+        try {
+            $idvendedor  = $request->idvendedor ?? 0;
+            $fechainicio = $request->fechainicio ?? null;
+            $fechafin    = $request->fechafin ?? null;
+
+            // =========== ESTADÍSTICAS AGRUPADAS ===========
+            $estadisticas = DB::table('users as u')
+                ->select(
+                    'u.id',
+                    'u.name',
+                    'u.email',
+                    DB::raw("COALESCE(SUM(CASE WHEN r.reparto = 0 AND r.vendedor = u.id THEN r.total ELSE 0 END), 0) AS ventas"),
+                    DB::raw("COUNT(CASE WHEN r.reparto = 0 AND r.vendedor = u.id THEN 1 END) AS cantidad_ventas"),
+                    DB::raw("COALESCE(SUM(CASE WHEN r.reparto = 1 AND r.vendedor_reparto = u.id THEN r.total ELSE 0 END), 0) AS ventas_reparto"),
+                    DB::raw("COUNT(CASE WHEN r.reparto = 1 AND r.vendedor_reparto = u.id THEN 1 END) AS cantidad_ventas_reparto"),
+                    DB::raw("COALESCE(
+                    SUM(CASE WHEN r.reparto = 0 AND r.vendedor = u.id THEN r.total ELSE 0 END) +
+                    SUM(CASE WHEN r.reparto = 1 AND r.vendedor_reparto = u.id THEN r.total ELSE 0 END),
+                0) AS total_ventas"),
+                    DB::raw("COUNT(CASE WHEN (r.reparto = 0 AND r.vendedor = u.id) OR (r.reparto = 1 AND r.vendedor_reparto = u.id) THEN 1 END) AS total_cantidad")
+                )
+                ->leftJoin('referrals as r', function ($join) use ($fechainicio, $fechafin) {
+                    $join->whereRaw('((r.reparto = 0 AND r.vendedor = u.id) OR (r.reparto = 1 AND r.vendedor_reparto = u.id))')
+                        ->where('r.estatus', '=', 'emitida');
+
+                    if ($fechainicio) {
+                        $join->where('r.fecha', '>=', $fechainicio);
+                    }
+
+                    if ($fechafin) {
+                        $join->where('r.fecha', '<=', $fechafin);
+                    }
+
+                })
+                ->where('u.id', $idvendedor)
+                ->groupBy('u.id', 'u.name', 'u.email')
+                ->first();
+
+            // =========== VENTAS POR DÍA ===========
+
+            $ventasPorDiaQuery = DB::table('referrals as r')
+                ->select(
+                    DB::raw('DATE(r.fecha) as fecha'), // 👈 solo YYYY-MM-DD
+                    DB::raw('COUNT(*) as cantidad'),
+                    DB::raw('COALESCE(SUM(r.total), 0) as total')
+                )
+                ->where('r.estatus', 'emitida')
+                ->where(function ($q) use ($idvendedor) {
+                    $q->where(function ($sub) use ($idvendedor) {
+                        $sub->where('r.reparto', 0)->where('r.vendedor', $idvendedor);
+                    })->orWhere(function ($sub) use ($idvendedor) {
+                        $sub->where('r.reparto', 1)->where('r.vendedor_reparto', $idvendedor);
+                    });
+                });
+
+            if ($fechainicio) {
+                $ventasPorDiaQuery->where('r.fecha', '>=', $fechainicio . ' 00:00:00');
+            }
+
+            if ($fechafin) {
+                $ventasPorDiaQuery->where('r.fecha', '<=', $fechafin . ' 23:59:59');
+            }
+
+            $ventasPorDia = $ventasPorDiaQuery
+                ->groupBy(DB::raw('DATE(r.fecha)'))        // 👈 agrupa por día
+                ->orderBy(DB::raw('DATE(r.fecha)'), 'asc') // 👈 ordena por día
+                ->get();
+
+            // Convertir a formato { 'YYYY-MM-DD': { cantidad, total } }
+            $cantidadesPorDia = [];
+            foreach ($ventasPorDia as $dia) {
+                $cantidadesPorDia[$dia->fecha] = [
+                    'cantidad' => (int) $dia->cantidad,
+                    'total'    => (float) $dia->total,
+                ];
+            }
+
+            return response()->json([
+                'message'                 => 'Reporte Generado Correctamente',
+                'vendedor'                => $estadisticas->name ?? '',
+                'ventas'                  => $estadisticas->ventas ?? 0,
+                'cantidad_ventas'         => $estadisticas->cantidad_ventas ?? 0,
+                'ventas_reparto'          => $estadisticas->ventas_reparto ?? 0,
+                'cantidad_ventas_reparto' => $estadisticas->cantidad_ventas_reparto ?? 0,
+                'total_ventas'            => $estadisticas->total_ventas ?? 0,
+                'total_cantidad'          => $estadisticas->total_cantidad ?? 0,
+                'cantidadesPorDia'        => $cantidadesPorDia, // 👈 NUEVO
+            ], 200);
+
+        } catch (\Throwable $th) {
             return response()->json(['message' => 'Error al generar el reporte: ' . $th->getMessage()], 500);
         }
     }
