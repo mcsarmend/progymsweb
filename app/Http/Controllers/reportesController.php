@@ -58,7 +58,7 @@ class reportesController extends Controller
 
         $products = DB::select('CALL lista_precios_activos()');
 
-        return view('reportes.inventario.listaprecios', ['type' => $type, 'products' => $products]);
+        return view('reportes.Inventario.listaprecios', ['type' => $type, 'products' => $products]);
     }
     public function reporteinventarioexistenciascostos()
     {
@@ -70,13 +70,13 @@ class reportesController extends Controller
             return $carry + ($item->costo_promedio * intval($item->totales));
         }, 0);
 
-        return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes, 'total_costos' => $total_costos]);
+        return view('reportes.Inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes, 'total_costos' => $total_costos]);
     }
     public function productomovimiento()
     {
         $type      = $this->gettype();
         $productos = product::all();
-        return view('reportes.inventario.productomovimiento', ['type' => $type, 'productos' => $productos]);
+        return view('reportes.Inventario.productomovimiento', ['type' => $type, 'productos' => $productos]);
     }
     public function resumenventas()
     {
@@ -143,7 +143,7 @@ class reportesController extends Controller
     {
         $proveedores = supplier::all();
         $type        = $this->gettype();
-        return view('reportes.inventario.historicoinventario', ['type' => $type, 'suppliers' => $proveedores]);
+        return view('reportes.Inventario.historicoinventario', ['type' => $type, 'suppliers' => $proveedores]);
     }
 
     public function generarreporteventascliente(Request $request)
