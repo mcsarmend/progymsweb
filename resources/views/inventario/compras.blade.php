@@ -170,7 +170,8 @@
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(data) {
-                            agregarFila(data.idproducto, data.cantidad, data.nombre, data.costo, result.value.costoencompra);
+                            agregarFila(data.idproducto, data.cantidad, data.nombre, data.costo, result
+                                .value.costoencompra);
                         },
                         error: function(xhr, status, error) {
                             Swal.fire({
@@ -189,12 +190,12 @@
             var options = @json($productos);
             var dataList = '';
             options.forEach(function(item) {
-                dataList +=   `<option value="${item.id}-${item.nombre} -${item.nombre_marca}">`;
+                dataList += `<option value="${item.id}-${item.nombre} -${item.nombre_marca}">`;
             });
             return dataList;
         }
 
-        function agregarFila(codigo, cantidad, nombre, costo,costoencompra) {
+        function agregarFila(codigo, cantidad, nombre, costo, costoencompra) {
             // Verificar si el código ya existe en alguna fila
             var codigoExiste = false;
             $('#productos tbody tr').each(function() {

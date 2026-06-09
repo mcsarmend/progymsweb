@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -16,7 +15,7 @@ class multialmacenController extends Controller
 {
     public function multialmacen()
     {
-        $type = $this->gettype();
+        $type     = $this->gettype();
         $products = DB::select('CALL sp_multialmacen()');
 
         return view('almacen.multialmacen', ['type' => $type, 'products' => $products]);
@@ -29,7 +28,7 @@ class multialmacenController extends Controller
     public function bajaalmacen()
     {
         $almacenes = warehouse::all();
-        $type = $this->gettype();
+        $type      = $this->gettype();
         return view('almacen.baja', ['type' => $type, 'almacenes' => $almacenes]);
     }
     public function edicionalmacen()
@@ -41,7 +40,7 @@ class multialmacenController extends Controller
     public function crearalmacen(Request $request)
     {
         try {
-            $almacen = new warehouse();
+            $almacen         = new warehouse();
             $almacen->nombre = $request->almacen;
             $almacen->save();
             return response()->json(['message' => 'Almacén creado correctamente'], 200);
@@ -54,7 +53,7 @@ class multialmacenController extends Controller
     {
         try {
             // Encuentra el usuario por su ID
-            $id = $request->id;
+            $id        = $request->id;
             $almacenid = Crypt::decrypt($id);
             warehouse::findOrFail($almacenid)->delete();
             return response()->json(['message' => 'Almacén eliminado correctamente'], 200);
@@ -62,6 +61,24 @@ class multialmacenController extends Controller
             // Devolver una respuesta de error
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    public function guardarproducto(Request $request)
+    {
+
+        $producto = Product::findOrFail($request->id);
+
+        $producto->nombre    = $request->nombre;
+        $producto->marca     = $request->marca_id;
+        $producto->categoria = $request->categoria_id;
+        $producto->costo     = $request->costo;
+
+        $producto->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Producto actualizado correctamente',
+        ]);
     }
 
     public function detalleamacenes(Request $request)
@@ -88,8 +105,8 @@ class multialmacenController extends Controller
     public function obtenerproducto(Request $request)
     {
 
-        $productos = Product::select('nombre')
-            ->where('nombre', 'like', '%' . $request->term . '%')
+        $productos = Product::select('*')
+            ->where('id', '=', $request->id_producto)
             ->get();
 
         // Verificar si se encontraron productos

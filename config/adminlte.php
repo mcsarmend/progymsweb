@@ -774,6 +774,11 @@ return [
                             'url'  => 'ventasproducto',
                             'icon' => 'fas fa-chart-line',
                         ],
+                        [
+                            'text' => 'Ventas por Vendedor',
+                            'url'  => 'ventasvendedor',
+                            'icon' => 'fas fa-chart-line',
+                        ],
 
                     ],
                 ],

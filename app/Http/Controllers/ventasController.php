@@ -138,7 +138,7 @@ class ventasController extends Controller
         ]);
     }
 
-    public function validarremision(Request $request)
+       public function validarremision(Request $request)
     {
         try {
 
@@ -565,8 +565,8 @@ class ventasController extends Controller
             $fechavalidar = null;
 
             if ($type != 4) {
-                                                                                   // TODOS LOS USUARIOS EXCEPTO VENDEDORES
-                                                                                   // Para usuarios que no son vendedores, usar la fecha seleccionada con hora fija 20:00:00
+                // TODOS LOS USUARIOS EXCEPTO VENDEDORES
+                // Para usuarios que no son vendedores, usar la fecha seleccionada con hora fija 20:00:00
                 $fechavalidar = Carbon::parse($request->fecha)->setTime(20, 0, 0); // 20:00:00 horas
             } else {
                                                             // Para vendedores (type=4), usar fecha/hora actual de México

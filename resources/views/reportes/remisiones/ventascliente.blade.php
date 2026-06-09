@@ -93,24 +93,7 @@
 
             <hr>
 
-            {{-- ================= TABLA ================= --}}
-            <div id="contenedorTabla" style="display:none;">
-                <h3>Detalle de Remisiones</h3>
-                <table id="tablaRemisiones" class="table table-hover table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Forma Pago</th>
-                            <th>Total</th>
-                            <th>Tipo Precio</th>
-                            <th>Tipo Remisión</th>
-                            <th>Cliente</th>
-                            <th>Productos</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+
 
         </div>
     </div>
@@ -177,7 +160,7 @@
             datos += "&idcliente=" + idcliente;
 
             $.ajax({
-                url: '/generarreporteventascliente',
+                url: '/generarreporteventasvendedor',
                 method: "POST",
                 data: datos,
                 headers: {

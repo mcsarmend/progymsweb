@@ -214,7 +214,7 @@
             });
         }
 
-                function actualizarExistencias() {
+        function actualizarExistencias() {
             const productoInput = document.getElementById('inputWithDatalist');
             const idProducto = obtenerNumerosHastaGuion(productoInput.value); // Usa tu función existente
 

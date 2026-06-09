@@ -23,9 +23,9 @@
                                 <th>Nombre</th>
                                 <th>Marca</th>
                                 <th>Categoria</th>
-
                                 <th>Almacenes</th>
                                 <th>Precios</th>
+                                <th>Campos</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -106,6 +106,81 @@
     </div>
 
 
+    <div class="modal fade" id="editarProducto" tabindex="-1" role="dialog" aria-labelledby="editarProductoCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered custom-width" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarProductoLongTitle">
+                        Editar Producto:
+                        <span class="badge badge-secondary" id="editar_header_id">#--</span>
+                        <span class="text-primary ml-2" id="editar_header_nombre">--</span>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <form id="formEditarProducto">
+                    @csrf
+                    <div class="modal-body">
+
+                        {{-- ID oculto del producto --}}
+                        <input type="hidden" id="editar_producto_id" name="id">
+
+                        <div class="row g-3">
+
+                            {{-- NOMBRE --}}
+                            <div class="col-md-12 mb-3">
+                                <label for="editar_nombre" class="form-label">Nombre</label>
+                                <input type="text" id="editar_nombre" name="nombre" class="form-control" required>
+                            </div>
+
+                            {{-- MARCA --}}
+                            <div class="col-md-6 mb-3">
+                                <label for="editar_marca" class="form-label">Marca</label>
+                                <select id="editar_marca" name="marca_id" class="form-control" required>
+                                    <option value="">-- Selecciona una marca --</option>
+                                    @foreach ($marcas as $m)
+                                        <option value="{{ $m->id }}">{{ $m->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- CATEGORÍA --}}
+                            <div class="col-md-6 mb-3">
+                                <label for="editar_categoria" class="form-label">Categoría</label>
+                                <select id="editar_categoria" name="categoria_id" class="form-control" required>
+                                    <option value="">-- Selecciona una categoría --</option>
+                                    @foreach ($categorias as $c)
+                                        <option value="{{ $c->id }}">{{ $c->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- COSTO --}}
+                            <div class="col-md-6 mb-3">
+                                <label for="editar_costo" class="form-label">Costo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" min="0" id="editar_costo"
+                                        name="costo" class="form-control" required>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="btnGuardarProducto">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -190,6 +265,13 @@
                     "data": "precios",
                     "render": function(data, type, row) {
                         return '<button onclick="editarprecios(' + row.id +
+                            ')" class="btn btn-primary">Editar</button>';
+                    }
+                },
+                {
+                    "data": "campos",
+                    "render": function(data, type, row) {
+                        return '<button onclick="editarproducto(' + row.id +
                             ')" class="btn btn-primary">Editar</button>';
                     }
                 },
@@ -356,6 +438,39 @@
             });
         }
 
+
+        function editarproducto(id) {
+            $('#editarProducto').modal('show');
+
+            // Limpia mientras carga
+            $('#editar_header_id').text('#' + id);
+
+            $.ajax({
+                url: 'obtenerproducto',
+                type: 'GET',
+                data: {
+                    id_producto: id
+                },
+                dataType: 'json',
+                success: function(data) {
+
+                    // Llena los inputs del formulario (con fallbacks por si las claves cambian)
+                    $('#editar_producto_id').val(data[0].id);
+                    $('#editar_header_nombre').text(data[0].nombre || 'Nombre no disponible');
+                    $('#editar_nombre').text(data[0].nombre || 'Nombre no disponible');
+                    $('#editar_nombre').val(data[0].nombre);
+                    $('#editar_marca').val(data[0].marca);
+                    $('#editar_categoria').val(data[0].categoria);
+                    $('#editar_costo').val(data[0].costo);
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    $('#editar_header_nombre').text('Error al cargar');
+                }
+            });
+        }
+
+
         function enviareditaralmacenform(id, almacen) {
             nuevaexistencia = '#idalmacen_' + id + quitarEspaciosExtra(almacen);
             val_nuevaexistencia = $(nuevaexistencia).val();
@@ -449,5 +564,56 @@
             }
 
         }
+
+        $('#formEditarProducto').on('submit', function(e) {
+            e.preventDefault();
+
+            let btn = $('#btnGuardarProducto');
+
+            btn.prop('disabled', true);
+            btn.html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
+
+            $.ajax({
+                url: '/guardarproducto', // Cambia por tu ruta real
+                type: 'POST',
+                data: $(this).serialize(),
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Producto actualizado',
+                        text: response.message || 'Los cambios fueron guardados correctamente'
+                    });
+
+                    $('#editarProducto').modal('hide');
+
+                    // Recargar página después de guardar
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                },
+                error: function(xhr) {
+
+                    let mensaje = 'Ocurrió un error al guardar';
+
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        mensaje = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: mensaje
+                    });
+                },
+                complete: function() {
+                    btn.prop('disabled', false);
+                    btn.html('<i class="fas fa-save"></i> Guardar Cambios');
+                }
+            });
+        });
     </script>
 @stop
