@@ -111,9 +111,11 @@ class inventarioController extends Controller
             ->where('p.estatus', 1)
             ->get();
 
-        $almacenes = warehouse::all();
+        $almacenes  = warehouse::all();
+        $marcas     = brand::orderByRaw('LOWER(nombre) ASC')->get();
+        $categorias = category::orderByRaw('LOWER(nombre) ASC')->get();
 
-        return view('inventario.edicion', ['type' => $type, 'productos' => $products, 'almacenes' => $almacenes]);
+        return view('inventario.edicion', ['type' => $type, 'productos' => $products, 'almacenes' => $almacenes, 'marcas' => $marcas, 'categorias' => $categorias]);
     }
     public function ingresoinventario()
     {
@@ -169,7 +171,7 @@ class inventarioController extends Controller
             $product->categoria      = $request['categoria'];
             $product->costo          = $request['costo'];
             $product->costo_promedio = $request['costo'];
-            $product->estatus = "1";
+            $product->estatus        = "1";
 
             $product->save();
 
@@ -191,7 +193,7 @@ class inventarioController extends Controller
             $movimiento->fecha     = $fechaMysql;
             $producto              = [
                 [
-                    "Codigo"          =>  $request['codigo'],
+                    "Codigo"          => $request['codigo'],
                     "Cantidad"        => $request['existencia'],
                     "Nombre"          => $product->nombre,
                     "Precio Unitario" => $request['costo'],
@@ -235,8 +237,8 @@ class inventarioController extends Controller
             $almacenes_adicionales = [3, 4, 7, 9, 10];
 
             foreach ($almacenes_adicionales as $id_almacen) {
-                $nuevo_registro = new productwarehouse();
-                $nuevo_registro->idproducto = $request['codigo'];
+                $nuevo_registro              = new productwarehouse();
+                $nuevo_registro->idproducto  = $request['codigo'];
                 $nuevo_registro->idwarehouse = $id_almacen;
                 $nuevo_registro->existencias = 0; // Existencia cero
                 $nuevo_registro->save();
@@ -257,7 +259,6 @@ class inventarioController extends Controller
             $productid = Crypt::decrypt($id);
             product::where('idproducto', '=', $productid)
                 ->update(['estatus' => 0]);
-
 
             return response()->json(['message' => 'Producto eliminado correctamente'], 200);
         } catch (\Throwable $e) {
@@ -386,27 +387,27 @@ class inventarioController extends Controller
                 // ACUTALIZAR ALMACEN ORIGEN
                 $existencias_origen = productwarehouse::select('existencias')
                     ->where('idproducto', '=', $idproducto)
-                    ->where('idwarehouse', '=', $almacen_origen )
+                    ->where('idwarehouse', '=', $almacen_origen)
                     ->get();
 
                 if ($existencias_origen != '[]') {
                     $ExisOr                = $existencias_origen[0]["existencias"];
                     $nuevaExistenciaOrigen = $ExisOr - intval($cantidad);
-                    ProductWarehouse::where('idproducto', '=',$idproducto)
+                    ProductWarehouse::where('idproducto', '=', $idproducto)
                         ->where('idwarehouse', '=', $almacen_origen)
                         ->update(['existencias' => $nuevaExistenciaOrigen]);
 
                     // ACTUALIZAR ALMACEN DESTINO
                     $existencias_destino = productwarehouse::select('existencias')
-                        ->where('idproducto', '=',$idproducto)
-                        ->where('idwarehouse', '=',$almacen_destino)
+                        ->where('idproducto', '=', $idproducto)
+                        ->where('idwarehouse', '=', $almacen_destino)
                         ->get();
 
                     if ($existencias_destino != '[]') {
                         $ExisDest               = $existencias_destino[0]["existencias"];
                         $nuevaExistenciaDestino = $ExisDest + intval($cantidad);
-                        ProductWarehouse::where('idproducto', '=',  $idproducto)
-                            ->where('idwarehouse', '=',  $almacen_destino)
+                        ProductWarehouse::where('idproducto', '=', $idproducto)
+                            ->where('idwarehouse', '=', $almacen_destino)
                             ->update(['existencias' => $nuevaExistenciaDestino]);
                     } else {
                         $nueva_existencia_destino              = new ProductWarehouse();
@@ -438,7 +439,7 @@ class inventarioController extends Controller
         $nombre     = product::where('id', '=', $idproducto)->value('nombre');
         $costo      = product::where('id', '=', $idproducto)->value('costo');
         $idsucursal = $request->sucursal;
-        $marca = brand::select('brand.nombre')
+        $marca      = brand::select('brand.nombre')
             ->join('product as p', 'brand.id', '=', 'p.marca')
             ->where('p.id', $idproducto)
             ->first();
@@ -514,14 +515,12 @@ class inventarioController extends Controller
                 /* VALIDACION DE COSTOS */
                 $CantidadDSumar = $producto->Cantidad;
 
-
                 $nuevaexistencia = $existenciasActual->existencias + intVal($CantidadDSumar);
                 productwarehouse::where('idproducto', intVal($idproducto))
                     ->where('idwarehouse', intVal(8)) // BODEGA
                     ->update([
                         'existencias' => $nuevaexistencia,
                     ]);
-
 
             }
 

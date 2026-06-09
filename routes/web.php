@@ -101,6 +101,7 @@ Route::get('detalleprecios', [multialmacenController::class, 'detalleprecios'])-
 Route::get('obtenerproducto', [multialmacenController::class, 'obtenerproducto'])->middleware(['auth']);
 Route::post('crearalmacen', [multialmacenController::class, 'crearalmacen'])->middleware(['auth']);
 Route::post('eliminaralmacen', [multialmacenController::class, 'eliminaralmacen'])->middleware(['auth']);
+Route::post('guardarproducto', [multialmacenController::class, 'guardarproducto'])->middleware(['auth']);
 
 //INVENTARIO
 Route::get('altainventario', [inventarioController::class, 'altainventario'])->middleware(['auth']);
