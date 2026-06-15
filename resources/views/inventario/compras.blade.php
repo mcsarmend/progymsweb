@@ -86,12 +86,15 @@
         $(document).ready(function() {
             drawTriangles();
             showUsersSections();
-
+            $('#sucursal').val(8);
+            $('#sucursal').prop('disabled', true);
             $('#proveedor').change(function() {
                 time = getFormattedDateTime();
                 var selectedOption = $(this).find(':selected'); // Obtén la opción seleccionada
                 var clave = selectedOption.data('clave'); // Extrae el atributo data-clave
                 var documento = time + clave; // Genera el valor del documento
+                var almacen = formatearNumero($('#sucursal').val());
+                documento = documento + almacen;
                 $('#documento').val(documento); // Coloca el valor en el input
             });
 
@@ -107,7 +110,13 @@
             var selectedOption = $('#proveedor').find(':selected'); // Obtén la opción seleccionada
             var clave = selectedOption.data('clave'); // Extrae el atributo data-clave
             var documento = time + clave; // Genera el valor del documento
+            var almacen = formatearNumero($('#sucursal').val());
+            documento = documento + almacen;
             $('#documento').val(documento); // Coloca el valor en el input
+        }
+
+        function formatearNumero(numero) {
+            return numero.toString().padStart(2, '0');
         }
 
         function buscarProducto() {
@@ -170,7 +179,8 @@
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(data) {
-                            agregarFila(data.idproducto, data.cantidad, data.nombre, data.costo, result
+                            nombre = data.nombre + " - " + data.marca;
+                            agregarFila(data.idproducto, data.cantidad, nombre, data.costo, result
                                 .value.costoencompra);
                         },
                         error: function(xhr, status, error) {
@@ -215,7 +225,7 @@
                 return;
             }
 
-            var costosubtotal = costo * cantidad;
+            var costosubtotal = costoencompra * cantidad;
             // Crear la nueva fila
             var nuevaFila =
                 `<tr>

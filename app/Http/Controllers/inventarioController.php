@@ -121,7 +121,15 @@ class inventarioController extends Controller
     {
         $type      = $this->gettype();
         $almacenes = warehouse::all();
-        $productos = Product::where('estatus', 1)->get();
+        $productos = Product::from('product as p')
+            ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
+            ->select([
+                'p.id',
+                'p.nombre',
+                'b.nombre as nombre_marca',
+            ])
+            ->where('p.estatus', 1)
+            ->get();
         return view('inventario.ingreso', ['type' => $type, 'sucursales' => $almacenes, 'productos' => $productos]);
     }
     public function salidainventario()
@@ -601,15 +609,15 @@ class inventarioController extends Controller
                 $idproducto = $producto->Codigo;
 
                 $existenciasActual = productwarehouse::select('existencias')
-                    ->where('idproducto', intVal($idproducto))
-                    ->where('idwarehouse', intVal($almacen))
+                    ->where('idproducto', $idproducto)
+                    ->where('idwarehouse', $almacen)
                     ->first();
 
                 $CantidadDSumar  = $producto->Cantidad;
                 $nuevaexistencia = $existenciasActual->existencias - intVal($CantidadDSumar);
 
-                productwarehouse::where('idproducto', intVal($idproducto))
-                    ->where('idwarehouse', intVal($almacen))
+                productwarehouse::where('idproducto', $idproducto)
+                    ->where('idwarehouse', $almacen)
                     ->update([
                         'existencias' => $nuevaexistencia,
                     ]);

@@ -42,6 +42,7 @@
                         <th>Autor</th>
                         <th>Documento</th>
                         <th>Productos</th>
+                        <th>Imprimir</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,10 +90,20 @@
 @stop
 
 @section('css')
+    <style>
+        .custom-width {
+            max-width: 95% !important;
+            width: 60% !important;
+        }
+    </style>
 
 @stop
 
 @section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
     <script>
         $(document).ready(function() {
             drawTriangles();
@@ -174,6 +185,13 @@
                                         ')" class="btn btn-primary">Ver</button>';
                                 }
                             },
+                            {
+                                "data": "productos",
+                                "render": function(data, type, row) {
+                                    return '<button onclick="generarpdf(' + row.id +
+                                        ')" class="btn btn-primary">Imprimir</button>';
+                                }
+                            }
 
 
 
@@ -272,6 +290,155 @@
 
                         ]
                     });
+                }
+            });
+        }
+
+
+        function generarpdf(id) {
+
+            $.ajax({
+                url: 'verproductosmovimiento',
+                type: 'GET',
+                data: {
+                    id: id
+                },
+                dataType: 'json',
+                success: function(data) {
+                    let info = data.movimiento;
+                    const almacenesMap = {
+                        "01": "Almacén Principal",
+                        "02": "Viveros",
+                        "03": "Town Center",
+                        "04": "Coacalco",
+                        "06": "Villas de la Hacienda",
+                        "07": "Naucalpan",
+                        "08": "Bodega",
+                        "09": "Tienda",
+                        "10": "Pedidos"
+                    };
+                    var {
+                        jsPDF
+                    } = window.jspdf;
+
+                    var doc = new jsPDF({
+                        orientation: "portrait",
+                        unit: "mm",
+                        format: [297, 210],
+                    });
+
+                    let documento = info.documento;
+                    let ultimos2 = documento.slice(-2);
+                    let sucursal = almacenesMap[ultimos2] ?? ultimos2;
+                    let time = info.fecha;
+                    let productos = JSON.parse(info.productos);
+
+                    // ============================
+                    // ============================
+                    //         ENCABEZADO
+                    // ============================
+
+                    doc.setFont("helvetica", "bold");
+
+                    // Título
+                    doc.setFontSize(14);
+                    doc.text("GRUPO PROGYMS", 105, 8, {
+                        align: "center"
+                    });
+
+                    // Movimiento
+                    doc.setFontSize(11);
+                    doc.text(`Movimiento: ${data.mov}`, 105, 14, {
+                        align: "center"
+                    });
+
+                    // Columnas
+                    let leftX = 10;
+                    let rightX = 110;
+
+                    let y = 22;
+
+                    doc.setFontSize(10);
+
+                    // Fila 1
+                    doc.text(`Fecha: ${time}`, leftX, y);
+                    doc.text(`Documento: ${documento}`, rightX, y);
+
+                    // Fila 2
+                    y += 5;
+                    doc.text(`Sucursal: ${sucursal}`, leftX, y);
+                    doc.text(`RFC: ASG160718HS6`, rightX, y);
+
+                    // Fila 3
+                    y += 5;
+                    doc.text(`Realizó: ${data.autor ?? "N/A"}`, leftX, y);
+                    doc.text(`Tel: 55 6834 1113`, rightX, y);
+
+                    // La tabla comienza inmediatamente después
+                    let nextY = y + 4;
+                    // ============================
+                    //            TABLA
+                    // ============================
+
+                    const tableData = productos.map(p => [
+                        p.Codigo,
+                        p.Cantidad,
+                        p.Nombre
+                    ]);
+
+                    doc.autoTable({
+                        startY: nextY + 4, // o 38 en la segunda función, PERO la misma posición
+                        head: [
+                            ['Código', 'Cantidad', 'Descripción']
+                        ],
+                        body: tableData, // o productos HTML
+                        styles: {
+                            fontSize: 10,
+                            fontStyle: 'bold',
+                            overflow: 'linebreak',
+                            cellPadding: 2
+                        },
+                        columnStyles: {
+                            0: {
+                                cellWidth: 25
+                            },
+                            1: {
+                                cellWidth: 20
+                            },
+                            2: {
+                                cellWidth: 120
+                            }
+                        },
+                        margin: {
+                            left: 10
+                        },
+                        headStyles: {
+                            fillColor: [200, 200, 200],
+                            textColor: 0,
+                            fontStyle: 'bold'
+                        }
+                    });
+
+                    // ============================
+                    //       imprimir PDF
+                    // ============================
+
+                    // Convertir a blob y abrir en una nueva pestaña para imprimir
+                    const pdfBlob = doc.output('blob');
+                    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                    // Abrir en otra pestaña
+                    const printWindow = window.open(pdfUrl);
+
+                    // Esperar un poco para asegurar que cargue y mandar imprimir
+                    printWindow.onload = function() {
+                        printWindow.print();
+                    };
+
+                    Swal.fire("Movimiento impreso", "", "success");
+                },
+                error: function() {
+                    Swal.fire("Error", "No se pudo generar el PDF", "error");
                 }
             });
         }

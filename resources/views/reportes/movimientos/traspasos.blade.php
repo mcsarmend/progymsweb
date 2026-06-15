@@ -87,7 +87,12 @@
 @stop
 
 @section('css')
-
+    <style>
+        .custom-width {
+            max-width: 95% !important;
+            width: 60% !important;
+        }
+    </style>
 @stop
 
 @section('js')
@@ -285,7 +290,10 @@
                         "TOW": "Town Center",
                         "COA": "Coacalco",
                         "VIL": "Villas de la Hacienda",
-                        "NAU": "Naucalpan"
+                        "NAU": "Naucalpan",
+                        "BOD": "Bodega",
+                        "TIE": "Tienda",
+                        "PED": "Pedidos"
                     };
 
                     var {
@@ -311,49 +319,51 @@
                     let productos = JSON.parse(info.productos);
 
                     // ============================
-                    //      ENCABEZADO 2 COLUMNAS
+                    //         ENCABEZADO
                     // ============================
 
-                    doc.setFontSize(12);
                     doc.setFont("helvetica", "bold");
 
+                    // Título
+                    doc.setFontSize(14);
+                    doc.text("GRUPO PROGYMS", 105, 8, {
+                        align: "center"
+                    });
+
+                    // Movimiento
+                    doc.setFontSize(11);
+                    doc.text(`Movimiento: ${info.movimiento}`, 105, 14, {
+                        align: "center"
+                    });
+
+                    // Columnas
                     let leftX = 10;
-                    let rightX = 130;
+                    let rightX = 110;
 
-                    let yLeft = 10;
-                    let yRight = 10;
+                    let y = 22;
 
-                    // -----------------------------
-                    //         COLUMNA IZQUIERDA
-                    // -----------------------------
-                    doc.text("GRUPO PROGYMS", leftX, yLeft);
-                    yLeft += 6;
+                    doc.setFontSize(10);
 
-                    doc.text(`Fecha: ${time}`, leftX, yLeft);
-                    yLeft += 6;
+                    // Fila 1
+                    doc.text(`Fecha: ${time}`, leftX, y);
+                    doc.text(`Documento: ${documento}`, rightX, y);
 
-                    doc.text(`Almacén Origen: ${alm_origen}`, leftX, yLeft);
-                    yLeft += 6;
+                    // Fila 2
+                    y += 5;
+                    doc.text(`Origen: ${alm_origen}`, leftX, y);
+                    doc.text(`RFC: ASG160718HS6`, rightX, y);
 
-                    doc.text(`Almacén Destino: ${alm_destino}`, leftX, yLeft);
-                    yLeft += 6;
+                    // Fila 3
+                    y += 5;
+                    doc.text(`Destino: ${alm_destino}`, leftX, y);
+                    doc.text(`Tel: 55 6834 1113`, rightX, y);
 
-                    // -----------------------------
-                    //         COLUMNA DERECHA
-                    // -----------------------------
-                    doc.text(`Documento: ${documento}`, rightX, yRight);
-                    yRight += 6;
+                    // Fila 4
+                    y += 5;
+                    doc.text(`Realizó: ${info.autor ?? data.autor ?? "N/A"}`, leftX, y);
 
-                    doc.text(`RFC: ASG160718HS6`, rightX, yRight);
-                    yRight += 6;
-
-                    doc.text(`Teléfono: 55 6834 1113`, rightX, yRight);
-                    yRight += 6;
-
-
-
-                    // Altura final para iniciar tabla
-                    let nextY = Math.max(yLeft, yRight);
+                    // La tabla inicia prácticamente enseguida
+                    let nextY = y + 4;
 
                     // ============================
                     //            TABLA

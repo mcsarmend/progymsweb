@@ -82,6 +82,8 @@
                 var selectedOption = $(this).find(':selected'); // Obtén la opción seleccionada
                 var clave = "MER";
                 var documento = time + clave; // Genera el valor del documento
+                var almacen = formatearNumero($('#sucursal').val());
+                documento = documento + almacen;
                 $('#documento').val(documento); // Coloca el valor en el input
             });
 
@@ -97,7 +99,13 @@
             var selectedOption = $(this).find(':selected'); // Obtén la opción seleccionada
             var clave = "MER";
             var documento = time + clave; // Genera el valor del documento
+            var almacen = formatearNumero($('#sucursal').val());
+            documento = documento + almacen;
             $('#documento').val(documento); // Coloca el valor en el input
+        }
+
+        function formatearNumero(numero) {
+            return numero.toString().padStart(2, '0');
         }
 
         function buscarProducto() {
@@ -166,7 +174,8 @@
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
                             success: function(data) {
-                                agregarFila(data.idproducto, data.cantidad, data.nombre, data
+                                nombre = data.nombre + " - " + data.marca;
+                                agregarFila(data.idproducto, data.cantidad, nombre, data
                                     .costo);
                             },
                             error: function(xhr, status, error) {
