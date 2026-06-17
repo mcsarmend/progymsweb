@@ -65,13 +65,31 @@ class multialmacenController extends Controller
 
     public function guardarproducto(Request $request)
     {
-
         $producto = Product::findOrFail($request->id);
+        // Actualizar solo los campos que no están vacíos
+        if ($request->filled('nombre')) {$producto->nombre = $request->nombre;}
+        if ($request->filled('marca_id')) {$producto->marca = $request->marca_id;}
+        if ($request->filled('categoria_id')) {$producto->categoria = $request->categoria_id;}
+        if ($request->filled('costo')) {$producto->costo = $request->costo;}
 
-        $producto->nombre    = $request->nombre;
-        $producto->marca     = $request->marca_id;
-        $producto->categoria = $request->categoria_id;
-        $producto->costo     = $request->costo;
+        // Procesar la imagen si se ha subido
+        if ($request->hasFile('imagen')) {
+            $imagen = $request->file('imagen');
+            // Usar el ID del producto como nombre de la imagen
+            $nombreImagen = $producto->id . '.' . $imagen->getClientOriginalExtension();
+            // Eliminar imagen anterior si existe (cualquier extensión)
+            $extensiones = ['jpg', 'jpeg', 'png', 'gif'];
+            foreach ($extensiones as $ext) {
+                $rutaAnterior = public_path('assets/images/productos/' . $producto->id . '.' . $ext);
+                if (file_exists($rutaAnterior)) {
+                    unlink($rutaAnterior);
+                }
+            }
+            // Mover la imagen a la carpeta pública
+            $imagen->move(public_path('assets/images/productos'), $nombreImagen);
+            // Guardar el nombre de la imagen en la base de datos
+            $producto->imagenid = $nombreImagen;
+        }
 
         $producto->save();
 

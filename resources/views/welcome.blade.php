@@ -24,8 +24,6 @@
 </head>
 
 <style>
-
-
     .img-responsive {
         position: relative;
         bottom: 1em;
@@ -1004,7 +1002,7 @@
                 var img = modal.find('img');
 
                 // Actualiza el src de la imagen
-                img.attr('src', 'assets/images/productos/' + codigo + '.png').show();
+                img.attr('src', 'assets/images/productos/' + codigo + '.jpg').show();
 
                 // Oculta el mensaje de "Imagen no disponible" inicialmente
                 modal.find('.mensaje-error').hide();
