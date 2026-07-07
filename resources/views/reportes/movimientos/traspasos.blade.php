@@ -293,7 +293,8 @@
                         "NAU": "Naucalpan",
                         "BOD": "Bodega",
                         "TIE": "Tienda",
-                        "PED": "Pedidos"
+                        "PED": "Pedidos",
+                        "PRO": "Promotoria"
                     };
 
                     var {
@@ -332,7 +333,7 @@
 
                     // Movimiento
                     doc.setFontSize(11);
-                    doc.text(`Movimiento: ${info.movimiento}`, 105, 14, {
+                    doc.text(`Movimiento: ${data.mov}`, 105, 14, {
                         align: "center"
                     });
 
@@ -360,7 +361,7 @@
 
                     // Fila 4
                     y += 5;
-                    doc.text(`Realizó: ${info.autor ?? data.autor ?? "N/A"}`, leftX, y);
+                    doc.text(`Realizó: ${data.autor ?? "N/A"}`, leftX, y);
 
                     // La tabla inicia prácticamente enseguida
                     let nextY = y + 4;

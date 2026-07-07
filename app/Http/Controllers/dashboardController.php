@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\brand;
 use App\Models\category;
 use App\Models\task;
 use App\Models\User;
@@ -75,6 +76,25 @@ class dashboardController extends Controller
     public function politicaprivacidad()
     {
         return view('politicaprivacidad');
+    }
+    public function productos()
+    {
+        $categories = Category::select('category.*')->get();
+        $products   = DB::select('CALL lista_precios_activos()');
+        $brands     = Brand::select('brand.*')->get();
+        return view('productos', ['products' => $products, 'categories' => $categories, 'brands' => $brands]);
+    }
+    public function acerca()
+    {
+        return view('acerca');
+    }
+    public function contacto()
+    {
+        return view('contacto');
+    }
+    public function logininit()
+    {
+        return view('logininit');
     }
 
     public function tareasdelegadas()

@@ -79,7 +79,7 @@
             drawTriangles();
             showUsersSections();
 
-            $('#proveedor').change(function() {
+            $('#sucursal').change(function() {
                 time = getFormattedDateTime();
                 var selectedOption = $(this).find(':selected'); // Obtén la opción seleccionada
                 var clave = "ENT";

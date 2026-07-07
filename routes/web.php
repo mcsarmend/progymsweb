@@ -39,6 +39,10 @@ Route::get('/preguntasfrecuentes', [dashboardController::class, 'preguntasfrecue
 Route::get('/politicadeusodirigido', [dashboardController::class, 'politicadeusodirigido']);
 Route::get('/politicaenvio', [dashboardController::class, 'politicaenvio']);
 Route::get('/politicaprivacidad', [dashboardController::class, 'politicaprivacidad']);
+Route::get('/productos', [dashboardController::class, 'productos']);
+Route::get('/acerca', [dashboardController::class, 'acerca']);
+Route::get('/contacto', [dashboardController::class, 'contacto']);
+Route::get('/logininit', [dashboardController::class, 'logininit']);
 
 //Rutas
 
