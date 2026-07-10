@@ -198,7 +198,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             padding: 0 15px;
             gap: 15px;
         }
@@ -506,47 +506,54 @@
             opacity: 1;
         }
 
-        /* Isotope grid */
-        .grid {
-            transition: height 0.4s ease;
-        }
-
-        .product-card {
-            margin-bottom: 30px;
-            transition: all 0.3s ease;
-        }
-
-        /* Botón de precios en tarjeta */
-        .btn-precios {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s;
+        /* Filtro de búsqueda por producto */
+        .product-search-wrapper {
             width: 100%;
-            margin-top: 5px;
+            margin-top: 15px;
+            margin-bottom: 35px;
+            padding: 0 15px;
         }
 
-        .btn-precios:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
-            color: white;
+        .product-search-wrapper input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 30px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: white;
+            padding-left: 50px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>');
+            background-repeat: no-repeat;
+            background-position: 20px center;
+            background-size: 20px;
         }
 
-        /* Mejoras para el modal */
-        .modal-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .product-search-wrapper input:focus {
+            outline: none;
+            border-color: #1a1a1a;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
         }
 
-        .modal-title .product-code {
-            font-size: 12px;
-            opacity: 0.7;
-            font-weight: normal;
+        .product-search-wrapper input::placeholder {
+            color: #aaa;
+            font-weight: 400;
+        }
+
+        .search-results-count {
+            font-size: 14px;
+            color: #888;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        .search-results-count.active {
+            display: block;
+        }
+
+        .search-results-count strong {
+            color: #1a1a1a;
         }
 
         .filter-section {
@@ -554,6 +561,39 @@
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 30px;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-row .filters {
+            flex: 2;
+            min-width: 200px;
+        }
+
+        .filter-row .brand-filter-wrapper {
+            flex: 1;
+            min-width: 180px;
+            max-width: 280px;
+        }
+
+        /* Separación extra para las tarjetas */
+        .products-grid-container {
+            margin-top: 10px;
+        }
+
+        .product-card {
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        /* Espaciado del grid */
+        .grid {
+            margin-top: 10px;
         }
 
         @media (max-width: 768px) {
@@ -592,6 +632,41 @@
             .brand-filter-wrapper {
                 max-width: 100%;
             }
+
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-row .brand-filter-wrapper {
+                max-width: 100%;
+            }
+
+            .product-search-wrapper input {
+                font-size: 14px;
+                padding: 12px 15px 12px 45px;
+                background-position: 16px center;
+                background-size: 18px;
+            }
+
+            .product-search-wrapper {
+                margin-bottom: 25px;
+                padding: 0 10px;
+            }
+        }
+
+        /* Ajustes para la sección de filtros */
+        .filter-section .filter-row {
+            margin-bottom: 12px;
+        }
+
+        .filter-section .filter-row:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Estilo para productos ocultos por búsqueda */
+        .product-card.hidden-by-search {
+            display: none !important;
         }
     </style>
 </head>
@@ -720,14 +795,27 @@
                             Descargar Precios
                         </a>
                     </div>
+
+                    <!-- Filtro de búsqueda por producto -->
+                    <div class="product-search-wrapper">
+                        <input type="text" id="product-search"
+                            placeholder="🔍 Buscar producto por nombre o código..." autocomplete="off">
+                        <div class="search-results-count" id="search-results-count">
+                            Mostrando <strong id="visible-count">0</strong> de <strong id="total-count">0</strong>
+                            productos
+                        </div>
+                    </div>
                 </div>
 
-                <div class="col-md-12">
+                <div class="col-md-12 products-grid-container">
                     <div class="filters-content">
                         <div class="row grid" id="product-grid">
                             @forelse($products as $product)
-                                <div class="col-lg-4 col-md-6 product-card" data-categoria="{{ $product->categoria }}"
-                                    data-marca="{{ $product->marca ?? 'Sin marca' }}">
+                                <div class="col-lg-4 col-md-6 product-card"
+                                    data-categoria="{{ $product->categoria }}"
+                                    data-marca="{{ $product->marca ?? 'Sin marca' }}"
+                                    data-nombre="{{ $product->producto }}"
+                                    data-codigo="{{ $product->codigo ?? '' }}">
                                     <div class="product-item">
                                         <div class="product-image-wrapper">
                                             @php
@@ -755,7 +843,6 @@
                                         <div class="down-content">
                                             <h4>{{ $product->producto }}</h4>
 
-
                                             <ul class="stars">
                                                 <li><i class="fa fa-star"></i></li>
                                                 <li><i class="fa fa-star"></i></li>
@@ -771,7 +858,6 @@
                                         </div>
                                     </div>
                                 </div>
-
 
                                 <!-- Modal con TODOS los precios y almacenes -->
                                 <div class="modal fade price-modal" id="priceModal{{ $product->codigo }}"
@@ -964,6 +1050,7 @@
             </div>
         </div>
     </section>
+
     <!-- ===== BOTÓN FLOTANTE WHATSAPP ===== -->
     <button class="whatsapp-float" id="whatsappFloatBtn" aria-label="Contactar por WhatsApp">
         <i class="fa fa-whatsapp"></i>
@@ -1008,6 +1095,7 @@
             </div>
         </div>
     </div>
+
     <footer>
         <div class="container">
             <div class="row">
@@ -1036,6 +1124,7 @@
             var isotope = null;
             var currentBrandFilter = null;
             var currentCategoryFilter = 'all';
+            var currentSearchQuery = '';
 
             // ============================================
             // FUNCIÓN PARA DESCARGAR EXCEL (CSV)
@@ -1104,7 +1193,6 @@
                 ];
 
                 // ESTILOS: Aplicar formato a la fila de encabezados
-                // (Requiere la versión completa de SheetJS)
                 var range = XLSX.utils.decode_range(ws['!ref']);
 
                 // Aplicar estilos a la primera fila
@@ -1115,10 +1203,8 @@
                     });
                     if (!ws[address]) continue;
 
-                    // Aplicar estilo (si está disponible)
                     if (ws[address].s === undefined) ws[address].s = {};
 
-                    // Negrita para encabezados
                     ws[address].s.font = {
                         bold: true,
                         sz: 11,
@@ -1138,7 +1224,7 @@
                 }
 
                 // Formato de moneda para las columnas de precios
-                var priceColumns = [4, 5]; // Distribuidor y Platinum (0-index)
+                var priceColumns = [4, 5];
                 for (var R = 1; R <= range.e.r; ++R) {
                     for (var C = 0; C < priceColumns.length; ++C) {
                         var col = priceColumns[C];
@@ -1196,6 +1282,7 @@
                     URL.revokeObjectURL(url);
                 }, 100);
             }
+
             // ============================================
             // EVENTO PARA EL BOTÓN DE DESCARGA
             // ============================================
@@ -1234,23 +1321,50 @@
             }
 
             // ============================================
-            // APLICAR FILTROS
+            // APLICAR FILTROS (categoría + marca + búsqueda)
             // ============================================
             function applyFilters() {
+                var searchQuery = currentSearchQuery.toLowerCase().trim();
+
+                // Primero, mostrar/ocultar por búsqueda
+                $('.product-card').each(function() {
+                    var $card = $(this);
+                    var nombre = String($card.data('nombre') || '').toLowerCase();
+                    var codigo = String($card.data('codigo') || '').toLowerCase();
+
+                    if (searchQuery.length > 0) {
+                        if (nombre.includes(searchQuery) || codigo.includes(searchQuery)) {
+                            $card.removeClass('hidden-by-search');
+                        } else {
+                            $card.addClass('hidden-by-search');
+                        }
+                    } else {
+                        $card.removeClass('hidden-by-search');
+                    }
+                });
+
+                // Actualizar contador
+                updateSearchCount();
+
                 if (!isotope) {
+                    // Filtrado manual
                     $('.product-card').each(function() {
                         var $card = $(this);
-                        var categoria = $.trim(String($card.data('categoria')));
-                        var marca = $.trim(String($card.data('marca')));
+                        var categoria = String($card.data('categoria') || '').toLowerCase();
+                        var marca = String($card.data('marca') || '').toLowerCase();
                         var show = true;
 
-                        if (currentCategoryFilter !== 'all' && categoria.toLowerCase() !==
-                            currentCategoryFilter.toLowerCase()) {
+                        // Si está oculto por búsqueda, no mostrar
+                        if ($card.hasClass('hidden-by-search')) {
                             show = false;
                         }
 
-                        if (currentBrandFilter && marca.toLowerCase() !== currentBrandFilter
+                        if (currentCategoryFilter !== 'all' && categoria !== currentCategoryFilter
                             .toLowerCase()) {
+                            show = false;
+                        }
+
+                        if (currentBrandFilter && marca !== currentBrandFilter.toLowerCase()) {
                             show = false;
                         }
 
@@ -1261,14 +1375,17 @@
 
                 try {
                     var filter = '*';
+                    var searchFilter = '.product-card:not(.hidden-by-search)';
 
                     if (currentCategoryFilter !== 'all' && currentBrandFilter) {
-                        filter = '[data-categoria="' + currentCategoryFilter + '"][data-marca="' +
+                        filter = searchFilter + '[data-categoria="' + currentCategoryFilter + '"][data-marca="' +
                             currentBrandFilter + '"]';
                     } else if (currentCategoryFilter !== 'all') {
-                        filter = '[data-categoria="' + currentCategoryFilter + '"]';
+                        filter = searchFilter + '[data-categoria="' + currentCategoryFilter + '"]';
                     } else if (currentBrandFilter) {
-                        filter = '[data-marca="' + currentBrandFilter + '"]';
+                        filter = searchFilter + '[data-marca="' + currentBrandFilter + '"]';
+                    } else if (searchQuery.length > 0) {
+                        filter = searchFilter;
                     }
 
                     isotope.arrange({
@@ -1276,24 +1393,45 @@
                     });
                 } catch (e) {
                     console.error('Error al aplicar filtro:', e);
+                    // Fallback a filtrado manual
                     $('.product-card').each(function() {
                         var $card = $(this);
-                        var categoria = $.trim(String($card.data('categoria')));
-                        var marca = $.trim(String($card.data('marca')));
+                        var categoria = String($card.data('categoria') || '').toLowerCase();
+                        var marca = String($card.data('marca') || '').toLowerCase();
                         var show = true;
 
-                        if (currentCategoryFilter !== 'all' && categoria.toLowerCase() !==
-                            currentCategoryFilter.toLowerCase()) {
+                        if ($card.hasClass('hidden-by-search')) {
                             show = false;
                         }
 
-                        if (currentBrandFilter && marca.toLowerCase() !== currentBrandFilter
+                        if (currentCategoryFilter !== 'all' && categoria !== currentCategoryFilter
                             .toLowerCase()) {
+                            show = false;
+                        }
+
+                        if (currentBrandFilter && marca !== currentBrandFilter.toLowerCase()) {
                             show = false;
                         }
 
                         $card.toggle(show);
                     });
+                }
+            }
+
+            // ============================================
+            // ACTUALIZAR CONTADOR DE BÚSQUEDA
+            // ============================================
+            function updateSearchCount() {
+                var total = $('.product-card').length;
+                var visible = $('.product-card:not(.hidden-by-search)').length;
+                var $countEl = $('#search-results-count');
+
+                if (currentSearchQuery.length > 0) {
+                    $countEl.find('#visible-count').text(visible);
+                    $countEl.find('#total-count').text(total);
+                    $countEl.addClass('active');
+                } else {
+                    $countEl.removeClass('active');
                 }
             }
 
@@ -1322,7 +1460,7 @@
             // FILTRO POR CATEGORÍA
             // ============================================
             $('#filter-list li').on('click', function() {
-                currentCategoryFilter = $.trim($(this).data('filter'));
+                currentCategoryFilter = String($(this).data('filter'));
                 $('#filter-list li').removeClass('active');
                 $(this).addClass('active');
                 applyFilters();
@@ -1389,7 +1527,7 @@
             });
 
             function selectBrand(brand) {
-                currentBrandFilter = $.trim(brand);
+                currentBrandFilter = String(brand);
                 $selectedBrandName.text(currentBrandFilter);
                 $selectedBrand.show();
                 $brandSearch.hide();
@@ -1409,7 +1547,33 @@
             // Inicializar el filtro de marcas con todos los items visibles
             $brandSuggestions.find('.suggestion-item').show();
 
-            // Animación de entrada para las tarjetas
+            // ============================================
+            // FILTRO POR BÚSQUEDA DE PRODUCTO
+            // ============================================
+            var $productSearch = $('#product-search');
+            var searchTimeout = null;
+
+            $productSearch.on('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    currentSearchQuery = $productSearch.val();
+                    applyFilters();
+                }, 300);
+            });
+
+            // Limpiar búsqueda con Escape
+            $productSearch.on('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    $productSearch.val('');
+                    currentSearchQuery = '';
+                    applyFilters();
+                    $productSearch.blur();
+                }
+            });
+
+            // ============================================
+            // ANIMACIÓN DE ENTRADA
+            // ============================================
             $('.product-card').each(function(index) {
                 var card = $(this);
                 card.css('opacity', '0');
@@ -1424,22 +1588,18 @@
             console.log('Filtros inicializados correctamente');
         });
 
-
-
-        // ===== CONTROL DEL MODAL =====
+        // ===== CONTROL DEL MODAL WHATSAPP =====
         (function() {
             const floatBtn = document.getElementById('whatsappFloatBtn');
             const modal = document.getElementById('whatsappModal');
             const closeBtn = document.getElementById('whatsappModalClose');
 
-            // Abrir modal
             floatBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
             });
 
-            // Cerrar modal
             function closeModal() {
                 modal.classList.remove('active');
                 document.body.style.overflow = '';
@@ -1447,21 +1607,18 @@
 
             closeBtn.addEventListener('click', closeModal);
 
-            // Cerrar al hacer clic fuera del contenido
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     closeModal();
                 }
             });
 
-            // Cerrar con tecla ESC
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && modal.classList.contains('active')) {
                     closeModal();
                 }
             });
 
-            // Cerrar al hacer clic en un enlace
             const links = modal.querySelectorAll('a');
             links.forEach(link => {
                 link.addEventListener('click', function() {
