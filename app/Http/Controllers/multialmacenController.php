@@ -66,6 +66,7 @@ class multialmacenController extends Controller
     public function guardarproducto(Request $request)
     {
         $producto = Product::findOrFail($request->id);
+
         // Actualizar solo los campos que no están vacíos
         if ($request->filled('nombre')) {$producto->nombre = $request->nombre;}
         if ($request->filled('marca_id')) {$producto->marca = $request->marca_id;}
@@ -74,20 +75,28 @@ class multialmacenController extends Controller
 
         // Procesar la imagen si se ha subido
         if ($request->hasFile('imagen')) {
-            $imagen = $request->file('imagen');
-            // Usar el ID del producto como nombre de la imagen
+            $imagen       = $request->file('imagen');
             $nombreImagen = $producto->id . '.' . $imagen->getClientOriginalExtension();
+
+            // Ruta específica para producción
+            $rutaImagenes = '/home/gprogyms/public_html/assets/images/productos/';
+
+            // Crear directorio si no existe
+            if (! file_exists($rutaImagenes)) {
+                mkdir($rutaImagenes, 0777, true);
+            }
+
             // Eliminar imagen anterior si existe (cualquier extensión)
             $extensiones = ['jpg', 'jpeg', 'png', 'gif'];
             foreach ($extensiones as $ext) {
-                $rutaAnterior = public_path('assets/images/productos/' . $producto->id . '.' . $ext);
+                $rutaAnterior = $rutaImagenes . $producto->id . '.' . $ext;
                 if (file_exists($rutaAnterior)) {
                     unlink($rutaAnterior);
                 }
             }
-            // Mover la imagen a la carpeta pública
-            $imagen->move(public_path('assets/images/productos'), $nombreImagen);
-            // Guardar el nombre de la imagen en la base de datos
+
+            // Mover la imagen a la carpeta
+            $imagen->move($rutaImagenes, $nombreImagen);
             $producto->imagenid = $nombreImagen;
         }
 
@@ -98,7 +107,6 @@ class multialmacenController extends Controller
             'message' => 'Producto actualizado correctamente',
         ]);
     }
-
     public function detalleamacenes(Request $request)
     {
 

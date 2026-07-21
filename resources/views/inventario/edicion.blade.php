@@ -493,7 +493,7 @@
 
                     // Mostrar la imagen si existe
                     if (data[0].imagen && data[0].imagen !== '') {
-                        var imagePath = '/assets/images/productos/' + data[0].imagen;
+                        var imagePath = '{{ asset('assets/images/productos') }}/' + data[0].imagen;
                         $('#editar_imagen_preview')
                             .attr('src', imagePath)
                             .show();

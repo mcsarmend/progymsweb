@@ -16,7 +16,8 @@
                 <thead>
                     <tr>
                         <th>Cliente</th>
-                        <th>Saldo total</th>
+                        <th>Importe total</th>
+                        <th>Saldo Restante</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -24,7 +25,15 @@
                     @foreach ($clientesConSaldo as $cliente)
                         <tr>
                             <td>{{ $cliente->nombre }}</td>
-                            <td>${{ number_format($cliente->saldo_total, 2) }}</td>
+
+                            <td>
+                                ${{ number_format($cliente->monto_total, 2) }}
+                            </td>
+
+                            <td>
+                                ${{ number_format($cliente->saldo_total, 2) }}
+                            </td>
+
                             <td>
                                 <button class="btn btn-primary btn-detalle" data-cliente-id="{{ $cliente->id }}"
                                     data-toggle="modal" data-target="#detalleModal">
@@ -91,7 +100,7 @@
             </div>
         </div>
     </div>
-        @include('fondo')
+    @include('fondo')
 @stop
 
 @section('css')

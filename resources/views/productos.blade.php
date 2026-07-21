@@ -818,22 +818,16 @@
                                     data-codigo="{{ $product->codigo ?? '' }}">
                                     <div class="product-item">
                                         <div class="product-image-wrapper">
-                                            @php
-                                                $imagePath = public_path(
-                                                    'assets/images/productos/' . $product->codigo . '.jpg',
-                                                );
-                                                $imageExists = file_exists($imagePath);
-                                            @endphp
 
-                                            @if ($imageExists)
-                                                <img src="{{ asset('assets/images/productos/' . $product->codigo . '.jpg') }}"
-                                                    alt="{{ $product->producto }}" loading="lazy">
-                                            @else
-                                                <div class="no-image">
-                                                    <i class="fa fa-image"></i>
-                                                    <span>Sin imagen</span>
-                                                </div>
-                                            @endif
+                                            <img src="{{ asset('assets/images/productos/' . $product->codigo . '.jpg') }}"
+                                                alt="{{ $product->producto }}" loading="lazy"
+                                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                            <div class="no-image" style="display: none;">
+                                                <i class="fa fa-image"></i>
+                                                <span>Sin imagen</span>
+                                            </div>
+
 
                                             <span class="badge-stock">
                                                 <i class="fa fa-box"></i> {{ $product->totales ?? 0 }}

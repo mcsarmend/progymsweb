@@ -223,6 +223,9 @@ Route::get('tareas', [dashboardController::class, 'tareas']);
 Route::post('creartarea', [dashboardController::class, 'creartarea']);
 Route::get('tareasdelegadas', [dashboardController::class, 'tareasdelegadas']);
 Route::post('marcartarea', [dashboardController::class, 'marcartarea']);
+//  BANNERS
+Route::get('editarbanners', [dashboardController::class, 'editarbanners'])->middleware(['auth']);
+Route::post('enviareditarbanners', [dashboardController::class, 'enviareditarbanners'])->middleware(['auth']);
 
 // LAN DING PAGE
 Route::get('table-products', [dashboardController::class, 'get_productos']);

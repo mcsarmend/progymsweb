@@ -340,11 +340,6 @@ return [
                             'icon' => 'fas fa-file-signature',
                             'url'  => 'historicocortedecaja',
                         ],
-                        [
-                            'text' => 'Corte de caja especial',
-                            'icon' => 'fas fa-money-bill-wave',
-                            'url'  => 'cortedecajaespecial',
-                        ],
                     ],
                 ],
                 [
@@ -803,19 +798,14 @@ return [
             ],
         ],
         [
-            'text'    => 'Reconocimientos',
-            'icon'    => 'fas fa-trophy',
+            'text'    => 'Landing Page',
+            'icon'    => 'fas fa-globe',
             'url'     => '#',
             'submenu' => [
                 [
-                    'text' => 'Nueva',
-                    'icon' => 'fas fa-plus',
-                    'url'  => 'nuevoreconocimiento',
-                ],
-                [
-                    'text' => 'Reconocimientos',
-                    'icon' => 'fas fa-trophy',
-                    'url'  => 'reconocimientos',
+                    'text' => 'Banners',
+                    'icon' => 'fas fa-images',
+                    'url'  => 'editarbanners',
                 ],
             ],
         ],

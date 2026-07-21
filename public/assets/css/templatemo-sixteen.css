@@ -373,42 +373,56 @@ header .navbar {
     padding-top: 80px;
 }
 
-/* Todos los banners con el mismo estilo */
+/* Banner Style */
+.banner {
+    position: relative;
+    text-align: center;
+    padding-top: 80px;
+}
+
+/* Banner Style */
+.banner {
+    position: relative;
+    text-align: center;
+    padding-top: 80px;
+}
+
+/* Todos los banners con el mismo estilo - UNIFICADO */
 .banner-item-01,
 .banner-item-02,
-.banner-item-03 {
-    padding: 300px 0px;
-    background-size: cover;
+.banner-item-03,
+.banner-item-04,
+.banner-item-05,
+.banner-item-06 {
+    width: 100%;
+    height: 697px;
+    max-height: 697px;
+    background-size: contain; /* CAMBIADO a contain para ver toda la imagen */
     background-repeat: no-repeat;
     background-position: center center;
     position: relative;
+    background-color: #1a1a1a; /* Fondo oscuro para los bordes */
 }
 
 .banner-item-01 {
     background-image: url(../images/slide_01.jpg);
 }
-
 .banner-item-02 {
     background-image: url(../images/slide_02.jpg);
 }
-
 .banner-item-03 {
     background-image: url(../images/slide_03.jpg);
 }
-
-/* Overlay oscuro para todos */
-.banner-item-01::before,
-.banner-item-02::before,
-.banner-item-03::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1;
+.banner-item-04 {
+    background-image: url(../images/slide_04.jpg);
 }
+.banner-item-05 {
+    background-image: url(../images/slide_05.jpg);
+}
+.banner-item-06 {
+    background-image: url(../images/slide_06.jpg);
+}
+/* Overlay oscuro para todos */
 
 /* Contenido por encima */
 .banner-item-01 .container,
@@ -1165,6 +1179,32 @@ footer .inner-content p a {
 }
 
 /* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+    .banner .text-content {
+        width: 90%;
+        margin-left: 5%;
+    }
+    .banner .text-content h4 {
+        font-size: 22px;
+    }
+
+    .banner .text-content h2 {
+        font-size: 36px;
+        letter-spacing: 0.5px;
+    }
+    .banner-item-01,
+    .banner-item-02,
+    .banner-item-03,
+    .banner-item-04,
+    .banner-item-05,
+    .banner-item-06 {
+        height: auto;
+        padding-bottom: 43.56%;
+    }
+    /* ... resto del código ... */
+}
+
 @media (max-width: 576px) {
     .whatsapp-float {
         width: 56px;

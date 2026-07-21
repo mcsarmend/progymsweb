@@ -1,11 +1,7 @@
 @extends('adminlte::page')
-
 @section('title', 'Reporte > Inventario > Corte de Caja')
-
 @section('content_header')
-
 @stop
-
 @section('content')
     <div class="card">
         <div class="card-body">
@@ -30,8 +26,7 @@
 
                                 <div class="col-md-6">
                                     <label for="fecha" class="form-label">Fecha:</label>
-                                    <input type="date" name="fecha" id="fecha" class="form-control"
-                                        required>
+                                    <input type="date" name="fecha" id="fecha" class="form-control" required>
                                 </div>
 
                             </div>
@@ -85,6 +80,21 @@
                                 <div class="concept-header">AJUSTE DE COBROS</div>
                                 <div class="inputs-container" id="ajuste-cobros-inputs"></div>
                                 <button class="add-button" onclick="addInput('ajuste-cobros-inputs')">Agregar</button>
+                            </div>
+                            <hr style="border: 1px solid #000;">
+                            <!-- CONCEPTO: CUENTAS POR COBRAR (Resta) -->
+                            <div class="concept-container" id="cuentas-por-cobrar-container">
+                                <div class="concept-header">CUENTAS POR COBRAR</div>
+                                <div class="inputs-container" id="cuentas-por-cobrar-inputs"></div>
+                                <button class="add-button" onclick="addInput('cuentas-por-cobrar-inputs')">Agregar</button>
+                            </div>
+                            <hr style="border: 1px solid #000;">
+                            <!-- NUEVO CONCEPTO: ABONO A CUENTA POR COBRAR TRANSFERENCIA (No afecta total) -->
+                            <div class="concept-container" id="abono-cuenta-por-cobrar-transferencia-container">
+                                <div class="concept-header">ABONO A CUENTA POR COBRAR TRANSFERENCIA</div>
+                                <div class="inputs-container" id="abono-cuenta-por-cobrar-transferencia-inputs"></div>
+                                <button class="add-button"
+                                    onclick="addInput('abono-cuenta-por-cobrar-transferencia-inputs')">Agregar</button>
                             </div>
                             <hr style="border: 1px solid #000;">
                         </div>
@@ -143,12 +153,11 @@
                                     </table>
                                 @endif
                             @endforeach
-
                         </div>
                         <div class="col"><label for="observaciones">Observaciones:</label></div>
                         <div class="col">
-                            <textarea id="observaciones" name="observaciones" rows="3" cols="120" placeholder="Escribe tu texto aquí..."
-                                data-value="" value=""></textarea>
+                            <textarea id="observaciones" name="observaciones" rows="3" cols="120"
+                                placeholder="Escribe tu texto aquí..." data-value="" value=""></textarea>
                         </div>
                         <br>
 
@@ -237,8 +246,6 @@
 @section('js')
     <script>
         $(document).ready(function() {
-
-
             drawTriangles();
             showUsersSections();
             calculateTotals();
@@ -248,12 +255,8 @@
 
             $('#cortecajaform').submit(function(e) {
                 e.preventDefault(); // Evitar la recarga de la página
-
                 // Obtener los datos del formulario
                 var datosFormulario = $(this).serialize();
-
-
-
                 $.ajax({
                     url: '/enviarcortecaja', // Ruta al controlador de Laravel
                     type: 'POST',
@@ -281,7 +284,6 @@
 
             $('#infocortecaja').submit(function(e) {
                 e.preventDefault();
-
                 $.ajax({
                     url: '/infocortecaja',
                     type: 'POST',
@@ -305,11 +307,7 @@
             });
         });
 
-
-
-
         function sendDataAsJson() {
-
             let data = {
                 total_general: parseFloat($("#total-general").text().replace("$", "").trim()) || 0,
                 total_efectivo_entregar: parseFloat($("#total-efectivo-entregar").text().replace("$", "").trim()) || 0,
@@ -318,7 +316,6 @@
                 observaciones: $("#observaciones").val() || "Sin Observaciones",
                 fecha: $('#fecha').val() || null
             };
-
             // Recopilar los datos de los inputs adicionales (CXC, REMESA RECIBIDA, etc.)
             $(".concept-container").each(function() {
                 let conceptId = $(this).attr('id').replace('-container', '');
@@ -335,18 +332,13 @@
                 });
                 data.inputs_adicionales[conceptId] = inputs;
             });
-
             // Obtener las formas de pago
             $("h3:contains('Forma de Pago:')").each(function() {
                 let formaPago = $(this).text().replace("Forma de Pago: ", "").trim();
-
                 let tabla = $(this).next("table");
                 let totalTexto = tabla.find("tfoot td strong").text().trim();
                 let totalFormaPago = parseFloat(totalTexto.replace(/[^\d.]/g, '')) || 0;
-
-
                 let remisiones = [];
-
                 // Recopilar las remisiones dentro de esta forma de pago
                 $(this).next("table").find("tbody tr").each(function() {
                     let celdas = $(this).find("td");
@@ -358,22 +350,17 @@
                         vendedor: $(celdas[4]).text().trim()
                     });
                 });
-
                 data.formas_pago.push({
                     forma_pago: formaPago,
                     remisiones: remisiones,
                     total: totalFormaPago
                 });
             });
-
             var type = parseInt(@json($type));
             if (type != 4) {
                 sucursal = $('#sucursal').val();
                 data.sucursal = sucursal;
             }
-
-
-
             // Enviar los datos como JSON mediante Ajax
             $.ajax({
                 url: '/enviarinfocortecaja', // Ajusta la ruta al endpoint adecuado
@@ -390,14 +377,12 @@
                         'success'
                     );
                 },
-
                 error: function(response) {
                     Swal.fire(
                         '¡Gracias por esperar!',
                         "Existe un error: " + response.responseJSON.message,
                         'error'
                     )
-
                 }
             });
         }
@@ -405,11 +390,9 @@
         function addInput(containerId) {
             var type = parseInt(@json($type));
             const container = document.getElementById(containerId);
-
             // Crear un grupo para los inputs
             const inputGroup = document.createElement('div');
             inputGroup.classList.add('input-group');
-
             // Crear input para el monto
             const montoInput = document.createElement('input');
             montoInput.type = 'number';
@@ -420,14 +403,11 @@
             } else {
                 montoInput.addEventListener('input', calculateTotals);
             }
-
-
             // Crear input para el concepto
             const conceptoInput = document.createElement('input');
             conceptoInput.type = 'text';
             conceptoInput.placeholder = 'Concepto';
             conceptoInput.required = true;
-
             // Botón para eliminar la fila
             const removeButton = document.createElement('button');
             removeButton.textContent = 'Eliminar';
@@ -440,17 +420,13 @@
                     calculateTotals();
                 }
             };
-
             // Agregar inputs y botón al grupo
             inputGroup.appendChild(montoInput);
             inputGroup.appendChild(conceptoInput);
             inputGroup.appendChild(removeButton);
-
             // Agregar el grupo al contenedor
             container.appendChild(inputGroup);
-
             // Recalcular totales inmediatamente después de agregar un input
-
             if (type != 4) {
                 recalcular();
             } else {
@@ -461,13 +437,15 @@
         function calculateTotals() {
             let totalGeneral = 0;
             let totalEfectivo = 0;
-
             // Leer inputs adicionales
             let remesaRecibida = sumContainerInputs('remesa-recibida-container');
             let otrasVentas = sumContainerInputs('otras-ventas-container');
             let remesaEntregada = sumContainerInputs('remesa-entregada-container');
             let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
             let ajusteCobros = sumContainerInputs('ajuste-cobros-container');
+            let cuentasPorCobrar = sumContainerInputs('cuentas-por-cobrar-container');
+            // ABONO A CUENTA POR COBRAR TRANSFERENCIA - No afecta el total, solo se declara
+            let abonoCuentaPorCobrarTransferencia = sumContainerInputs('abono-cuenta-por-cobrar-transferencia-container');
 
             // Totales desde PHP
             let totalPorEfectivo = parseFloat('{{ $totales_por_pago['efectivo'] ?? 0 }}');
@@ -477,26 +455,16 @@
             let totalPorMercadoPago = parseFloat('{{ $totales_por_pago['mercado_pago'] ?? 0 }}');
             let totalPorVales = parseFloat('{{ $totales_por_pago['vales'] ?? 0 }}');
 
-            let totalElectronico =
-                totalPorTransferencia +
-                totalPorTerminal +
-                totalPorClip +
-                totalPorMercadoPago +
+            let totalElectronico = totalPorTransferencia + totalPorTerminal + totalPorClip + totalPorMercadoPago +
                 totalPorVales;
 
             // TOTAL GENERAL
-            totalGeneral =
-                totalPorEfectivo +
-                totalElectronico;
+            totalGeneral = totalPorEfectivo + totalElectronico;
 
-            // 🔹 TOTAL EFECTIVO A ENTREGAR
-            totalEfectivo =
-                totalPorEfectivo +
-                otrasVentas +
-                remesaRecibida -
-                remesaEntregada -
-                gastosEnGeneral +
-                ajusteCobros; // resta ajuste cobros
+            // 🔹 TOTAL EFECTIVO A ENTREGAR (CUENTAS POR COBRAR RESTA)
+            // ABONO A CUENTA POR COBRAR TRANSFERENCIA NO AFECTA EL TOTAL
+            totalEfectivo = totalPorEfectivo + otrasVentas + remesaRecibida - remesaEntregada - gastosEnGeneral +
+                ajusteCobros - cuentasPorCobrar;
 
             // Mostrar en pantalla
             document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
@@ -521,6 +489,9 @@
             let remesaEntregada = sumContainerInputs('remesa-entregada-container');
             let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
             let ajusteCobros = sumContainerInputs('ajuste-cobros-container');
+            let cuentasPorCobrar = sumContainerInputs('cuentas-por-cobrar-container');
+            // ABONO A CUENTA POR COBRAR TRANSFERENCIA - No afecta el total, solo se declara
+            let abonoCuentaPorCobrarTransferencia = sumContainerInputs('abono-cuenta-por-cobrar-transferencia-container');
 
             // Inicializar totales individuales
             let totalPorEfectivo = 0;
@@ -555,30 +526,15 @@
                 if (formaPago === "mercado_pago") totalPorMercadoPago += totalPago;
                 if (formaPago === "vales") totalPorVales += totalPago;
             });
-
             // Calcular electrónico
-            let totalElectronico =
-                totalPorTransferencia +
-                totalPorTerminal +
-                totalPorClip +
-                totalPorMercadoPago +
+            let totalElectronico = totalPorTransferencia + totalPorTerminal + totalPorClip + totalPorMercadoPago +
                 totalPorVales;
-
             // TOTAL GENERAL
-            totalGeneral =
-                totalPorEfectivo +
-                totalElectronico;
-
-
-            // Calcular total efectivo real a entregar
-            totalEfectivo =
-                totalPorEfectivo +
-                otrasVentas +
-                remesaRecibida -
-                remesaEntregada -
-                gastosEnGeneral +
-                ajusteCobros;
-
+            totalGeneral = totalPorEfectivo + totalElectronico;
+            // Calcular total efectivo real a entregar (CUENTAS POR COBRAR RESTA)
+            // ABONO A CUENTA POR COBRAR TRANSFERENCIA NO AFECTA EL TOTAL
+            totalEfectivo = totalPorEfectivo + otrasVentas + remesaRecibida - remesaEntregada - gastosEnGeneral +
+                ajusteCobros - cuentasPorCobrar;
             // Actualizar pantalla
             document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
             document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;

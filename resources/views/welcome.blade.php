@@ -75,32 +75,32 @@
         <div class="owl-banner owl-carousel">
             <div class="banner-item-01">
                 <div class="text-content">
-                    <h4>
-                        PROTEÍNAS PREMIUM
-                    </h4>
-                    <h2>
-                        Transforma tu rendimiento
-                    </h2>
+
                 </div>
             </div>
             <div class="banner-item-02">
                 <div class="text-content">
-                    <h4>
-                        CREATINAS Y AMINOS
-                    </h4>
-                    <h2>
-                        Máxima fuerza y recuperación
-                    </h2>
+
                 </div>
             </div>
             <div class="banner-item-03">
                 <div class="text-content">
-                    <h4>
-                        PRE ENTRENO
-                    </h4>
-                    <h2>
-                        Energía para cada sesión
-                    </h2>
+
+                </div>
+            </div>
+            <div class="banner-item-04">
+                <div class="text-content">
+
+                </div>
+            </div>
+            <div class="banner-item-05">
+                <div class="text-content">
+
+                </div>
+            </div>
+            <div class="banner-item-06">
+                <div class="text-content">
+
                 </div>
             </div>
         </div>
@@ -376,22 +376,32 @@
             </div>
         </div>
     </div>
+
     <!-- FOOTER -->
     <footer>
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
                     <div class="inner-content">
+                        <div class="footer-links">
+                            <a href="{{ url('/preguntasfrecuentes') }}">Preguntas Frecuentes</a>
+                            <span class="footer-separator">|</span>
+                            <a href="{{ url('/politicaenvio') }}">Política de Envío</a>
+                            <span class="footer-separator">|</span>
+                            <a href="{{ url('/politicaprivacidad') }}">Política de Privacidad</a>
+                        </div>
+                        <br>
                         <p>
                             Copyright © 2026 PROGYMS
                             <br>
-                            Accesorios y Suplementos para gyimnasio
+                            Accesorios y Suplementos para gimnasio
                         </p>
                     </div>
                 </div>
             </div>
         </div>
     </footer>
+
     <!-- JS -->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -446,7 +456,5 @@
         })();
     </script>
 </body>
-
-
 
 </html>

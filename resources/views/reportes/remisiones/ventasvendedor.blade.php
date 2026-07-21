@@ -38,7 +38,12 @@
                 </div>
 
                 <div class="col-md-12 mt-3">
-                    <button class="btn btn-primary">Generar Reporte</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Generar Reporte
+                    </button>
+                    <button type="button" id="btnDescargarPDF" class="btn btn-danger">
+                        <i class="fas fa-file-pdf"></i> Descargar PDF
+                    </button>
                 </div>
 
             </form>
@@ -145,12 +150,8 @@
 
             <hr>
 
-
-
         </div>
     </div>
-
-
 
     @include('fondo')
 @stop
@@ -159,8 +160,13 @@
 @section('js')
 
     <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <script>
+        // Variable global para almacenar los datos del último reporte
+        var ultimoReporte = null;
+
         $(document).ready(function() {
             drawTriangles();
             showUsersSections();
@@ -192,6 +198,16 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(res) {
+
+                    // Guardar datos para el PDF
+                    ultimoReporte = res;
+
+                    // Guardar también los filtros usados
+                    ultimoReporte.filtros = {
+                        vendedor: $('#vendedor').val(),
+                        fechainicio: $('input[name="fechainicio"]').val(),
+                        fechafin: $('input[name="fechafin"]').val()
+                    };
 
                     $('#cabeceraVendedor').show();
                     $('#resumen').show();
@@ -226,12 +242,219 @@
                     $('#porcMostrador').text(pMostrador.toFixed(1) + '%');
                     $('#porcReparto').text(pReparto.toFixed(1) + '%');
 
-
                     // ================= GRÁFICA POR DÍA =================
                     crearGraficaPorDia(res.cantidadesPorDia || {});
                 }
             });
         });
+
+        // Botón para descargar PDF
+        $('#btnDescargarPDF').on('click', function() {
+            if (!ultimoReporte) {
+                Swal.fire('Sin datos', 'Primero debes generar un reporte', 'warning');
+                return;
+            }
+
+            generarPDF(ultimoReporte);
+        });
+
+        function generarPDF(data) {
+            try {
+                const {
+                    jsPDF
+                } = window.jspdf;
+                // FORMATO VERTICAL (portrait)
+                const doc = new jsPDF('portrait', 'mm', 'a4');
+
+                const user = @json(auth()->user()->name ?? 'Usuario');
+                const ahora = new Date();
+                const fecha = ahora.toLocaleDateString('es-MX');
+                const hora = ahora.toTimeString().slice(0, 8);
+
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+
+                // ============ ENCABEZADO ============
+                doc.setFontSize(16);
+                doc.setTextColor(0, 0, 128);
+                doc.text('REPORTE DE VENTAS POR VENDEDOR', pageWidth / 2, 20, {
+                    align: 'center'
+                });
+
+                doc.setDrawColor(0, 0, 128);
+                doc.setLineWidth(0.3);
+                doc.line(15, 25, pageWidth - 15, 25);
+
+                // ============ FILTROS APLICADOS ============
+                let yPos = 33;
+                doc.setFontSize(9);
+                doc.setTextColor(0, 0, 0);
+
+                const filtros = data.filtros || {};
+
+                doc.setFont('helvetica', 'bold');
+                doc.text('Filtros aplicados:', 20, yPos);
+                yPos += 6;
+
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Vendedor: ${filtros.vendedor || 'N/A'}`, 20, yPos);
+                yPos += 5;
+                doc.text(`Fecha Inicio: ${filtros.fechainicio || 'N/A'}`, 20, yPos);
+                yPos += 5;
+                doc.text(`Fecha Fin: ${filtros.fechafin || 'N/A'}`, 20, yPos);
+                yPos += 5;
+                doc.text(`Fecha de generación: ${fecha} ${hora}`, 20, yPos);
+                yPos += 5;
+                doc.text(`Descargado por: ${user}`, 20, yPos);
+                yPos += 8;
+
+                // Línea separadora
+                doc.setDrawColor(0, 0, 128);
+                doc.setLineWidth(0.2);
+                doc.line(15, yPos, pageWidth - 15, yPos);
+                yPos += 6;
+
+                // ============ RESUMEN GENERAL ============
+                let totalVentas = parseFloat(data.total_ventas) || 0;
+                let totalCantidad = parseInt(data.total_cantidad) || 0;
+                let ventas = parseFloat(data.ventas) || 0;
+                let cantVentas = parseInt(data.cantidad_ventas) || 0;
+                let ventasReparto = parseFloat(data.ventas_reparto) || 0;
+                let cantReparto = parseInt(data.cantidad_ventas_reparto) || 0;
+                let ticket = totalCantidad > 0 ? totalVentas / totalCantidad : 0;
+                let pMostrador = totalVentas > 0 ? (ventas / totalVentas) * 100 : 0;
+                let pReparto = totalVentas > 0 ? (ventasReparto / totalVentas) * 100 : 0;
+
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont('helvetica', 'bold');
+                doc.text('RESUMEN GENERAL:', 20, yPos);
+                yPos += 6;
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+
+                const resumenData = [
+                    ['Vendedor:', data.vendedor || 'N/A'],
+                    ['Total Ventas:', formatoMoneda(totalVentas)],
+                    ['Total Remisiones:', totalCantidad.toString()],
+                    ['Ventas Mostrador:', `${formatoMoneda(ventas)} (${cantVentas} remisiones)`],
+                    ['Ventas Reparto:', `${formatoMoneda(ventasReparto)} (${cantReparto} remisiones)`],
+                    ['Ticket Promedio:', formatoMoneda(ticket)],
+                    ['% Mostrador:', pMostrador.toFixed(1) + '%'],
+                    ['% Reparto:', pReparto.toFixed(1) + '%']
+                ];
+
+                resumenData.forEach(([label, value]) => {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(label, 25, yPos);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(value, 65, yPos);
+                    yPos += 5;
+                });
+
+                yPos += 6;
+
+                // Línea separadora
+                doc.setDrawColor(200, 200, 200);
+                doc.setLineWidth(0.2);
+                doc.line(15, yPos, pageWidth - 15, yPos);
+                yPos += 6;
+
+                // ============ VENTAS POR DÍA ============
+                // Verificar si hay espacio
+                if (yPos > 220) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(0, 0, 128);
+                doc.text('VENTAS POR DÍA', 20, yPos);
+                yPos += 5;
+
+                const diaData = Object.keys(data.cantidadesPorDia || {}).map(key => ({
+                    fecha: key,
+                    total: data.cantidadesPorDia[key].total || 0
+                }));
+
+                if (diaData.length > 0) {
+                    const diaHeaders = ['Fecha', 'Total Vendido'];
+                    const diaRows = diaData.map(item => [
+                        item.fecha,
+                        formatoMoneda(item.total)
+                    ]);
+
+                    doc.autoTable({
+                        head: [diaHeaders],
+                        body: diaRows,
+                        startY: yPos,
+                        styles: {
+                            fontSize: 8,
+                            cellPadding: 1.5
+                        },
+                        headStyles: {
+                            fillColor: [0, 0, 128],
+                            textColor: [255, 255, 255],
+                            fontSize: 9,
+                            fontStyle: 'bold'
+                        },
+                        columnStyles: {
+                            0: {
+                                cellWidth: 60
+                            },
+                            1: {
+                                cellWidth: 80
+                            }
+                        },
+                        margin: {
+                            left: 20,
+                            right: 20
+                        }
+                    });
+                } else {
+                    doc.setFontSize(9);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('No hay datos de ventas por día', 25, yPos);
+                }
+
+                // ============ PIE DE PÁGINA ============
+                const totalPages = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= totalPages; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(7);
+                    doc.setTextColor(100, 100, 100);
+                    const footerText = `Página ${i} de ${totalPages} | Generado: ${fecha} ${hora}`;
+                    doc.text(footerText, pageWidth / 2, pageHeight - 8, {
+                        align: 'center'
+                    });
+
+                    doc.setDrawColor(200, 200, 200);
+                    doc.setLineWidth(0.2);
+                    doc.line(15, pageHeight - 11, pageWidth - 15, pageHeight - 11);
+                }
+
+                // Guardar PDF
+                const nombreVendedor = (data.vendedor || 'vendedor').replace(/\s+/g, '_');
+                const filename = `ventas_vendedor_${nombreVendedor}_${fecha.replace(/\//g, '-')}.pdf`;
+                doc.save(filename);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'PDF generado correctamente',
+                    text: 'El reporte se ha descargado exitosamente'
+                });
+
+            } catch (error) {
+                console.error('Error en generarPDF:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al generar PDF',
+                    text: error.message || 'Error desconocido'
+                });
+            }
+        }
 
         // LÍNEA → Ventas por día
         function crearGraficaPorDia(data) {
@@ -291,33 +514,6 @@
                             y: parseFloat(reparto)
                         }
                     ]
-                }]
-            });
-        }
-
-
-        function crearGraficaPorDia(data) {
-            Highcharts.chart('graficaPorDia', {
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: ''
-                },
-                xAxis: {
-                    categories: Object.keys(data),
-                    title: {
-                        text: 'Fecha'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: 'Total $'
-                    }
-                },
-                series: [{
-                    name: 'Total por día',
-                    data: Object.values(data).map(v => parseFloat(v.total))
                 }]
             });
         }
