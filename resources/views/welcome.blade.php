@@ -1,1085 +1,459 @@
+<!-- index.html -->
+<!-- PROGYMS - Basado en TemplateMo Sixteen Clothing -->
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
-
-    <title>Grupo Progyms</title>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    <meta name="description" content="">
-    <meta name="keywords" content="">
-    <meta name="author" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/magnific-popup.css">
-    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>PROGYMS | Suplementación Deportiva</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&display=swap"
+        rel="stylesheet">
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    <link rel="stylesheet" href="assets/css/templatemo-sixteen.css">
+    <link rel="stylesheet" href="assets/css/owl.css">
     <link rel="shortcut icon" href="favicons/favicon.ico">
-    <!-- Icon Font Stylesheet -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-
-    <!-- MAIN CSS -->
-    <link rel="stylesheet" href="css/templatemo-style.css">
-
 </head>
 
-<style>
-
-
-    .img-responsive {
-        position: relative;
-        bottom: 1em;
-        padding-top: 87px;
-        width: 365px;
-        padding-right: 0px;
-        padding-left: 7px;
-    }
-
-    @media screen and (max-width: 639px) {
-        .media.blog-thumb .media-left img {
-            position: relative;
-            bottom: 6em;
-            padding-top: 180px;
-            width: 360px;
-            padding-right: 20px;
-            padding-left: 42px;
-        }
-    }
-
-
-    .slider {
-
-        width: 98%;
-
-        overflow: hidden;
-    }
-
-    .slides {
-        display: flex;
-        transition: transform 0.5s ease;
-    }
-
-    .slide {
-        width: 100%;
-        /* Asegura que las imágenes ocupen todo el ancho del slider */
-        height: auto;
-    }
-
-    button {
-        position: absolute;
-
-        z-index: 10;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: white;
-        border: none;
-        padding: 10px;
-        cursor: pointer;
-        font-size: 20px;
-    }
-
-    button:hover {
-        background-color: rgba(0, 0, 0, 0.8);
-    }
-
-    .prev {
-        left: 10px;
-        transform: translateY(-230%);
-    }
-
-    .next {
-        right: 10px;
-        transform: translateY(-230%);
-    }
-
-    /* Solo el label "Buscar" de esta tabla */
-    #productos_distribuidor_filter label {
-        color: white !important;
-    }
-
-    /* Solo el texto dentro del input de esta tabla */
-    #productos_distribuidor_filter input {
-        color: black !important;
-    }
-
-    <style>
-
-    /* PAGINADO TABLA DISTRIBUIDOR */
-    #productos_distribuidor_paginate {
-        background: black;
-        padding: 12px;
-        text-align: center;
-        border-radius: 6px;
-    }
-
-    /* BOTONES PAGINADO */
-    #productos_distribuidor_paginate .paginate_button {
-        background: white !important;
-        color: black !important;
-        padding: 6px 12px !important;
-        margin: 3px !important;
-        border-radius: 4px !important;
-        border: none !important;
-    }
-
-    /* BOTON ACTIVO */
-    #productos_distribuidor_paginate .paginate_button.current {
-        background: #337AB7 !important;
-        color: white !important;
-    }
-
-    /* HOVER */
-    #productos_distribuidor_paginate .paginate_button:hover {
-        background: #ddd !important;
-    }
-
-    /* AJUSTE DE TABLA */
-    #productos_distribuidor {
-        width: 100% !important;
-        table-layout: auto;
-    }
-
-    #productos_distribuidor th {
-        white-space: nowrap;
-    }
-
-
-    /* CONTENEDOR PAGINADO */
-    #productos_distribuidor_paginate {
-        background: black;
-        padding: 12px;
-        border-radius: 6px;
-        white-space: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-        width: 100%;
-    }
-
-    /* CENTRAR CONTENIDO */
-    #productos_distribuidor_paginate span {
-        display: inline-block;
-    }
-
-    /* BOTONES */
-    #productos_distribuidor_paginate .paginate_button {
-        background: white !important;
-        color: black !important;
-        padding: 6px 12px !important;
-        margin: 3px !important;
-        border-radius: 4px !important;
-        border: none !important;
-    }
-
-    /* BOTON ACTIVO */
-    #productos_distribuidor_paginate .paginate_button.current {
-        background: #337AB7 !important;
-        color: white !important;
-    }
-</style>
-</style>
-
 <body>
-
-    <br><br><br><br><br>
-
-    <!-- MENU -->
-    <section class="navbar custom-navbar navbar-fixed-top" role="navigation">
-        <div class="container">
-            <div class="navbar-header">
-                <!-- Logo -->
-                <img src="assets/images/logoSinC.png" height="91" width="367" alt="" />
-
-                <!-- Botón de colapso (hamburguesa) para pantallas pequeñas -->
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
+    <!-- PRELOADER -->
+    <div id="preloader">
+        <div class="jumper">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <!-- HEADER -->
+    <header>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="{{ url('/') }}">
+                    <h2>
+                        PRO
+                        <em>GYMS</em>
+                    </h2>
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
+                    <span class="navbar-toggler-icon"></span>
                 </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{{ url('/') }}">
+                                Inicio
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('/productos') }}">
+                                Productos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('/acerca') }}">
+                                Nosotros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('/contacto') }}">
+                                Contacto
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('/logininit') }}">
+                                Iniciar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
+        </nav>
+    </header>
+    <!-- BANNER -->
+    <div class="banner header-text">
+        <div class="owl-banner owl-carousel">
+            <div class="banner-item-01">
+                <div class="text-content">
 
-            <!-- Menú de navegación -->
-            <div class="collapse navbar-collapse">
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="section-btn"><a href="#" data-toggle="modal" data-target="#modal-form">Iniciar
-                            Sesión</a></li>
-                </ul>
-                <ul class="nav navbar-nav navbar-nav-first">
-                    <li><a href="#home" class="smoothScroll">Inicio</a></li>
-                    <li><a href="#about" class="smoothScroll">Nosotros</a></li>
-                    <li><a href="#mostsell" class="smoothScroll">Mas Vendidos</a></li>
-                    <li><a href="#products" class="smoothScroll">Productos</a></li>
-                    <li><a href="#review" class="smoothScroll">Reseñas</a></li>
-                    <li><a href="#contact" class="smoothScroll">Contacto</a></li>
-                </ul>
+                </div>
+            </div>
+            <div class="banner-item-02">
+                <div class="text-content">
+
+                </div>
+            </div>
+            <div class="banner-item-03">
+                <div class="text-content">
+
+                </div>
+            </div>
+            <div class="banner-item-04">
+                <div class="text-content">
+
+                </div>
+            </div>
+            <div class="banner-item-05">
+                <div class="text-content">
+
+                </div>
+            </div>
+            <div class="banner-item-06">
+                <div class="text-content">
+
+                </div>
             </div>
         </div>
-    </section>
-
-
-    <br><br>
-    <!-- HOME -->
-    <section id="home" data-stellar-background-ratio="0.5">
-        br
-        <div class="overlay"></div>
-        <div class="container">
-            <div class="slider">
-                <div class="slides">
-
-
-                    <img class="slide" src="assets/images/promos/05.jpg" alt="Imagen 1">
-                    <img class="slide" src="assets/images/promos/06.jpg" alt="Imagen 1">
-                    <img class="slide" src="assets/images/promos/07.jpg" alt="Imagen 1">
-                    <img class="slide" src="assets/images/promos/08.jpg" alt="Imagen 1">
-                    <img class="slide" src="assets/images/promos/09.jpg" alt="Imagen 1">
-                    <img class="slide" src="assets/images/promos/12.jpg" alt="Imagen 1">
-
-
-
-                </div>
-                <button class="prev">❮</button>
-                <button class="next">❯</button>
-            </div>
-
-        </div>
-        </div>
-    </section>
-
-    <!-- CONTACT -->
-    <section id="contact" data-stellar-background-ratio="0.5">
+    </div>
+    <!-- PRODUCTOS DESTACADOS -->
+    <div class="latest-products">
         <div class="container">
             <div class="row">
-                <div class="col-md-12 col-sm-12">
-                    <div class="section-title">
-                        <h2>Contáctanos</h2>
-                        <span class="line-bar">...</span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215512415377" class="btn section-btn smoothScroll" target="_blank"
-                        style="background:white;">
-                        <i class="fab fa-whatsapp" style="color:#25D366; font-size:28px; margin-right:6px;"></i>
-                        <span style="color:#25D366; font-weight:bold;">Viveros (Tlalnepantla)</span>
-                    </a>
-                </div>
-                <br>
-
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215648149566" class="btn section-btn smoothScroll" target="_blank"
-                        style="background:white;">
-                        <i class="fab fa-whatsapp" style="color:#25D366; font-size:28px; margin-right:6px;"></i>
-                        <span style="color:#25D366; font-weight:bold;">San Esteban (Naucalpan)</span>
-                    </a>
-                </div>
-                <br>
-
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215578397643" class="btn section-btn smoothScroll" target="_blank"
-                        style="background:white;">
-                        <i class="fab fa-whatsapp" style="color:#25D366; font-size:28px; margin-right:6px;"></i>
-                        <span style="color:#25D366; font-weight:bold;">Town Center (Nicolás Romero)</span>
-                    </a>
-                </div>
-                <br>
-
-                <div class="col home-info" style="text-align: center;">
-                    <a href="https://wa.me/5215531216226" class="btn section-btn smoothScroll" target="_blank"
-                        style="background:white;">
-                        <i class="fab fa-whatsapp" style="color:#25D366; font-size:28px; margin-right:6px;"></i>
-                        <span style="color:#25D366; font-weight:bold;">Serviplaza Coacalco</span>
-                    </a>
-                </div>
-                <br>
-            </div>
-
-    </section>
-
-
-    <section data-stellar-background-ratio="0.5">
-        <div class="container">
-            <div class="row">
-
-                <div class="col-md-12 col-sm-12">
-                    <div class="section-title">
-                        <h2 data-toggle="modal" data-target="#modalPrecios"
-                            style="
-                                display: inline-block;
-                                background-color: #337AB7;
-                                color: white;
-
-                                /* Tamaño del texto adaptable pero limitado */
-                                font-size: clamp(20px, 4vw, 34px);
-
-                                /* Padding adaptable pero limitado */
-                                padding: clamp(10px, 3vw, 25px) clamp(20px, 6vw, 50px);
-
-                                border-radius: 10px;
-                                font-weight: 600;
-                                cursor: pointer;
-                                text-align: center;
-                                box-shadow: 0 6px 12px rgba(0,0,0,0.25);
-                                margin: 0 auto;
-                            ">
-                            Precios Distribuidor
+                <div class="col-md-12">
+                    <div class="section-heading">
+                        <h2>
+                            Productos Destacados
                         </h2>
-
+                        <a href="{{ url('/productos') }}" style="font-size: 24px;">
+                            Ver catálogo completo
+                            <i class="fa fa-angle-right"></i>
+                        </a>
                     </div>
                 </div>
+                <!-- PRODUCTO 1 -->
+                <div class="col-md-4">
+                    <div class="product-item">
+                        <a href="#">
+                            <img src="assets/images/goldstandard.jpeg">
+                        </a>
+                        <div class="down-content">
+                            <a href="#">
+                                <h4>
+                                    Gold Standard 5.6Lb
+                                </h4>
+                            </a>
+                            <h6>
+                                $1,290 MXN
+                            </h6>
+                            <p>
+                                24 gramos de proteína por servicio.Ideal para ganar masa muscular.
+                            </p>
+                            <ul class="stars">
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                            </ul>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- PRODUCTO 2 -->
+                <div class="col-md-4">
+                    <div class="product-item">
+                        <a href="#">
+                            <img src="assets/images/creatinaxs.jpeg">
+                        </a>
+                        <div class="down-content">
+                            <a href="#">
+                                <h4>
+                                    Creatina XS 1kg Ronnie
+                                </h4>
+                            </a>
+                            <h6>
+                                $450 MXN
+                            </h6>
+                            <p>
+                                Incrementa fuerza,potencia y recuperación.
+                            </p>
+                            <ul class="stars">
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                            </ul>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- PRODUCTO 3 -->
+                <div class="col-md-4">
+                    <div class="product-item">
+                        <a href="#">
+                            <img src="assets/images/monster.jpeg">
+                        </a>
+                        <div class="down-content">
+                            <a href="#">
+                                <h4>
+                                    Monster 473
+                                </h4>
+                            </a>
+                            <h6>
+                                $30 MXN
+                            </h6>
+                            <p>
+                                Energía instantánea, mayor concentración y resistencia para afrontar cualquier reto.
+                            </p>
+                            <ul class="stars">
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                            </ul>
 
-            </div>
-        </div>
-    </section>
-
-
-    <!-- PRODUCTOs -->
-
-    <section id="products" data-stellar-background-ratio="0.5">
-        <div class="container">
-            <div class="row">
-
-                <div class="col-md-12 col-sm-12">
-                    <div class="section-title">
-                        <h2>Catálogo</h2>
+                        </div>
                     </div>
                 </div>
             </div>
-            <br>
-            <p>Selecciona una categoria para filtrar</p>
-            <div class="col">
-                <select name="categories" categories="categories" class="form-control">
-                    <option value="">Ninguna</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->nombre }}">{{ $category->nombre }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <br><br>
-
-
-            <div class="row">
-                <table class="table table-striped"id="table-products">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Marca</th>
-                            <th>Categoria</th>
-                            <th>Público</th>
-                            <th>Frecuente</th>
-                            <th>Mayoreo</th>
-                            <th>Existencias</th>
-                            <th>Ver imagen</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
         </div>
-        <br>
-
-        <div class="row">
-
-
-            <p>Todos los precios están sujetos a cambios sin previo aviso</p>
-
-            <ul>
-                <li><strong>Precio público</strong>: Clientes primerizos o que no se encuentren registrados en el
-                    sistema</li>
-                <li><strong>Precio frecuente</strong>: Clientes con compras mayores a **$1500** mensuales</li>
-                <li><strong>Precio mayorista</strong>: Clientes con compras mayores a **$3000** mensuales</li>
-                <li><strong>Precio distribuidor</strong>: Compras en una sola exhibición de más de **$3000**</li>
-                <li><strong>Precio Platinum</strong>: Compras en una sola exhibición de más de **$6000**</li>
-            </ul>
-        </div>
-
-    </section>
-
-
-
-
-
-
-
-
-    <!-- ABOUT -->
-    <section id="about" data-stellar-background-ratio="0.5">
+    </div>
+    <!-- NOSOTROS -->
+    <div class="best-features">
         <div class="container">
             <div class="row">
-
-                <div class="col-md-5 col-sm-6">
-                    <div class="about-info">
-                        <div class="section-title">
-                            <h2>La tienda #1 de la zona</h2>
-                            <span class="line-bar">...</span>
+                <div class="col-md-12">
+                    <div class="section-heading">
+                        <h2>
+                            ¿Por qué elegir PROGYMS?
+                        </h2>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="left-content">
+                        <h4>
+                            Tu aliado en nutrición deportiva
+                        </h4>
+                        <p>
+                            En PROGYMS ofrecemos suplementos originales de las mejores marcas internacionales.
                             <br>
-                        </div>
-                        <p>En PROGYMS, sabemos lo importante que es mantener un estilo de vida saludable
-                            y alcanzar tus objetivos físicos. Por eso, ofrecemos una amplia gama de productos de alta
-                            calidad que te ayudarán a mejorar tu rendimiento y bienestar. Desde proteínas y vitaminas
-                            hasta equipamiento y accesorios de gimnasio, tenemos todo lo que necesitas para llevar tu
-                            entrenamiento al siguiente nivel.</p>
+                            <br>
+                            Nuestro objetivo es ayudarte a desarrollar músculo, mejorar tu rendimiento y alcanzar tus
+                            metas fitness.
+                        </p>
+                        <ul class="featured-list">
+                            <li>
+                                <a href="#">
+                                    Proteínas Premium
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    Creatinas Micronizadas
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    Pre Entrenos
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    Aminoácidos BCAA
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    Asesoría personalizada
+                                </a>
+                            </li>
+                        </ul>
+
+                        <a class="filled-button" href="{{ url('/contacto') }}">
+                            Conócenos
+                        </a>
                     </div>
                 </div>
-
-                <div class="col-md-4 col-sm-12">
-                    <div class="about-image">
-                        <img src="assets/images/fitnessperson.jpg" style="width: 90%; height: auto;" alt="">
+                <div class="col-md-6">
+                    <div class="right-image">
+                        <img src="assets/images/feature-image.jpg">
                     </div>
                 </div>
-
             </div>
         </div>
-    </section>
-
-
-    <!-- MAS VENDIDOS -->
-    <section id="mostsell" data-stellar-background-ratio="0.5">
+    </div>
+    <!-- CTA -->
+    <div class="call-to-action">
         <div class="container">
             <div class="row">
-
-                <div class="col-md-12 col-sm-12">
-                    <div class="section-title">
-                        <h2>Más Vendidos</h2>
-                        <span class="line-bar">...</span>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-sm-6">
-                    <!-- BLOG THUMB -->
-                    <div class="media blog-thumb">
-                        <div class="media-object media-left">
-                            <a><img src="assets/images/ryse.jpg" class="img-responsive" alt=""></a>
-                        </div>
-                        <div class="media-body blog-info">
-                            <h4 style ="color: #ce3232;"><i class="fa fa-exclamation"></i> Ryse Ring Pop</h4>
-                            <h3><a>¡Experimenta el poder de la ciencia y el sabor combinados!
-                                </a></h3>
-                            <p>RYSE Loaded Pre-Workout utiliza dosis clínicas de ingredientes respaldados por la
-                                investigación para asegurarse de que está obteniendo el máximo provecho.</p>
-
+                <div class="col-md-12">
+                    <div class="inner-content">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h4>
+                                    Comienza hoy tu transformación con
+                                    <em>PROGYMS</em>
+                                </h4>
+                                <p>
+                                    Proteínas, creatinas, aminoácidos y suplementos originales con envíos a todo México.
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="{{ url('/productos') }}" class="filled-button">
+                                    Comprar Ahora
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="col-md-6 col-sm-6">
-                    <!-- BLOG THUMB -->
-                    <div class="media blog-thumb">
-                        <div class="media-object media-left">
-                            <a><img src="assets/images/ghostlegend.png" class="img-responsive" alt=""></a>
-                        </div>
-                        <div class="media-body blog-info">
-                            <small><i class="fa fa-clock-o"></i>Ghost Legend</small>
-                            <h3><a>Pre-entrenamiento legendario</a></h3>
-                            <p>El pre-entrenamiento GHOST Legend V3 combina una fórmula de energía y enfoque destacada
-                                con ingredientes de bomba premium en el icónico sabor Lemon Crush GHOST para que te
-                                sientas como una leyenda.</p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-sm-6">
-                    <!-- BLOG THUMB -->
-                    <div class="media blog-thumb">
-                        <div class="media-object media-left">
-                            <a><img src="assets/images/venominferno.png" class="img-responsive" alt=""></a>
-                        </div>
-                        <div class="media-body blog-info">
-                            <small><i class="fa fa-clock-o"></i>Venom Inferno</small>
-                            <h3><a>Un preentreno perfecto.</a></h3>
-                            <p>Es el cóctel más explosivo de estimulantes de alta energía y refuerzos de óxido nítrico
-                                jamás formulado.</p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-sm-6">
-                    <!-- BLOG THUMB -->
-                    <div class="media blog-thumb">
-                        <div class="media-object media-left">
-                            <a><img src="assets/images/psycotic.png" class="img-responsive" alt=""></a>
-                        </div>
-                        <div class="media-body blog-info">
-                            <p><i class="fa fa-clock-o"></i>Psycotic</p>
-                            <h3><a>Producto mas vendido</a></h3>
-                            <p>es un suplemento deportivo pre entrenamiento a base de estimulantes para utilizarse 20-30
-                                minutos antes de tu entrenamiento</p>
-
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
-    </section>
+    </div>
 
+    <!-- ===== BOTÓN FLOTANTE WHATSAPP ===== -->
+    <button class="whatsapp-float" id="whatsappFloatBtn" aria-label="Contactar por WhatsApp">
+        <i class="fa fa-whatsapp"></i>
+        <span class="whatsapp-badge">5</span>
+    </button>
 
-
-
-
-    <!-- RESEÑAS -->
-
-
-
-    <section id="review" data-stellar-background-ratio="0.5">
-        <div class="container">
-            <div class="row">
-
-                <div class="col-md-12 col-sm-12">
-                    <div class="section-title">
-                        <h2>Reseñas</h2>
-
-                        <span class="line-bar">...</span>
-                    </div>
-                </div>
-
-                <div class="col-md-3 col-sm-6">
-                    <!-- WORK THUMB -->
-                    <div class="work-thumb">
-                        <a href="assets/images/acero_gym.jpeg" class="image-popup">
-                            <img src="assets/images/acero_gym.jpeg" class="img-responsive" alt="Work">
-
-                            <div class="work-info">
-                                <h3>Acero Gym</h3>
-                                <small>
-                                    Me encanta que siempre estén al tanto de las últimas tendencias y productos del
-                                    mercado. Además, tienen cinco sucursales, lo cual es súper conveniente. ¡Sin duda,
-                                    seguiré siendo cliente fiel </small>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-md-3 col-sm-6">
-                    <!-- WORK THUMB -->
-                    <div class="work-thumb">
-                        <a href="assets/images/iron_gym.jpeg" class="image-popup">
-                            <img src="assets/images/iron_gym.jpeg" class="img-responsive" alt="Work">
-
-                            <div class="work-info">
-                                <h3>Iron Addicts</h3>
-                                <small>El equipo es altamente capacitado y siempre me brinda excelentes recomendaciones
-                                    sobre los productos ideales a utilizar. ¡Un lugar imprescindible para cualquier
-                                    entusiasta del fitness!</small>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-md-3 col-sm-6">
-                    <!-- WORK THUMB -->
-                    <div class="work-thumb">
-                        <a href="assets/images/warriors-gym.png" class="image-popup">
-                            <img src="assets/images/warriors-gym.png" class="img-responsive" alt="Work">
-
-                            <div class="work-info">
-                                <h3>Warriors Gym</h3>
-                                <small>El personal es muy conocedor y siempre me dan buenos consejos sobre qué
-                                    productos utilizar. ¡Una tienda indispensable para cualquier amante del
-                                    fitness!</small>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-md-3 col-sm-6">
-                    <!-- WORK THUMB -->
-                    <div class="work-thumb">
-                        <a href="assets/images/espartanos-gym.png" class="image-popup">
-                            <img src="assets/images/espartanos-gym.png" class="img-responsive" alt="Work">
-
-                            <div class="work-info">
-                                <h3>Espartanos Gym</h3>
-                                <small>Su dedicación al cliente es incomparable y siempre salgo satisfecho con mis
-                                    compras. ¡Altamente recomendados!</small>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
+    <!-- ===== MODAL WHATSAPP ===== -->
+    <div class="whatsapp-modal" id="whatsappModal">
+        <div class="whatsapp-modal-content">
+            <button class="whatsapp-modal-close" id="whatsappModalClose">&times;</button>
+            <div class="whatsapp-modal-title">
+                <i class="fa fa-whatsapp"></i>
+                <h4>Contacta tu sucursal</h4>
+                <p>Elige la ubicación más cercana</p>
+            </div>
+            <div class="whatsapp-btn-list">
+                <a href="https://wa.me/5215578397643" target="_blank">
+                    <i class="fa fa-whatsapp"></i>
+                    Town Center Nicolás Romero
+                    <span class="branch-tag">NR</span>
+                </a>
+                <a href="https://wa.me/5215648149566" target="_blank">
+                    <i class="fa fa-whatsapp"></i>
+                    San Esteban Naucalpan
+                    <span class="branch-tag">Naucalpan</span>
+                </a>
+                <a href="https://wa.me/5215531216226" target="_blank">
+                    <i class="fa fa-whatsapp"></i>
+                    Serviplaza Coacalco
+                    <span class="branch-tag">Coacalco</span>
+                </a>
+                <a href="https://wa.me/5215512415377" target="_blank">
+                    <i class="fa fa-whatsapp"></i>
+                    Bodega Atizapán
+                    <span class="branch-tag">Atizapán</span>
+                </a>
+                <a href="https://wa.me/5215665110366" target="_blank">
+                    <i class="fa fa-whatsapp"></i>
+                    Platinum
+                    <span class="branch-tag">Platinum</span>
+                </a>
             </div>
         </div>
-    </section>
-
-
-
+    </div>
 
     <!-- FOOTER -->
-    <footer data-stellar-background-ratio="0.5">
+    <footer>
         <div class="container">
             <div class="row">
-
-                <div class="col-md-5 col-sm-12">
-                    <div class="footer-thumb footer-info">
-                        <h2>Grupo Progyms</h2>
-                        <p>Con 8 años de experiencia en el mercado,ProGyms se ha convertido en la referencia definitiva
-                            para todos tus suplementos alimenticios y refacciones de gimnasio. Contamos con 5 sucursales
-                            estratégicamente ubicadas para brindarte el mejor servicio.</p>
-                    </div>
-                </div>
-
-
-
-                <div class="col-md-5 col-sm-4">
-                    <div class="footer-thumb">
-                        <h2>Servicio al cliente</h2>
-                        <ul class="footer-link">
-                            <li><a href="preguntasfrecuentes">Preguntas Frecuentes</a></li>
-                            <li><a href="politicadeusodirigido">Política de uso dirigido</a></li>
-                            <li><a href="politicaenvio">Política de envío y devoluciones</a></li>
-                            <li><a href="politicaprivacidad">Política de privacidad</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-
-                <div class="col-md-12 col-sm-12">
-                    <div class="footer-bottom">
-                        <div class="col-md-6 col-sm-5">
-                            <div class="copyright-text">
-                                <p id="copyright">Copyright &copy; <span id="current-year"></span>Grupo Progyms</p>
-                            </div>
+                <div class="col-md-12">
+                    <div class="inner-content">
+                        <div class="footer-links">
+                            <a href="{{ url('/preguntasfrecuentes') }}">Preguntas Frecuentes</a>
+                            <span class="footer-separator">|</span>
+                            <a href="{{ url('/politicaenvio') }}">Política de Envío</a>
+                            <span class="footer-separator">|</span>
+                            <a href="{{ url('/politicaprivacidad') }}">Política de Privacidad</a>
                         </div>
-                        <div class="col-md-6 col-sm-7">
-
-                            <ul class="social-icon">
-                                <li><a href="https://www.facebook.com/grupoprogyms/" class="fa fa-facebook-square"
-                                        attr="facebook icon"></a></li>
-                            </ul>
-                        </div>
+                        <br>
+                        <p>
+                            Copyright © 2026 PROGYMS
+                            <br>
+                            Accesorios y Suplementos para gimnasio
+                        </p>
                     </div>
                 </div>
-
             </div>
         </div>
     </footer>
 
-
-    <!-- MODAL -->
-    <section class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content modal-popup">
-
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <div class="row">
-
-                            <div class="col-md-12 col-sm-12">
-                                <div class="modal-title">
-                                    <h2>Grupo Progyms</h2>
-                                </div>
-
-                                <!-- NAV TABS -->
-                                <!-- TAB PANES -->
-                                <div role="tabpanel" class="tab-pane fade in" id="sign_in">
-                                    <form id="loginForm" action="{{ route('login') }}" method="post">
-                                        @csrf
-                                        <input type="email" class="form-control" name="email"
-                                            placeholder="Email" value="{{ old('email') }}" required>
-                                        <input type="password" class="form-control" name="password"
-                                            placeholder="Password" required>
-                                        <input type="submit" class="form-control" name="submit"
-                                            value="Iniciar Sesión">
-                                    </form>
-
-                                    <div id="error-messages"></div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <div class="modal fade modal-almacenes" id="almacenes" tabindex="-1" role="dialog"
-        aria-labelledby="almacenesCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content modal-almacenes-content">
-                <div class="modal-header modal-almacenes-header">
-                    <h5 class="modal-title modal-almacenes-title" id="almacenesLongTitle">Detalle de almacenes</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body modal-almacenes-body">
-                    <table id="almacenestabla" class="table table-striped table-almacenes">
-                        <thead class="table-almacenes-header">
-                            <tr>
-
-                                <th>Almacen</th>
-                                <th>Existencias</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header modal-almacenes-header">
-                    <h5 class="modal-title modal-almacenes-title" id="almacenesLongTitle">Imagen Descriptiva</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body text-center">
-                    <img src="assets/images/productos/11120003.png" alt="Imagen de ejemplo" class="img-fluid"
-                        width="300" height="300" style="object-fit: contain;">
-                    <p class="mensaje-error" style="display: none; color: red; font-weight: bold;">Imagen no
-                        disponible</p>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-
-
-    <div class="modal fade" id="modalPrecios" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width:99%;">
-            <div class="modal-content">
-
-                <div class="modal-body modal-almacenes-body" style="overflow-x:auto; max-height:75vh;">
-
-                    <table id="productos_distribuidor" class="table table-striped table-almacenes"
-                        style="min-width:900px; width:100%;">
-
-                        <thead class="table-almacenes-header">
-                            <tr>
-                                <th>Producto</th>
-                                <th>Marca</th>
-                                <th>Categoria</th>
-                                <th>Distribuidor</th>
-                                <th>Platinum</th>
-                                <th>Existencias</th>
-                            </tr>
-                        </thead>
-
-                        <tbody></tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-
-    <!-- SCRIPTS -->
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.stellar.min.js"></script>
-    <script src="js/jquery.magnific-popup.min.js"></script>
-    <script src="js/smoothscroll.js"></script>
-    <script src="js/custom.js"></script>
-    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <!-- JS -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/custom.js"></script>
+    <script src="assets/js/owl.js"></script>
+    <script src="assets/js/slick.js"></script>
+    <script src="assets/js/isotope.js"></script>
+    <script src="assets/js/accordions.js"></script>
     <script>
-        $(document).ready(function() {
+        // ===== CONTROL DEL MODAL =====
+        (function() {
+            const floatBtn = document.getElementById('whatsappFloatBtn');
+            const modal = document.getElementById('whatsappModal');
+            const closeBtn = document.getElementById('whatsappModalClose');
 
-
-
-            $('#loginForm').submit(function(event) {
-                event.preventDefault(); // Evita el comportamiento por defecto del formulario
-                var form = $(this);
-                var url = form.attr('action');
-
-                $.ajax({
-                    type: 'POST',
-                    url: url,
-                    data: form.serialize(),
-                    success: function(data) {
-                        // Redirigir si es exitoso
-                        window.location.href = "/dashboard";
-                    },
-                    error: function(xhr) {
-                        // Mostrar los errores
-                        var errors = xhr.responseJSON.errors;
-                        var errorMessages = '<div class="alert alert-danger"><ul>';
-                        errorMessages += '</ul> Los datos de acceso son incorrectos</div>';
-                        $('#error-messages').html(errorMessages);
-                    }
-                });
+            // Abrir modal
+            floatBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
             });
-            /* SLIDE*/
-            let index = 0;
-            const slides = $(".slide");
-            const totalSlides = slides.length;
 
-            function showSlide(i) {
-                if (i >= totalSlides) {
-                    index = 0;
-                } else if (i < 0) {
-                    index = totalSlides - 1;
-                } else {
-                    index = i;
-                }
-                $(".slides").css("transform", "translateX(" + (-index * 100) + "%)");
+            // Cerrar modal
+            function closeModal() {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
             }
 
-            $(".next").click(function() {
-                showSlide(index + 1);
-            });
+            closeBtn.addEventListener('click', closeModal);
 
-            $(".prev").click(function() {
-                showSlide(index - 1);
-            });
-
-            setInterval(function() {
-                showSlide(index + 1);
-            }, 3000); // Cambia cada 3 segundos
-            /* SLIDE*/
-
-            /*TABLA PRODUCTOS*/
-
-            var products = @json($products);
-
-            $('#table-products').DataTable({
-                destroy: true,
-                scrollX: true,
-                scrollCollapse: true,
-                "language": {
-                    "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
-                },
-                dom: 'Blfrtip',
-                order: [
-                    [1, 'asc']
-                ],
-                processing: true,
-                sort: true,
-                paging: true,
-                lengthMenu: [
-                    [10, 25, 50, -1],
-                    [10, 25, 50, 'All']
-                ],
-                "data": products,
-                "columns": [{
-                        "data": "producto"
-                    },
-                    {
-                        "data": "marca"
-                    },
-                    {
-                        "data": "categoria"
-                    },
-                    {
-                        "data": "publico",
-                        "render": function(data) {
-                            return '$' + data;
-                        }
-                    },
-                    {
-                        "data": "frecuente",
-                        "render": function(data) {
-                            return '$' + data;
-                        }
-                    },
-                    {
-                        "data": "mayoreo",
-                        "render": function(data) {
-                            return '$' + data;
-                        }
-                    },
-
-
-                    // Almacenes
-                    {
-                        "data": "codigo",
-                        "render": function(data) {
-                            return `<button class="btn btn-primary btn-sm btn-ver-almacenes" data-codigo="${data}">Ver</button>`;
-                        }
-                    },
-                    // Imagenes
-                    {
-                        "data": "codigo",
-                        "render": function(data) {
-                            if (data === undefined || data === null) {
-                                return '';
-                            }
-                            return `<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#imagenModal" data-codigo="${data}">Ver Imagen</button>`;
-                        }
-                    }
-
-
-                ],
-                initComplete: function() {
-                    console.log("DataTable inicializado con los siguientes datos:", this.api().data()
-                        .toArray());
+            // Cerrar al hacer clic fuera del contenido
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
                 }
             });
 
-
-
-
-
-            $('#productos_distribuidor').DataTable({
-                destroy: true,
-                scrollX: true,
-                scrollCollapse: true,
-                "language": {
-                    "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
-                },
-                dom: 'Blfrtip',
-                order: [
-                    [1, 'asc']
-                ],
-                processing: true,
-                sort: true,
-                paging: true,
-                lengthMenu: [
-                    [10, 25, 50, -1],
-                    [10, 25, 50, 'All']
-                ],
-                "data": products,
-                "columns": [{
-                        "data": "producto"
-                    },
-                    {
-                        "data": "marca"
-                    },
-                    {
-                        "data": "categoria"
-                    },
-                    {
-                        "data": "distribuidor",
-                        "render": function(data) {
-                            return '$' + data;
-                        }
-                    },
-
-                    {
-                        "data": "platinum",
-                        "render": function(data) {
-                            return '$' + data;
-                        }
-                    },
-
-                    {
-                        "data": "totales",
-                    },
-
-
-
-                ],
-                initComplete: function() {
-                    console.log("DataTable inicializado con los siguientes datos:", this.api().data()
-                        .toArray());
+            // Cerrar con tecla ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    closeModal();
                 }
             });
 
-
-
-            $('#modalPrecios').on('shown.bs.modal', function() {
-                $('#productos_distribuidor').DataTable().columns.adjust();
-            });
-
-
-            $('#table-products tbody').on('click', '.btn-ver-almacenes', function() {
-                const codigo = $(this).data('codigo'); // Obtener el código del atributo data-codigo
-                veralmacenes(codigo); // Llamar a la función con el código específico
-            });
-
-            $('#imagenModal').on('show.bs.modal', function(event) {
-                var button = $(event.relatedTarget); // Botón que abrió el modal
-                var codigo = button.data('codigo'); // Extrae el valor de data-codigo
-
-                var modal = $(this);
-                var img = modal.find('img');
-
-                // Actualiza el src de la imagen
-                img.attr('src', 'assets/images/productos/' + codigo + '.png').show();
-
-                // Oculta el mensaje de "Imagen no disponible" inicialmente
-                modal.find('.mensaje-error').hide();
-
-                // Si la imagen no carga, muestra el mensaje
-                img.on('error', function() {
-                    img.hide(); // Oculta la imagen
-                    modal.find('.mensaje-error').show(); // Muestra el mensaje de error
+            // Cerrar al hacer clic en un enlace
+            const links = modal.querySelectorAll('a');
+            links.forEach(link => {
+                link.addEventListener('click', function() {
+                    setTimeout(closeModal, 300);
                 });
             });
-
-
-
-
-            /*TABLA PRODUCTOS*/
-
-            // Evento change en el select
-            $('select[name="categories"]').on('change', function() {
-                // Limpia el filtro de búsqueda del DataTable
-                var table = $('#table-products').DataTable();
-                // table.search('').draw(); // Limpiar el filtro de búsqueda
-
-                // Filtra los datos por la categoría seleccionada
-                var selectedValue = $(this).val();
-
-                // Aplicar el filtro a la columna correspondiente
-                table.column(2).search(selectedValue)
-                    .draw(); // Suponiendo que la columna "categoria" es la columna 2
-            });
-
-
-
-
-            document.addEventListener('DOMContentLoaded', (event) => {
-                var currentYear = new Date().getFullYear();
-                document.getElementById('current-year').textContent = currentYear;
-            });
-
-
-
-
-        });
-
-        function veralmacenes(id) {
-            $('#almacenes').modal('show');
-
-            $.ajax({
-                url: 'detalleamacenes', // URL de la solicitud
-                type: 'GET',
-                data: {
-                    id_producto: id
-                },
-                dataType: 'json',
-                success: function(data) {
-                    // Primero destruye la tabla existente
-                    $('#almacenestabla').DataTable().clear().destroy();
-
-                    // Ahora inicializa la tabla con los datos recibidos
-                    $('#almacenestabla').DataTable({
-                        destroy: true,
-                        data: data,
-                        columns: [{
-                                data: 'nombre'
-                            },
-                            {
-                                data: 'existencias'
-                            }
-                        ]
-                    });
-                },
-                error: function(xhr, status, error) {
-                    console.error(error);
-                }
-            });
-        }
+        })();
     </script>
 </body>
 

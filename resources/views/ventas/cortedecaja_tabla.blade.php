@@ -13,7 +13,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($remisiones as $r)
+                @foreach ($remisiones as $r)
                     <tr>
                         <td>{{ $r->id }}</td>
                         <td>{{ $r->fecha }}</td>

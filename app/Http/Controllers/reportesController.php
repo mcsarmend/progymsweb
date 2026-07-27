@@ -7,6 +7,7 @@ use App\Models\clients;
 use App\Models\product;
 use App\Models\stockMovements;
 use App\Models\supplier;
+use App\Models\User;
 use App\Models\warehouse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -58,7 +59,7 @@ class reportesController extends Controller
 
         $products = DB::select('CALL lista_precios_activos()');
 
-        return view('reportes.inventario.listaprecios', ['type' => $type, 'products' => $products]);
+        return view('reportes.Inventario.listaprecios', ['type' => $type, 'products' => $products]);
     }
     public function reporteinventarioexistenciascostos()
     {
@@ -70,13 +71,13 @@ class reportesController extends Controller
             return $carry + ($item->costo_promedio * intval($item->totales));
         }, 0);
 
-        return view('reportes.inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes, 'total_costos' => $total_costos]);
+        return view('reportes.Inventario.existencias', ['type' => $type, 'products' => $products, 'almacenes' => $almacenes, 'total_costos' => $total_costos]);
     }
     public function productomovimiento()
     {
         $type      = $this->gettype();
         $productos = product::all();
-        return view('reportes.inventario.productomovimiento', ['type' => $type, 'productos' => $productos]);
+        return view('reportes.Inventario.productomovimiento', ['type' => $type, 'productos' => $productos]);
     }
     public function resumenventas()
     {
@@ -143,7 +144,7 @@ class reportesController extends Controller
     {
         $proveedores = supplier::all();
         $type        = $this->gettype();
-        return view('reportes.inventario.historicoinventario', ['type' => $type, 'suppliers' => $proveedores]);
+        return view('reportes.Inventario.historicoinventario', ['type' => $type, 'suppliers' => $proveedores]);
     }
 
     public function generarreporteventascliente(Request $request)
@@ -679,7 +680,12 @@ class reportesController extends Controller
                 ->select(
                     'stock_movements.id as id',
                     'stock_movements.fecha as fecha',
-                    'stock_movements.movimiento as movimiento',
+                    DB::raw("
+                                CASE
+                                    WHEN stock_movements.movimiento = 'PURCHASE' THEN 'COMPRA'
+                                    ELSE stock_movements.movimiento
+                                END as movimiento
+                            "),
                     'stock_movements.documento as documento',
                     'stock_movements.productos as productos',
                     'u.name as autor'
@@ -741,7 +747,12 @@ class reportesController extends Controller
                 ->select(
                     'stock_movements.id as id',
                     'stock_movements.fecha as fecha',
-                    'stock_movements.movimiento as movimiento',
+                    DB::raw("
+                                CASE
+                                    WHEN stock_movements.movimiento = 'TRANSFER' THEN 'TRASPASO'
+                                    ELSE stock_movements.movimiento
+                                END as movimiento
+                            "),
                     'stock_movements.documento as documento',
                     'stock_movements.productos as productos',
                     'u.name as autor'
@@ -764,7 +775,12 @@ class reportesController extends Controller
 
             $mermas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
-                ->select('stock_movements.id as id', 'stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
+                ->select('stock_movements.id as id', 'stock_movements.fecha as fecha', DB::raw("
+                                CASE
+                                    WHEN stock_movements.movimiento = 'DECREASE' THEN 'MERMA'
+                                    ELSE stock_movements.movimiento
+                                END as movimiento
+                            "), 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
                 ->where('movimiento', 'DECREASE')
                 ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
@@ -786,7 +802,12 @@ class reportesController extends Controller
                 ->select(
                     'stock_movements.id as id',
                     'stock_movements.fecha as fecha',
-                    'stock_movements.movimiento as movimiento',
+                    DB::raw("
+                                CASE
+                                    WHEN stock_movements.movimiento = 'ENTRANCEMERCH' THEN 'ENTRADA DE MERCANCÍA'
+                                    ELSE stock_movements.movimiento
+                                END as movimiento
+                            "),
                     'stock_movements.documento as documento',
                     'stock_movements.productos as productos',
                     'u.name as autor'
@@ -809,7 +830,18 @@ class reportesController extends Controller
 
             $salidas = stockMovements::whereBetween('fecha', [$dateStart, $dateEnd])
                 ->leftJoin('users as u', 'stock_movements.autor', '=', 'u.id')
-                ->select('stock_movements.id as id', 'stock_movements.fecha as fecha', 'stock_movements.movimiento as movimiento', 'stock_movements.documento as documento', 'stock_movements.productos as productos', 'u.name as autor')
+                ->select(
+                    'stock_movements.id as id',
+                    'stock_movements.fecha as fecha',
+                    DB::raw("
+                            CASE
+                                WHEN stock_movements.movimiento = 'EXITMERCH' THEN 'SALIDA DE MERCANCÍA'
+                                ELSE stock_movements.movimiento
+                            END as movimiento
+                        "),
+                    'stock_movements.documento as documento',
+                    'stock_movements.productos as productos',
+                    'u.name as autor')
                 ->where('movimiento', 'EXITMERCH')
                 ->orderBy('stock_movements.fecha', 'desc')
                 ->get();
@@ -884,10 +916,26 @@ class reportesController extends Controller
 
             $id         = $request->id;
             $movimiento = stockMovements::find($id);
+            $documento  = $movimiento->documento;
+            $productos  = json_decode($movimiento->productos);
+            $autor1     = DB::table('users')
+                ->select('name')
+                ->where('id', $movimiento->autor)
+                ->first();
+            $autor       = $autor1->name ?? 'Desconocido';
+            $importe     = $movimiento->importe;
+            $movimientos = [
+                "PURCHASE"        => "COMPRA",
+                "TRANSFER"        => "TRASPASO",
+                "ENTRANCEMERCH"   => "ENTRADA DE MERCANCÍA",
+                "REMISSIONISSUED" => "REMISIÓN",
+                "EXITMERCH"       => "SALIDA DE MERCANCÍA",
+                "DECREASE"        => "MERMA",
+                "NEW_PRODUCT"     => "NUEVO PRODUCTO",
+            ];
+            $mov = $movimientos[$movimiento->movimiento] ?? 'Desconocido';
 
-            $productos = json_decode($movimiento->productos);
-
-            return response()->json(['productos' => $productos, 'movimiento' => $movimiento], 200);
+            return response()->json(['productos' => $productos, 'movimiento' => $movimiento, 'autor' => $autor, 'importe' => $importe, "mov" => $mov, "documento" => $documento], 200);
         } catch (\Throwable $th) {
 
             return response()->json(['message' => 'Error al generar el reporte' . $th->getMessage()], 500);

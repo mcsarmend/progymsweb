@@ -105,7 +105,6 @@
         </div>
     </div>
 
-
     <div class="modal fade" id="editarProducto" tabindex="-1" role="dialog" aria-labelledby="editarProductoCenterTitle"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered custom-width" role="document">
@@ -121,7 +120,7 @@
                     </button>
                 </div>
 
-                <form id="formEditarProducto">
+                <form id="formEditarProducto" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
 
@@ -168,6 +167,18 @@
                                 </div>
                             </div>
 
+                            {{-- IMAGEN --}}
+                            <div class="col-md-6 mb-3">
+                                <label for="editar_imagen" class="form-label">Imagen del producto</label>
+                                <div class="mb-2">
+                                    <img id="editar_imagen_preview" src="" alt="Vista previa"
+                                        style="max-width: 150px; max-height: 150px; display: none; border: 1px solid #ddd; padding: 5px; border-radius: 4px;">
+                                </div>
+                                <input type="file" id="editar_imagen" name="imagen" class="form-control"
+                                    accept=".jpg,">
+                                <small class="text-muted">Formatos permitidos: JPG, Tamaño máximo: 2MB</small>
+                            </div>
+
                         </div>
                     </div>
 
@@ -181,7 +192,6 @@
             </div>
         </div>
     </div>
-
 
 
 
@@ -202,6 +212,22 @@
         $(document).ready(function() {
             drawTriangles();
             showUsersSections();
+
+            // Previsualización de la imagen al seleccionar un archivo
+            $(document).on('change', '#editar_imagen', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#editar_imagen_preview')
+                            .attr('src', e.target.result)
+                            .show();
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    $('#editar_imagen_preview').hide();
+                }
+            });
         });
 
         var products = @json($productos);
@@ -445,6 +471,10 @@
             // Limpia mientras carga
             $('#editar_header_id').text('#' + id);
 
+            // Ocultar previsualización anterior
+            $('#editar_imagen_preview').hide();
+            $('#editar_imagen').val(''); // Limpiar el input file
+
             $.ajax({
                 url: 'obtenerproducto',
                 type: 'GET',
@@ -453,23 +483,35 @@
                 },
                 dataType: 'json',
                 success: function(data) {
-
-                    // Llena los inputs del formulario (con fallbacks por si las claves cambian)
+                    // Llena los inputs del formulario
                     $('#editar_producto_id').val(data[0].id);
                     $('#editar_header_nombre').text(data[0].nombre || 'Nombre no disponible');
-                    $('#editar_nombre').text(data[0].nombre || 'Nombre no disponible');
                     $('#editar_nombre').val(data[0].nombre);
                     $('#editar_marca').val(data[0].marca);
                     $('#editar_categoria').val(data[0].categoria);
                     $('#editar_costo').val(data[0].costo);
+
+                    // Mostrar la imagen si existe
+                    if (data[0].imagen && data[0].imagen !== '') {
+                        var imagePath = '{{ asset('assets/images/productos') }}/' + data[0].imagen;
+                        $('#editar_imagen_preview')
+                            .attr('src', imagePath)
+                            .show();
+                    } else {
+                        $('#editar_imagen_preview').hide();
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error(error);
                     $('#editar_header_nombre').text('Error al cargar');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo cargar la información del producto'
+                    });
                 }
             });
         }
-
 
         function enviareditaralmacenform(id, almacen) {
             nuevaexistencia = '#idalmacen_' + id + quitarEspaciosExtra(almacen);
@@ -568,20 +610,101 @@
         $('#formEditarProducto').on('submit', function(e) {
             e.preventDefault();
 
-            let btn = $('#btnGuardarProducto');
+            var btn = $('#btnGuardarProducto');
+
+            // Validar campos obligatorios
+            var nombre = $.trim($('#editar_nombre').val());
+            var marca = $('#editar_marca').val();
+            var categoria = $('#editar_categoria').val();
+            var costo = $('#editar_costo').val();
+            var imagen = $('#editar_imagen')[0].files[0];
+
+            // Validar nombre
+            if (nombre === '') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campo requerido',
+                    text: 'El nombre del producto es obligatorio'
+                });
+                $('#editar_nombre').focus();
+                return;
+            }
+
+            // Validar marca
+            if (marca === '') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campo requerido',
+                    text: 'Debes seleccionar una marca'
+                });
+                $('#editar_marca').focus();
+                return;
+            }
+
+            // Validar categoría
+            if (categoria === '') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campo requerido',
+                    text: 'Debes seleccionar una categoría'
+                });
+                $('#editar_categoria').focus();
+                return;
+            }
+
+            // Validar costo
+            if (costo === '' || parseFloat(costo) < 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campo requerido',
+                    text: 'El costo debe ser un número válido mayor o igual a 0'
+                });
+                $('#editar_costo').focus();
+                return;
+            }
+
+            // Validar imagen si se seleccionó una
+            if (imagen) {
+                // Validar tipo de archivo
+                const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if ($.inArray(imagen.type, tiposPermitidos) === -1) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Solo se permiten imágenes JPG, JPEG, PNG y GIF'
+                    });
+                    $('#editar_imagen').focus();
+                    return;
+                }
+
+                // Validar tamaño (10MB)
+                if (imagen.size > 10 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'La imagen no puede superar los 10MB'
+                    });
+                    $('#editar_imagen').focus();
+                    return;
+                }
+            }
 
             btn.prop('disabled', true);
             btn.html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
 
+            // Crear FormData para enviar archivos
+            var formData = new FormData(this);
+
             $.ajax({
-                url: '/guardarproducto', // Cambia por tu ruta real
+                url: '/guardarproducto',
                 type: 'POST',
-                data: $(this).serialize(),
+                data: formData,
+                processData: false,
+                contentType: false,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-
                     Swal.fire({
                         icon: 'success',
                         title: 'Producto actualizado',
@@ -590,14 +713,12 @@
 
                     $('#editarProducto').modal('hide');
 
-                    // Recargar página después de guardar
                     setTimeout(function() {
                         location.reload();
                     }, 1000);
                 },
                 error: function(xhr) {
-
-                    let mensaje = 'Ocurrió un error al guardar';
+                    var mensaje = 'Ocurrió un error al guardar';
 
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         mensaje = xhr.responseJSON.message;

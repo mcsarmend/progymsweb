@@ -39,6 +39,10 @@ Route::get('/preguntasfrecuentes', [dashboardController::class, 'preguntasfrecue
 Route::get('/politicadeusodirigido', [dashboardController::class, 'politicadeusodirigido']);
 Route::get('/politicaenvio', [dashboardController::class, 'politicaenvio']);
 Route::get('/politicaprivacidad', [dashboardController::class, 'politicaprivacidad']);
+Route::get('/productos', [dashboardController::class, 'productos']);
+Route::get('/acerca', [dashboardController::class, 'acerca']);
+Route::get('/contacto', [dashboardController::class, 'contacto']);
+Route::get('/logininit', [dashboardController::class, 'logininit']);
 
 //Rutas
 
@@ -219,6 +223,9 @@ Route::get('tareas', [dashboardController::class, 'tareas']);
 Route::post('creartarea', [dashboardController::class, 'creartarea']);
 Route::get('tareasdelegadas', [dashboardController::class, 'tareasdelegadas']);
 Route::post('marcartarea', [dashboardController::class, 'marcartarea']);
+//  BANNERS
+Route::get('editarbanners', [dashboardController::class, 'editarbanners'])->middleware(['auth']);
+Route::post('enviareditarbanners', [dashboardController::class, 'enviareditarbanners'])->middleware(['auth']);
 
 // LAN DING PAGE
 Route::get('table-products', [dashboardController::class, 'get_productos']);

@@ -37,6 +37,7 @@
                                 <th>Naucalpan</th>
                                 <th>Tienda Piso</th>
                                 <th>Pedidos</th>
+                                <th>Promotoria</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -178,6 +179,8 @@
                     },
                     {
                         "data": "pedidos"
+                    }, {
+                        "data": "promotoria"
                     }
                 ]
             });

@@ -45,7 +45,7 @@
                         <th>Vendedor</th>
                         <th>Fecha</th>
                         <th>Observaciones</th>
-                         <th>Sucursal</th>
+                        <th>Sucursal</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -220,7 +220,7 @@
                             },
 
                             {
-                                "data": "sucursal"
+                                "data": "almacen"
                             },
 
                         ]

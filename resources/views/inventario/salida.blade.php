@@ -84,6 +84,8 @@
                 var selectedOption = $(this).find(':selected'); // Obtén la opción seleccionada
                 var clave = "SAL";
                 var documento = time + clave; // Genera el valor del documento
+                var almacen = formatearNumero($('#sucursal').val());
+                documento = documento + almacen;
                 $('#documento').val(documento); // Coloca el valor en el input
             });
 
@@ -92,13 +94,17 @@
 
 
 
-
+        function formatearNumero(numero) {
+            return numero.toString().padStart(2, '0');
+        }
 
         function crearnodocumento() {
             time = getFormattedDateTime();
             var selectedOption = $(this).find(':selected'); // Obtén la opción seleccionada
             var clave = "SAL";
             var documento = time + clave; // Genera el valor del documento
+            var almacen = formatearNumero($('#sucursal').val());
+            documento = documento + almacen;
             $('#documento').val(documento); // Coloca el valor en el input
         }
 
@@ -107,18 +113,17 @@
                 Swal.fire({
                     title: 'Productos',
                     html: `
-                <label for="inputWithDatalist">Selecciona un producto:</label>
-                <input list="datalistOptions" id="inputWithDatalist" class="form-control col-sm-14" oninput="actualizarExistencias()">
-                <datalist id="datalistOptions">
-                    ${optionsHtml}
-                </datalist>
-                <label for="inputCantidad">Cantidad:</label>
-                <input type="number" id="inputCantidad" class="form-control col-sm-14">
-                <label for="inputExistencias">Existencias:</label>
-                <input type="number" id="inputExistencias" class="form-control col-sm-14" readonly>
-
-                <br>
-            `,
+                    <label for="inputWithDatalist">Selecciona un producto:</label>
+                    <input list="datalistOptions" id="inputWithDatalist" class="form-control col-sm-14" oninput="actualizarExistencias()">
+                    <datalist id="datalistOptions">
+                         ${optionsHtml}
+                    </datalist>
+                    <label for="inputCantidad">Cantidad:</label>
+                    <input type="number" id="inputCantidad" class="form-control col-sm-14">
+                     <label for="inputExistencias">Existencias:</label>
+                    <input type="number" id="inputExistencias" class="form-control col-sm-14" readonly>
+                    <br>
+                `,
                     focusConfirm: false,
                     preConfirm: () => {
                         const cantidad = document.getElementById('inputCantidad').value;
@@ -169,7 +174,8 @@
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
                             success: function(data) {
-                                agregarFila(data.idproducto, data.cantidad, data.nombre, data
+                                nombre = data.nombre + " - " + data.marca;
+                                agregarFila(data.idproducto, data.cantidad, nombre, data
                                     .costo);
                             },
                             error: function(xhr, status, error) {
@@ -184,6 +190,7 @@
                 });
             });
         }
+
 
 
         function generateOptions() {

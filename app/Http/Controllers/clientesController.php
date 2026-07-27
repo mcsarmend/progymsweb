@@ -27,13 +27,24 @@ class clientesController extends Controller
     }
     public function clientes()
     {
-        $type    = $this->gettype();
-        $clients = clients::select('clients.id', 'clients.nombre', 'clients.telefono', 'warehouse.nombre as sucursal', 'prices.nombre as precio')
+        $type = $this->gettype();
+
+        $clients = clients::select(
+            'clients.id',
+            'clients.nombre',
+            'clients.telefono',
+            'warehouse.nombre as sucursal',
+            'prices.nombre as precio'
+        )
             ->leftJoin('warehouse', 'clients.sucursal', '=', 'warehouse.id')
             ->leftJoin('prices', 'clients.precio', '=', 'prices.id')
+            ->where('clients.estatus', 1)
             ->get();
 
-        return view('clientes.clientes', ['type' => $type, 'clients' => $clients]);
+        return view('clientes.clientes', [
+            'type'    => $type,
+            'clients' => $clients,
+        ]);
     }
     public function edicioncliente()
     {
