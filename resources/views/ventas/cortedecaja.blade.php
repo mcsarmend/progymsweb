@@ -52,60 +52,105 @@
                             </p>
 
                             <hr style="border: 1px solid #000;">
+
+                            <!-- REMESA RECIBIDA (Suma al efectivo a entregar) -->
                             <div class="concept-container" id="remesa-recibida-container">
-                                <div class="concept-header">REMESA RECIBIDA</div>
+                                <div class="concept-header">REMESA RECIBIDA (Suma al efectivo a entregar)</div>
                                 <div class="inputs-container" id="remesa-recibida-inputs"></div>
-                                <button class="add-button" onclick="addInput('remesa-recibida-inputs')">Agregar</button>
+                                <button type="button" class="add-button"
+                                    onclick="addInput('remesa-recibida-inputs')">Agregar</button>
                             </div>
                             <hr style="border: 1px solid #000;">
+
+                            <!-- REMESA ENTREGADA (Resta al efectivo a entregar) -->
                             <div class="concept-container" id="remesa-entregada-container">
-                                <div class="concept-header">REMESA ENTREGADA</div>
+                                <div class="concept-header">REMESA ENTREGADA (Resta al efectivo a entregar)</div>
                                 <div class="inputs-container" id="remesa-entregada-inputs"></div>
-                                <button class="add-button" onclick="addInput('remesa-entregada-inputs')">Agregar</button>
+                                <button type="button" class="add-button"
+                                    onclick="addInput('remesa-entregada-inputs')">Agregar</button>
                             </div>
                             <hr style="border: 1px solid #000;">
+
+                            <!-- OTRAS VENTAS (Suma al efectivo a entregar) -->
                             <div class="concept-container" id="otras-ventas-container">
-                                <div class="concept-header">OTRAS VENTAS</div>
+                                <div class="concept-header">OTRAS VENTAS (Suma al efectivo a entregar)</div>
                                 <div class="inputs-container" id="otras-ventas-inputs"></div>
-                                <button class="add-button" onclick="addInput('otras-ventas-inputs')">Agregar</button>
+                                <button type="button" class="add-button"
+                                    onclick="addInput('otras-ventas-inputs')">Agregar</button>
                             </div>
                             <hr style="border: 1px solid #000;">
+
+                            <!-- GASTOS EN GENERAL (Resta al efectivo a entregar) -->
                             <div class="concept-container" id="gastos-en-general-container">
-                                <div class="concept-header">GASTOS EN GENERAL</div>
+                                <div class="concept-header">GASTOS EN GENERAL (Resta al efectivo a entregar)</div>
                                 <div class="inputs-container" id="gastos-en-general-inputs"></div>
-                                <button class="add-button" onclick="addInput('gastos-en-general-inputs')">Agregar</button>
+                                <button type="button" class="add-button"
+                                    onclick="addInput('gastos-en-general-inputs')">Agregar</button>
                             </div>
                             <hr style="border: 1px solid #000;">
-                            <div class="concept-container" id="ajuste-cobros-container">
-                                <div class="concept-header">AJUSTE DE COBROS</div>
-                                <div class="inputs-container" id="ajuste-cobros-inputs"></div>
-                                <button class="add-button" onclick="addInput('ajuste-cobros-inputs')">Agregar</button>
+
+                            <!-- EFECTIVO POR DOBLE FORMA DE PAGO (Suma al efectivo a entregar) -->
+                            <div class="concept-container" id="efectivo-doble-forma-pago-container">
+                                <div class="concept-header">EFECTIVO POR DOBLE FORMA DE PAGO (Suma al efectivo a entregar)
+                                </div>
+                                <div class="inputs-container" id="efectivo-doble-forma-pago-inputs"></div>
+                                <button type="button" class="add-button"
+                                    onclick="addInput('efectivo-doble-forma-pago-inputs')">Agregar</button>
                             </div>
                             <hr style="border: 1px solid #000;">
-                            <!-- CONCEPTO: CUENTAS POR COBRAR (Resta) -->
+
+                            <!-- SALDO A FAVOR (Suma al efectivo a entregar) -->
+                            <div class="concept-container" id="saldo-favor-container">
+                                <div class="concept-header">SALDO A FAVOR (Suma al efectivo a entregar)</div>
+                                <div class="inputs-container" id="saldo-favor-inputs"></div>
+                                <button type="button" class="add-button"
+                                    onclick="addInput('saldo-favor-inputs')">Agregar</button>
+                            </div>
+                            <hr style="border: 1px solid #000;">
+
+                            <!-- CUENTAS POR PAGAR (Resta al efectivo a entregar) -->
+                            <div class="concept-container" id="cuentas-por-pagar-container">
+                                <div class="concept-header">CUENTAS POR PAGAR (Resta al efectivo a entregar)</div>
+                                <div class="inputs-container" id="cuentas-por-pagar-inputs"></div>
+                                <button type="button" class="add-button"
+                                    onclick="addInput('cuentas-por-pagar-inputs')">Agregar</button>
+                            </div>
+                            <hr style="border: 1px solid #000;">
+
+                            <!-- ABONO EFECTIVO CxC (Suma al efectivo a entregar) -->
+                            <div class="concept-container" id="abono-efectivo-cxc-container">
+                                <div class="concept-header">ABONO EFECTIVO CxC (Suma al efectivo a entregar)</div>
+                                <div class="inputs-container" id="abono-efectivo-cxc-inputs"></div>
+                                <button type="button" class="add-button"
+                                    onclick="addInput('abono-efectivo-cxc-inputs')">Agregar</button>
+                            </div>
+                            <hr style="border: 1px solid #000;">
+
+                            <!-- ABONO CxC TRANSFERENCIA/TERMINAL (No suma ni resta) -->
+                            <div class="concept-container" id="abono-cxc-transferencia-terminal-container">
+                                <div class="concept-header">ABONO CxC TRANSFERENCIA/TERMINAL (No suma ni resta)</div>
+                                <div class="inputs-container" id="abono-cxc-transferencia-terminal-inputs"></div>
+                                <button type="button" class="add-button"
+                                    onclick="addInput('abono-cxc-transferencia-terminal-inputs')">Agregar</button>
+                            </div>
+                            <hr style="border: 1px solid #000;">
+
+                            <!-- CUENTAS POR COBRAR (Resta al efectivo a entregar) -->
                             <div class="concept-container" id="cuentas-por-cobrar-container">
-                                <div class="concept-header">CUENTAS POR COBRAR</div>
+                                <div class="concept-header">CUENTAS POR COBRAR (Resta al efectivo a entregar)</div>
                                 <div class="inputs-container" id="cuentas-por-cobrar-inputs"></div>
-                                <button class="add-button" onclick="addInput('cuentas-por-cobrar-inputs')">Agregar</button>
-                            </div>
-                            <hr style="border: 1px solid #000;">
-                            <!-- NUEVO CONCEPTO: ABONO A CUENTA POR COBRAR TRANSFERENCIA (No afecta total) -->
-                            <div class="concept-container" id="abono-cuenta-por-cobrar-transferencia-container">
-                                <div class="concept-header">ABONO A CUENTA POR COBRAR TRANSFERENCIA</div>
-                                <div class="inputs-container" id="abono-cuenta-por-cobrar-transferencia-inputs"></div>
-                                <button class="add-button"
-                                    onclick="addInput('abono-cuenta-por-cobrar-transferencia-inputs')">Agregar</button>
+                                <button type="button" class="add-button"
+                                    onclick="addInput('cuentas-por-cobrar-inputs')">Agregar</button>
                             </div>
                             <hr style="border: 1px solid #000;">
                         </div>
+
                         <div id="contenido-corte">
                             @foreach ($remisiones_por_pago as $forma_pago => $remisiones)
                                 @php
-                                    // Ignorar claves vacías
                                     if ($forma_pago === '') {
                                         continue;
                                     }
-
                                     $remisiones_por_pago = $remisiones_por_pago ?? [];
                                     $totales_por_pago = $totales_por_pago ?? [];
                                     $total_general = $total_general ?? array_sum($totales_por_pago);
@@ -154,6 +199,7 @@
                                 @endif
                             @endforeach
                         </div>
+
                         <div class="col"><label for="observaciones">Observaciones:</label></div>
                         <div class="col">
                             <textarea id="observaciones" name="observaciones" rows="3" cols="120"
@@ -254,13 +300,12 @@
             });
 
             $('#cortecajaform').submit(function(e) {
-                e.preventDefault(); // Evitar la recarga de la página
-                // Obtener los datos del formulario
+                e.preventDefault();
                 var datosFormulario = $(this).serialize();
                 $.ajax({
-                    url: '/enviarcortecaja', // Ruta al controlador de Laravel
+                    url: '/enviarcortecaja',
                     type: 'POST',
-                    data: datosFormulario, // Enviar los datos del formulario
+                    data: datosFormulario,
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
@@ -279,7 +324,6 @@
                         )
                     }
                 });
-
             });
 
             $('#infocortecaja').submit(function(e) {
@@ -292,18 +336,13 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-
-                        // Actualiza solo esta parte
                         $('#contenido-corte').html(response.html);
-
-                        // Recalcular totales
                         recalcular();
                     },
                     error: function(response) {
                         Swal.fire("Error", "No se pudo obtener la información.", "error");
                     }
                 });
-
             });
         });
 
@@ -316,30 +355,27 @@
                 observaciones: $("#observaciones").val() || "Sin Observaciones",
                 fecha: $('#fecha').val() || null
             };
-            // Recopilar los datos de los inputs adicionales (CXC, REMESA RECIBIDA, etc.)
+
             $(".concept-container").each(function() {
                 let conceptId = $(this).attr('id').replace('-container', '');
                 let inputs = [];
                 $(this).find(".inputs-container input").each(function() {
                     valor = $(this).val()
-
                     if ($.isNumeric(valor)) {
                         inputs.push(parseFloat($(this).val()) || 0);
                     } else {
                         inputs.push($(this).val() || "Sin Concepto");
                     }
-
                 });
                 data.inputs_adicionales[conceptId] = inputs;
             });
-            // Obtener las formas de pago
+
             $("h3:contains('Forma de Pago:')").each(function() {
                 let formaPago = $(this).text().replace("Forma de Pago: ", "").trim();
                 let tabla = $(this).next("table");
                 let totalTexto = tabla.find("tfoot td strong").text().trim();
                 let totalFormaPago = parseFloat(totalTexto.replace(/[^\d.]/g, '')) || 0;
                 let remisiones = [];
-                // Recopilar las remisiones dentro de esta forma de pago
                 $(this).next("table").find("tbody tr").each(function() {
                     let celdas = $(this).find("td");
                     remisiones.push({
@@ -356,14 +392,15 @@
                     total: totalFormaPago
                 });
             });
+
             var type = parseInt(@json($type));
             if (type != 4) {
                 sucursal = $('#sucursal').val();
                 data.sucursal = sucursal;
             }
-            // Enviar los datos como JSON mediante Ajax
+
             $.ajax({
-                url: '/enviarinfocortecaja', // Ajusta la ruta al endpoint adecuado
+                url: '/enviarinfocortecaja',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data),
@@ -390,10 +427,9 @@
         function addInput(containerId) {
             var type = parseInt(@json($type));
             const container = document.getElementById(containerId);
-            // Crear un grupo para los inputs
             const inputGroup = document.createElement('div');
             inputGroup.classList.add('input-group');
-            // Crear input para el monto
+
             const montoInput = document.createElement('input');
             montoInput.type = 'number';
             montoInput.placeholder = 'Monto';
@@ -403,12 +439,12 @@
             } else {
                 montoInput.addEventListener('input', calculateTotals);
             }
-            // Crear input para el concepto
+
             const conceptoInput = document.createElement('input');
             conceptoInput.type = 'text';
             conceptoInput.placeholder = 'Concepto';
             conceptoInput.required = true;
-            // Botón para eliminar la fila
+
             const removeButton = document.createElement('button');
             removeButton.textContent = 'Eliminar';
             removeButton.classList.add('remove-button');
@@ -420,13 +456,12 @@
                     calculateTotals();
                 }
             };
-            // Agregar inputs y botón al grupo
+
             inputGroup.appendChild(montoInput);
             inputGroup.appendChild(conceptoInput);
             inputGroup.appendChild(removeButton);
-            // Agregar el grupo al contenedor
             container.appendChild(inputGroup);
-            // Recalcular totales inmediatamente después de agregar un input
+
             if (type != 4) {
                 recalcular();
             } else {
@@ -437,17 +472,18 @@
         function calculateTotals() {
             let totalGeneral = 0;
             let totalEfectivo = 0;
-            // Leer inputs adicionales
-            let remesaRecibida = sumContainerInputs('remesa-recibida-container');
-            let otrasVentas = sumContainerInputs('otras-ventas-container');
-            let remesaEntregada = sumContainerInputs('remesa-entregada-container');
-            let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
-            let ajusteCobros = sumContainerInputs('ajuste-cobros-container');
-            let cuentasPorCobrar = sumContainerInputs('cuentas-por-cobrar-container');
-            // ABONO A CUENTA POR COBRAR TRANSFERENCIA - No afecta el total, solo se declara
-            let abonoCuentaPorCobrarTransferencia = sumContainerInputs('abono-cuenta-por-cobrar-transferencia-container');
 
-            // Totales desde PHP
+            let remesaRecibida = sumContainerInputs('remesa-recibida-container');
+            let remesaEntregada = sumContainerInputs('remesa-entregada-container');
+            let otrasVentas = sumContainerInputs('otras-ventas-container');
+            let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
+            let efectivoDobleFormaPago = sumContainerInputs('efectivo-doble-forma-pago-container');
+            let saldoFavor = sumContainerInputs('saldo-favor-container');
+            let cuentasPorPagar = sumContainerInputs('cuentas-por-pagar-container');
+            let abonoEfectivoCxC = sumContainerInputs('abono-efectivo-cxc-container');
+            let abonoCxCTransferenciaTerminal = sumContainerInputs('abono-cxc-transferencia-terminal-container');
+            let cuentasPorCobrar = sumContainerInputs('cuentas-por-cobrar-container');
+
             let totalPorEfectivo = parseFloat('{{ $totales_por_pago['efectivo'] ?? 0 }}');
             let totalPorTransferencia = parseFloat('{{ $totales_por_pago['transferencia'] ?? 0 }}');
             let totalPorTerminal = parseFloat('{{ $totales_por_pago['terminal'] ?? 0 }}');
@@ -458,15 +494,22 @@
             let totalElectronico = totalPorTransferencia + totalPorTerminal + totalPorClip + totalPorMercadoPago +
                 totalPorVales;
 
-            // TOTAL GENERAL
             totalGeneral = totalPorEfectivo + totalElectronico;
 
-            // 🔹 TOTAL EFECTIVO A ENTREGAR (CUENTAS POR COBRAR RESTA)
-            // ABONO A CUENTA POR COBRAR TRANSFERENCIA NO AFECTA EL TOTAL
-            totalEfectivo = totalPorEfectivo + otrasVentas + remesaRecibida - remesaEntregada - gastosEnGeneral +
-                ajusteCobros - cuentasPorCobrar;
+            // Cálculo del total efectivo a entregar
+            totalEfectivo = totalPorEfectivo +
+                remesaRecibida +
+                otrasVentas +
+                efectivoDobleFormaPago +
+                saldoFavor +
+                abonoEfectivoCxC -
+                remesaEntregada -
+                gastosEnGeneral -
+                cuentasPorPagar -
+                cuentasPorCobrar;
 
-            // Mostrar en pantalla
+            // abonoCxCTransferenciaTerminal no afecta el total (ni suma ni resta)
+
             document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
             document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
         }
@@ -483,17 +526,17 @@
             let totalGeneral = 0;
             let totalEfectivo = 0;
 
-            // Suma de inputs adicionales
             let remesaRecibida = sumContainerInputs('remesa-recibida-container');
-            let otrasVentas = sumContainerInputs('otras-ventas-container');
             let remesaEntregada = sumContainerInputs('remesa-entregada-container');
+            let otrasVentas = sumContainerInputs('otras-ventas-container');
             let gastosEnGeneral = sumContainerInputs('gastos-en-general-container');
-            let ajusteCobros = sumContainerInputs('ajuste-cobros-container');
+            let efectivoDobleFormaPago = sumContainerInputs('efectivo-doble-forma-pago-container');
+            let saldoFavor = sumContainerInputs('saldo-favor-container');
+            let cuentasPorPagar = sumContainerInputs('cuentas-por-pagar-container');
+            let abonoEfectivoCxC = sumContainerInputs('abono-efectivo-cxc-container');
+            let abonoCxCTransferenciaTerminal = sumContainerInputs('abono-cxc-transferencia-terminal-container');
             let cuentasPorCobrar = sumContainerInputs('cuentas-por-cobrar-container');
-            // ABONO A CUENTA POR COBRAR TRANSFERENCIA - No afecta el total, solo se declara
-            let abonoCuentaPorCobrarTransferencia = sumContainerInputs('abono-cuenta-por-cobrar-transferencia-container');
 
-            // Inicializar totales individuales
             let totalPorEfectivo = 0;
             let totalPorTransferencia = 0;
             let totalPorTerminal = 0;
@@ -501,14 +544,12 @@
             let totalPorMercadoPago = 0;
             let totalPorVales = 0;
 
-            // Leer cada tabla generada por forma de pago
             document.querySelectorAll("table").forEach(table => {
                 let titleElement = table.previousElementSibling;
                 if (!titleElement || !titleElement.textContent.includes("Forma de Pago:")) return;
 
                 let formaPago = titleElement.textContent.replace("Forma de Pago: ", "").trim().toLowerCase();
 
-                // Sumar totales de la columna TOTAL
                 let totalPago = 0;
                 table.querySelectorAll("tbody tr").forEach(row => {
                     let td = row.querySelector("td:nth-child(4)");
@@ -518,7 +559,6 @@
                     }
                 });
 
-                // Acumular en variables según forma de pago
                 if (formaPago === "efectivo") totalPorEfectivo += totalPago;
                 if (formaPago === "transferencia") totalPorTransferencia += totalPago;
                 if (formaPago === "terminal") totalPorTerminal += totalPago;
@@ -526,16 +566,23 @@
                 if (formaPago === "mercado_pago") totalPorMercadoPago += totalPago;
                 if (formaPago === "vales") totalPorVales += totalPago;
             });
-            // Calcular electrónico
+
             let totalElectronico = totalPorTransferencia + totalPorTerminal + totalPorClip + totalPorMercadoPago +
                 totalPorVales;
-            // TOTAL GENERAL
             totalGeneral = totalPorEfectivo + totalElectronico;
-            // Calcular total efectivo real a entregar (CUENTAS POR COBRAR RESTA)
-            // ABONO A CUENTA POR COBRAR TRANSFERENCIA NO AFECTA EL TOTAL
-            totalEfectivo = totalPorEfectivo + otrasVentas + remesaRecibida - remesaEntregada - gastosEnGeneral +
-                ajusteCobros - cuentasPorCobrar;
-            // Actualizar pantalla
+
+            // Cálculo del total efectivo a entregar con todos los conceptos
+            totalEfectivo = totalPorEfectivo +
+                remesaRecibida +
+                otrasVentas +
+                efectivoDobleFormaPago +
+                saldoFavor +
+                abonoEfectivoCxC -
+                remesaEntregada -
+                gastosEnGeneral -
+                cuentasPorPagar -
+                cuentasPorCobrar;
+
             document.getElementById('total-general').textContent = `$${totalGeneral.toFixed(2)}`;
             document.getElementById('total-efectivo-entregar').textContent = `$${totalEfectivo.toFixed(2)}`;
         }

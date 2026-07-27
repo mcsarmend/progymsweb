@@ -31,7 +31,7 @@ class ventasController extends Controller
         $idssucursales = warehouse::select('id', 'nombre')
             ->get();
 
-        $clientes   = clients::all();
+        $clientes   = clients::where('estatus', '1')->get();
         $type       = $this->gettype();
         $vendedores = DB::table('users')
             ->select('id', 'name')

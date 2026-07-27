@@ -114,7 +114,7 @@
                         <h2>
                             Productos Destacados
                         </h2>
-                        <a href="{{ url('/productos') }}">
+                        <a href="{{ url('/productos') }}" style="font-size: 24px;">
                             Ver catálogo completo
                             <i class="fa fa-angle-right"></i>
                         </a>

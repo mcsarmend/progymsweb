@@ -1,4 +1,3 @@
-
 @extends('adminlte::page')
 
 @section('title', 'Remisionar')
@@ -17,10 +16,10 @@
         </div>
         <div class="card-body">
 
-        
+
 
             <form id="remisionar">
-                
+
 
                 <div class="row">
                     <div class="col"><label for="vendedor">Vendedor:</label></div>
@@ -74,9 +73,9 @@
                             <div class="col">
                                 <input type="text" id="cliente" name="cliente" list="client-list" class="form-control">
                                 <datalist id="client-list">
-                                        @foreach ($clientes as $cliente)
-                                    <option value="{{ $cliente->id }}-{{ $cliente->nombre }}">
-                                        @endforeach
+                                    @foreach ($clientes as $cliente)
+                                        <option value="{{ $cliente->id }}-{{ $cliente->nombre }}">
+                                    @endforeach
                                 </datalist>
                             </div>
 
@@ -208,6 +207,10 @@
             var type = @json($type);
             if (type == 4) {
                 $("#tipo_precio").prop("disabled", true);
+            }
+            var idusuario = @json($idvendedor);
+            if (idusuario == 28) {
+                $('#sucursal').val('11');
             }
 
 
@@ -653,7 +656,7 @@
                     var reparto = $('#reparto').is(':checked') ? 1 : 0;
                     var vendedor_reparto = $('#vendedor_reparto').val();
                     var tipo_tarjeta = $('#tipo_tarjeta').val() == undefined ? "" : $('#tipo_tarjeta')
-                .val();
+                        .val();
 
                     numeroRemision = validarRemision(
                         idsucursal, hora, nota, vendedor, cliente, forma_pago, $productoTableClone2,
