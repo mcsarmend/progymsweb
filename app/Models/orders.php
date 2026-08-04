@@ -22,7 +22,8 @@ class orders extends Model
         'productos',
         'total',
         'estatus',
-        'metodo_pago'
+        'metodo_pago',
+        'repartidor',
     ];
 
     protected $guarded = [];

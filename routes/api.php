@@ -1,11 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\authController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\interfacescxcController;
-use App\Http\Controllers\respuestapreetiquetadoController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\apisetiquetadosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,17 +14,18 @@ use App\Http\Controllers\apisetiquetadosController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Public routes
+Route::post('/register', [authController::class, 'register']);
+Route::post('/login', [authController::class, 'login']);
+
+Route::post('/drop', [authController::class, 'drop']);
+
+// Protected Routes
+Route::group(['middleware' => ['auth:sanctum']], function () {
+
+    // User
+    Route::get('/user', [authController::class, 'user']);
+    Route::put('/user', [authController::class, 'update']);
+    Route::post('/logout', [authController::class, 'logout']);
+
 });
-
-Route::get('/interfaces', [interfacescxcController::class, 'generaInterfaces']);
-Route::post('/loginToken', [AuthenticatedSessionController::class, 'loginToken']);
-Route::group(['middleware' => ['authToken:sanctum']], function (){
-    Route::post('/preetiquetado', [respuestapreetiquetadoController::class,'RecibePreEtiquetado']);
-});
-
-
-Route::get('/BajaPromecapMambu', [apisetiquetadosController::class, 'BajaPromecapMambu']);
-Route::get('/AltaPromecapJV', [apisetiquetadosController::class, 'AltaPromecapJV']);
-

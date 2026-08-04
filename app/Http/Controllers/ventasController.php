@@ -108,6 +108,26 @@ class ventasController extends Controller
         }
 
     }
+    public function buscarsoloprecio(Request $request)
+    {
+        $idproducto = $request->id_producto;
+        $cantidad   = $request->cantidad;
+        $idprice    = $request->id_precio;
+        $nombre     = product::where('id', '=', $idproducto)->value('nombre');
+
+        $precio = productprice::where('idproducto', '=', $idproducto)
+            ->where('idprice', '=', $idprice)
+            ->value('price');
+        $subtotal = intval($precio) * intval($cantidad);
+        return response()->json([
+            'idproducto' => $idproducto,
+            'precio'     => $precio,
+            'subtotal'   => $subtotal,
+            'nombre'     => $nombre,
+            'cantidad'   => $cantidad,
+        ]);
+
+    }
     public function buscaridprecio(Request $request)
     {
 

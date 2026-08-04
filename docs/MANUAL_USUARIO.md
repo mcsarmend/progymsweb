@@ -1108,7 +1108,7 @@ PROGYMS utiliza un sistema de roles para controlar qué puede hacer cada usuario
 
 **Típico:** Dueño, gerente general
 
-#### 2️⃣ Gerente de Ventas
+#### 2️⃣ Supervisor
 
 **Permisos:**
 
@@ -1124,7 +1124,7 @@ PROGYMS utiliza un sistema de roles para controlar qué puede hacer cada usuario
 
 **Típico:** Jefe de ventas
 
-#### 3️⃣ Vendedor
+#### 3️⃣ Jefe
 
 **Permisos:**
 
@@ -1139,7 +1139,7 @@ PROGYMS utiliza un sistema de roles para controlar qué puede hacer cada usuario
 
 **Típico:** Personal de tienda
 
-#### 4️⃣ Almacenero
+#### 4️⃣ Vendedor
 
 **Permisos:**
 
@@ -1154,7 +1154,7 @@ PROGYMS utiliza un sistema de roles para controlar qué puede hacer cada usuario
 
 **Típico:** Personal de almacén
 
-#### 5️⃣ Contador/Administrador de CxC
+#### 5️⃣ Repartidor
 
 **Permisos:**
 

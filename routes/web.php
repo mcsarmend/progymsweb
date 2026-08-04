@@ -71,6 +71,7 @@ Route::get('historicocortedecaja', [ventasController::class, 'historicocortedeca
 Route::post('infocortecaja', [ventasController::class, 'infocortecaja'])->middleware(['auth']);
 Route::post('enviarinfocortecaja', [ventasController::class, 'enviarinfocortecaja'])->middleware(['auth']);
 Route::post('buscarprecio', [ventasController::class, 'buscarprecio'])->middleware(['auth']);
+Route::post('buscarsoloprecio', [ventasController::class, 'buscarsoloprecio'])->middleware(['auth']);
 Route::post('buscaridprecio', [ventasController::class, 'buscaridprecio'])->middleware(['auth']);
 Route::post('buscarexistencias', [ventasController::class, 'buscarexistencias'])->middleware(['auth']);
 Route::post('validarremision', [ventasController::class, 'validarremision'])->middleware(['auth']);
@@ -88,11 +89,8 @@ Route::get('verproductospedidos', [pedidosController::class, 'verproductospedido
 Route::get('verubicacioncliente', [pedidosController::class, 'verubicacioncliente'])->middleware(['auth']);
 
 Route::post('crearnuevopedido', [pedidosController::class, 'crearnuevopedido'])->middleware(['auth']);
-Route::post('seleccionarpedido', [pedidosController::class, 'seleccionarpedido'])->middleware(['auth']);
-Route::post('despacharpedido', [pedidosController::class, 'despacharpedido'])->middleware(['auth']);
-Route::post('entregarpedido', [pedidosController::class, 'entregarpedido'])->middleware(['auth']);
-Route::post('cancelarpedido', [pedidosController::class, 'cancelarpedido'])->middleware(['auth']);
 Route::post('remisionarpedido', [pedidosController::class, 'remisionarpedido'])->middleware(['auth']);
+Route::post('cambiarestadopedido', [pedidosController::class, 'cambiarestadopedido'])->middleware(['auth']);
 //ALMACEN
 Route::get('multialmacen', [multialmacenController::class, 'multialmacen'])->middleware(['auth']);
 Route::get('altalmacen', [multialmacenController::class, 'altalmacen'])->middleware(['auth']);
