@@ -395,6 +395,28 @@ return [
             ],
         ],
         [
+            'text'    => 'CxP',
+            'icon'    => 'fas fa-money-bill-wave',
+            'url'     => '#',
+            'submenu' => [
+                [
+                    'text' => 'Crear CxP',
+                    'icon' => 'fas fa-file-invoice-dollar', // Ideal para creación
+                    'url'  => 'crearcxp',
+                ],
+                [
+                    'text' => 'Abono CxP',
+                    'icon' => 'fas fa-hand-holding-usd', // Dinero recibido
+                    'url'  => 'abonocxp',
+                ],
+                [
+                    'text' => 'Reporte CxP',
+                    'icon' => 'fas fa-chart-line', // Gráficos o reportes
+                    'url'  => 'reportecxp',
+                ],
+            ],
+        ],
+        [
             'text'    => 'Almacén',
             'icon'    => 'fas fa-warehouse',
             'url'     => '#',
@@ -599,7 +621,30 @@ return [
 
             ],
         ],
+        [
+            'text'    => 'Acreedores',
+            'icon'    => 'fas fa-balance-scale',
+            'url'     => '#',
+            'submenu' => [
+                [
+                    'text' => 'Alta',
+                    'url'  => 'altaacreedores',
+                    'icon' => 'fas fa-plus-square',
+                ],
+                [
+                    'text' => 'Baja',
+                    'url'  => 'bajaacreedores',
+                    'icon' => 'fas fa-minus-square',
+                ],
 
+                [
+                    'text' => 'Lista',
+                    'url'  => 'acreedores',
+                    'icon' => 'fas fa-truck-loading',
+                ],
+
+            ],
+        ],
         [
             'text'    => 'Vendedores',
             'icon'    => 'fas fa-user-tie',
@@ -613,7 +658,7 @@ return [
                 ],
                 [
                     'text' => 'Edición',
-                    'url'  => 'edicionvendedores',
+                    'url'  => 'profile/username',
                     'icon' => 'fas fa-edit',
                 ],
             ],

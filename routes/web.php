@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\acreedoresController;
 use App\Http\Controllers\adminsettingsController;
 use App\Http\Controllers\asistenciasController;
 use App\Http\Controllers\categoriasController;
@@ -46,15 +47,25 @@ Route::get('/logininit', [dashboardController::class, 'logininit']);
 
 //Rutas
 
-//CUENTAS
+//CUENTAS x COBRAR
 Route::get('crearcxc', [cuentasController::class, 'crearcxc'])->middleware(['auth']);
 Route::get('abonocxc', [cuentasController::class, 'abonocxc'])->middleware(['auth']);
 Route::get('reportecxc', [cuentasController::class, 'reportecxc'])->middleware(['auth']);
-Route::get('obtener-cxc/{cliente}', [cuentasController::class, 'obtenerCxc'])->middleware(['auth']);
-Route::get('obtener-pagos/{cliente}', [cuentasController::class, 'obtenerPagos'])->middleware(['auth']);
+Route::get('obtener-cxc/{cliente}', [cuentasController::class, 'obtenercxc'])->middleware(['auth']);
+Route::get('obtener-pagos/{cliente}', [cuentasController::class, 'obtenerpagoscxc'])->middleware(['auth']);
 
 Route::post('crearcxcevento', [cuentasController::class, 'crearcxcevento'])->middleware(['auth']);
 Route::post('abonocxcevento', [cuentasController::class, 'abonocxcevento'])->middleware(['auth']);
+
+//CUENTAS x PAGAR
+Route::get('crearcxp', [cuentasController::class, 'crearcxp'])->middleware(['auth']);
+Route::get('abonocxp', [cuentasController::class, 'abonocxp'])->middleware(['auth']);
+Route::get('reportecxp', [cuentasController::class, 'reportecxp'])->middleware(['auth']);
+Route::get('obtener-cxp/{cxpId}', [cuentasController::class, 'obtenercxp'])->middleware(['auth']);
+Route::get('obtener-pagos-cxp/{cxpId}', [cuentasController::class, 'obtenerpagoscxp'])->middleware(['auth']);
+
+Route::post('crearcxpevento', [cuentasController::class, 'crearcxpevento'])->middleware(['auth']);
+Route::post('abonocxpevento', [cuentasController::class, 'abonocxpevento'])->middleware(['auth']);
 
 //REMISIONES
 Route::get('remisionar', [ventasController::class, 'remisionar'])->middleware(['auth']);
@@ -169,6 +180,14 @@ Route::get('edicionproveedores', [proveedoresController::class, 'edicionproveedo
 Route::post('crearproveedor', [proveedoresController::class, 'crearproveedor'])->middleware(['auth']);
 Route::post('eliminarproveedor', [proveedoresController::class, 'eliminarproveedor'])->middleware(['auth']);
 Route::post('editarproveedor', [proveedoresController::class, 'editarproveedor'])->middleware(['auth']);
+
+//ACREEDORES
+Route::get('acreedores', [acreedoresController::class, 'acreedores'])->middleware(['auth']);
+Route::get('altaacreedores', [acreedoresController::class, 'altaacreedores'])->middleware(['auth']);
+Route::get('bajaacreedores', [acreedoresController::class, 'bajaacreedores'])->middleware(['auth']);
+
+Route::post('crearacreedor', [acreedoresController::class, 'crearacreedor'])->middleware(['auth']);
+Route::post('eliminaracreedor', [acreedoresController::class, 'eliminaracreedor'])->middleware(['auth']);
 
 // PRECIOS
 Route::get('precios', [preciosController::class, 'precios'])->middleware(['auth']);
