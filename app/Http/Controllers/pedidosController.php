@@ -54,13 +54,12 @@ class pedidosController extends Controller
             ->get();
         $repartidores = DB::table('users')
             ->select('id', 'name')
-            ->where('role', '5') // Filtrar por el rol de repartidor
+            ->where('status', '1') // Filtrar por el rol de repartidor
             ->get();
 
         return view('ventas.pedidos.estatus', ['type' => $type, 'pedidos' => $pedidos, 'repartidores' => $repartidores]);
 
     }
-
     public function pedidosreporte()
     {
         $type = $this->gettype();
@@ -183,6 +182,146 @@ class pedidosController extends Controller
         $productos = json_decode($order->productos);
 
         return response()->json(['productos' => $productos], 200);
+    }
+
+    // En tu pedidosController.php
+
+    public function pedidosrepartidor(Request $request)
+    {
+        try {
+            $request->validate([
+                'id' => 'required|integer|exists:users,id',
+            ]);
+
+            $pedidos = DB::table('orders as o')
+                ->leftJoin('clients as c', 'c.id', '=', 'o.cliente')
+                ->leftJoin('address as a', 'c.id', '=', 'a.idcliente')
+                ->leftJoin('users as u', 'u.id', '=', 'o.repartidor')
+                ->select(
+                    'o.id',
+                    'o.fecha',
+                    'o.nota',
+                    'o.vendedor',
+                    'o.cliente',
+                    'o.productos',
+                    'o.total',
+                    'o.estatus',
+                    'o.metodo_pago',
+                    'o.repartidor',
+                    'c.nombre as cliente_nombre',
+                    'c.sucursal as cliente_sucursal',
+                    'c.telefono as cliente_telefono',
+                    'c.precio as cliente_precio',
+                    'c.ejecutivo as cliente_ejecutivo',
+                    'c.estatus as cliente_estatus',
+                    'a.direccion',
+                    'a.latitud',
+                    'a.longitud',
+                    'u.name as repartidor_nombre'
+                )
+                ->where('o.repartidor', $request->id)
+                ->whereIn('o.estatus', [
+                    'SURTIDO',
+                    'REVISADO',
+                    'EN RUTA',
+                    'ENTREGADO',
+                    'CANCELADO',
+                    'FINALIZADO',
+                ])
+                ->orderBy('o.id', 'desc')
+                ->get();
+
+            if ($pedidos->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'data'    => [],
+                    'message' => 'No se encontraron pedidos para este repartidor',
+                ], 200);
+            }
+
+            $pedidosFormateados = $pedidos->map(function ($pedido) {
+                return [
+                    'id'                => $pedido->id,
+                    'fecha'             => $pedido->fecha,
+                    'nota'              => $pedido->nota,
+                    'vendedor'          => $pedido->vendedor,
+                    'cliente'           => $pedido->cliente,
+                    'total'             => $pedido->total,
+                    'estatus'           => $pedido->estatus,
+                    'metodo_pago'       => $pedido->metodo_pago,
+                    'repartidor'        => $pedido->repartidor,
+                    'repartidor_nombre' => $pedido->repartidor_nombre,
+                    'cliente_nombre'    => $pedido->cliente_nombre,
+                    'cliente_sucursal'  => $pedido->cliente_sucursal,
+                    'cliente_telefono'  => $pedido->cliente_telefono,
+                    'cliente_precio'    => $pedido->cliente_precio,
+                    'cliente_ejecutivo' => $pedido->cliente_ejecutivo,
+                    'cliente_estatus'   => $pedido->cliente_estatus,
+                    'direccion'         => $pedido->direccion,
+                    'latitud'           => $pedido->latitud,
+                    'longitud'          => $pedido->longitud,
+                    'productos'         => json_decode($pedido->productos, true),
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data'    => $pedidosFormateados,
+                'count'   => $pedidos->count(),
+                'message' => 'Pedidos obtenidos correctamente',
+            ], 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors'  => $e->errors(),
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los pedidos: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function pedidoscambiarestado(Request $request)
+    {
+        try {
+            $request->validate([
+                'id'           => 'required|integer|exists:orders,id',
+                'nuevoEstatus' => 'required|string|in:CREADO,SURTIDO,REVISADO,EN RUTA,ENTREGADO,CANCELADO,FINALIZADO',
+            ]);
+
+            $pedido = orders::find($request->id);
+
+            if (! $pedido) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pedido no encontrado',
+                ], 404);
+            }
+
+            // Actualizar el estado
+            $pedido->estatus = $request->nuevoEstatus;
+            $pedido->save();
+
+            return response()->json([
+                'success' => true,
+                'data'    => [
+                    'id'         => $pedido->id,
+                    'estatus'    => $pedido->estatus,
+                    'updated_at' => $pedido->updated_at,
+                ],
+                'message' => 'Estado actualizado correctamente',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el estado: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function gettype()

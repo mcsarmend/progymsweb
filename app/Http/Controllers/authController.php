@@ -52,7 +52,7 @@ class authController extends Controller
         // attempt login
         if (! Auth::attempt($attrs)) {
             return response([
-                'message' => 'Invalid credentials.',
+                'message' => 'Usuario o contraseña incorrectos.',
             ], 403);
         }
 
@@ -74,7 +74,7 @@ class authController extends Controller
             DB::table('personal_access_tokens')->where('tokenable_id', auth()->id())->delete();
         }
         return response([
-            'message' => 'Logout success.',
+            'message' => 'Sesión cerrada correctamente.',
         ], 200);
     }
 
@@ -110,7 +110,7 @@ class authController extends Controller
         }
 
         return response([
-            'message' => 'User updated.',
+            'message' => 'Usuario actualizado correctamente.',
             'user'    => auth()->user(),
         ], 200);
     }

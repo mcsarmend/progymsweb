@@ -73,7 +73,8 @@
                                 <th>Nombre</th>
                                 <th>Precio Unitario</th>
                                 <th>Subtotal</th>
-                                <th>Cancelar</th>
+                                <th>Sucursal</th>
+                                <th>Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -111,7 +112,6 @@
             showUsersSections();
             var type = @json($type);
 
-            // Si type es 4, deshabilitar el tipo de precio (por si acaso)
             if (type == 4) {
                 $("#tipo_precio").prop("disabled", true);
             }
@@ -120,6 +120,79 @@
                 .toISOString().split('T')[0]);
         });
 
+        // Función para generar opciones de sucursales
+        function generateSucursalOptions() {
+            return new Promise((resolve) => {
+                var sucursales = @json($idssucursales);
+                var optionsHtml = '<option value="">Selecciona una sucursal</option>';
+
+                sucursales.forEach(function(sucursal) {
+                    optionsHtml += `<option value="${sucursal.id}">${sucursal.nombre}</option>`;
+                });
+                resolve(optionsHtml);
+            });
+        } // Función para obtener nombre de sucursal
+        // Función para obtener nombre de sucursal
+        function getNombreSucursal(idSucursal) {
+            var sucursales = @json($idssucursales);
+            var found = sucursales.find(s => s.id == parseInt(idSucursal)); // Asegurar que sea número
+            return found ? found.nombre : 'Sucursal no encontrada (ID: ' + idSucursal + ')';
+        }
+
+        function cargarProductosPorSucursal() {
+            var idsucursal = $('#inputSucursal').val();
+
+            if (!idsucursal) {
+                $('#datalistOptions').html('<option value="">Primero selecciona una sucursal</option>');
+                $('#inputWithDatalist').val('');
+                $('#inputExistencias').val('');
+                return;
+            }
+
+            $.ajax({
+                url: 'productosinventario',
+                type: 'POST',
+                data: {
+                    sucursal: idsucursal
+                },
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    // Cerrar el loading
+
+
+                    var dataList = '';
+                    if (response.productos && response.productos.length > 0) {
+                        response.productos.forEach(function(item) {
+                            dataList +=
+                                `<option value="${item.id}-${item.nombre} - ${item.nombre_marca}" data-existencias="${item.existencias}">`;
+                        });
+                        $('#datalistOptions').html(dataList);
+                        $('#inputWithDatalist').val('');
+                        $('#inputExistencias').val('');
+                        // No mostrar mensaje de éxito, solo actualizar el datalist
+                    } else {
+                        $('#datalistOptions').html(
+                            '<option value="">No hay productos disponibles en esta sucursal</option>');
+                        $('#inputWithDatalist').val('');
+                        $('#inputExistencias').val('');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.close();
+                    Swal.fire({
+                        title: 'Error al cargar productos',
+                        text: xhr.responseJSON?.error || 'Ocurrió un error al cargar los productos',
+                        icon: 'error'
+                    });
+                }
+            });
+        }
+
+        // Función principal buscarProducto
+        // Función principal buscarProducto
         function buscarProducto() {
             var precioproducto = "";
             if ($('#cliente').val() == "") {
@@ -129,38 +202,75 @@
                 });
                 return;
             } else {
-                generateOptions().then(optionsHtml => {
+                // Generar opciones de sucursales
+                generateSucursalOptions().then(sucursalOptionsHtml => {
                     Swal.fire({
                         title: 'Productos',
                         html: `
-
-                <label for="inputWithDatalist">Selecciona un producto:</label>
-                <input list="datalistOptions" id="inputWithDatalist" class="form-control col-sm-14" >
-                <datalist id="datalistOptions">
-                     ${optionsHtml}
-                </datalist>
-                <label for="inputCantidad">Cantidad:</label>
-                <input type="number" id="inputCantidad" class="form-control col-sm-14" >
-            `,
+                    <div style="text-align: left;">
+                        <label for="inputSucursal">Selecciona una sucursal:</label>
+                        <select id="inputSucursal" class="form-control col-sm-14" onchange="cargarProductosPorSucursal()">
+                            ${sucursalOptionsHtml}
+                        </select>
+                        <br><br>
+                        <label for="inputWithDatalist">Selecciona un producto:</label>
+                        <input list="datalistOptions" id="inputWithDatalist" class="form-control col-sm-14" oninput="actualizarExistencias()">
+                        <datalist id="datalistOptions">
+                            <option value="">Primero selecciona una sucursal</option>
+                        </datalist>
+                        <br><br>
+                        <label for="inputCantidad">Cantidad:</label>
+                        <input type="number" id="inputCantidad" class="form-control col-sm-14" min="1" value="1">
+                        <br>
+                        <label for="inputExistencias">Existencias:</label>
+                        <input type="number" id="inputExistencias" class="form-control col-sm-14" readonly>
+                        <br>
+                    </div>
+                `,
+                        width: '600px',
                         focusConfirm: false,
                         preConfirm: () => {
                             const cantidad = document.getElementById('inputCantidad').value;
                             const producto = document.getElementById('inputWithDatalist').value;
+                            const sucursal = document.getElementById('inputSucursal').value;
 
-                            if (cantidad === "" || producto === "") {
-                                Swal.showValidationMessage('Debes llenar ambos campos');
+                            if (sucursal === "") {
+                                Swal.showValidationMessage('Debes seleccionar una sucursal');
+                                return false;
+                            }
+
+                            if (producto === "") {
+                                Swal.showValidationMessage('Debes seleccionar un producto');
+                                return false;
+                            }
+
+                            if (cantidad === "" || parseInt(cantidad) <= 0) {
+                                Swal.showValidationMessage('La cantidad debe ser mayor a 0');
+                                return false;
+                            }
+
+                            // Validar que la cantidad no supere las existencias
+                            var existencias = parseInt($('#inputExistencias').val());
+                            var cantidadSolicitada = parseInt(cantidad);
+
+                            if (cantidadSolicitada > existencias) {
+                                Swal.showValidationMessage(
+                                    `No hay suficiente stock. Existencias disponibles: ${existencias}`
+                                );
+                                return false;
                             }
 
                             return {
                                 cantidad: cantidad,
-                                producto: producto
+                                producto: producto,
+                                sucursal: sucursal
                             };
                         },
                         showCancelButton: true,
                         confirmButtonText: 'Siguiente',
                         cancelButtonText: 'Cerrar'
                     }).then((result) => {
-                        if (result.isConfirmed) {
+                        if (result.isConfirmed && result.value) {
                             if (parseInt($('#inputCantidad').val()) > parseInt($('#inputExistencias')
                                     .val())) {
                                 Swal.fire({
@@ -171,10 +281,10 @@
                             }
                             const idproducto = obtenerNumerosHastaGuion(result.value.producto);
                             var idcliente = obtenerNumerosHastaGuion($('#cliente').val());
-                            var cantidad = $('#inputCantidad').val();
-                            var type = @json($type);
-
+                            var cantidad = result.value.cantidad;
+                            var idsucursal = result.value.sucursal;
                             var idprecio = $('#tipo_precio').val();
+
                             if (idcliente == null) {
                                 idcliente = 1;
                             }
@@ -183,113 +293,172 @@
                                 id_producto: idproducto,
                                 idcliente: idcliente,
                                 cantidad: cantidad,
+                                sucursal: idsucursal,
                                 id_precio: idprecio
                             };
 
+                            // Mostrar loading
+                            Swal.fire({
+                                title: 'Procesando...',
+                                text: 'Validando disponibilidad del producto',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
                             $.ajax({
-                                url: 'buscarsoloprecio', // URL a la que se hace la solicitud
-                                type: 'POST', // Tipo de solicitud (GET, POST, etc.)
+                                url: 'buscarprecio',
+                                type: 'POST',
                                 data: data,
-                                dataType: 'json', // Tipo de datos esperados en la respuesta
+                                dataType: 'json',
                                 headers: {
                                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                                 },
                                 success: function(data) {
-
+                                    Swal.close();
+                                    // PASAR EL ID DE SUCURSAL CORRECTAMENTE
                                     agregarFila(data.idproducto, data.cantidad, data.subtotal,
-                                        data.nombre,
-                                        data.precio);
-
+                                        data.nombre, data.precio, idsucursal);
                                 },
                                 error: function(xhr, status, error) {
-
+                                    Swal.close();
                                     Swal.fire({
                                         title: 'Error:',
-                                        text: xhr.responseJSON.error,
+                                        text: xhr.responseJSON?.error ||
+                                            'Ocurrió un error',
                                         icon: 'warning'
                                     });
                                 }
                             });
-
-
                         }
                     });
                 });
             }
         }
-
-
-
-        function generateOptions() {
-            return new Promise((resolve) => {
-                var options = @json($productos);
-                var dataList = '';
-                options.forEach(function(item) {
-                    dataList += `<option value="${item.id}-${item.nombre} -${item.nombre_marca}">`;
-                });
-                resolve(dataList);
-            });
-        }
-
-        function obtenerNumerosHastaGuion(text) {
-            return text.split('-')[0];
-        }
-
-        function eliminarFila(elemento) {
-            elemento.remove();
-        }
-
-        function obtenerNumerosHastaGuion(cadena) {
-            const indiceGuion = cadena.indexOf('-');
-            if (indiceGuion === -1) {
-                return null;
-            }
-            const subcadena = cadena.substring(0, indiceGuion);
-            const numeros = subcadena.match(/\d+/g);
-            return numeros ? numeros.join('') : '';
-        }
-
-        function agregarFila(codigo, cantidad, subtotal, nombre, precio) {
-            var codigoExiste = false;
-            $('#productos tbody tr').each(function() {
-                var codigoExistente = $(this).find('td').eq(0).text();
-                if (codigoExistente === codigo) {
-                    codigoExiste = true;
-                    return false;
-                }
-            });
-
-            if (codigoExiste) {
-                Swal.fire({
-                    title: 'El producto ya ha sido agregado',
-                    icon: 'warning'
-                });
-                return;
-            }
+        // Función para agregar fila
+        function agregarFila(codigo, cantidad, subtotal, nombre, precio, sucursal) {
+            var nombreSucursal = getNombreSucursal(sucursal);
+            console.log('ID Sucursal:', sucursal);
+            console.log('Nombre Sucursal:', nombreSucursal);
 
             var nuevaFila =
                 `<tr>
-                    <td>${codigo}</td>
-                    <td>${cantidad}</td>
-                    <td>${nombre}</td>
-                    <td>${precio}</td>
-                    <td>${subtotal}</td>
-                    <td><button class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>
-                </tr>`;
+            <td>${codigo}</td>
+            <td>${cantidad}</td>
+            <td>${nombre}</td>
+            <td>$${parseFloat(precio).toFixed(2)}</td>
+            <td>$${parseFloat(subtotal).toFixed(2)}</td>
+            <td>${nombreSucursal}</td>
+            <td><button class="btn btn-danger btn-sm eliminar-fila">Eliminar</button></td>
+        </tr>`;
 
             $('#productos tbody').append(nuevaFila);
 
             $('.eliminar-fila').off('click').on('click', function() {
                 $(this).closest('tr').remove();
+                actualizarTotal();
             });
+
+            actualizarTotal();
 
             Swal.fire({
-                title: 'Has seleccionado:',
-                text: nombre,
-                icon: 'success'
+                title: '¡Producto agregado!',
+                text: `${nombre} - Sucursal: ${nombreSucursal}`,
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
             });
         }
+        // Función para actualizar total
+        // Función para actualizar total
+        function actualizarTotal() {
+            var total = 0;
+            $('#productos tbody tr').each(function() {
+                var subtotalText = $(this).find('td').eq(4).text().replace('$', '').trim();
+                var subtotal = parseFloat(subtotalText);
+                if (!isNaN(subtotal)) {
+                    total += subtotal;
+                }
+            });
+            console.log('Total actualizado:', total.toFixed(2));
+            return total;
+        }
 
+        function actualizarExistencias() {
+            const productoInput = document.getElementById('inputWithDatalist');
+            const idProducto = obtenerNumerosHastaGuion(productoInput.value);
+            const idsucursal = $('#inputSucursal').val();
+
+            if (!idProducto || !idsucursal) {
+                $('#inputExistencias').val('');
+                return;
+            }
+
+            // Buscar en el datalist las existencias
+            var option = $(`#datalistOptions option[value="${productoInput.value}"]`);
+            if (option.length > 0) {
+                var existencias = option.data('existencias');
+                if (existencias !== undefined) {
+                    $('#inputExistencias').val(existencias);
+                    $('#inputCantidad').attr('max', existencias);
+
+                    // Validar si la cantidad actual supera las existencias
+                    var cantidadActual = parseInt($('#inputCantidad').val());
+                    if (cantidadActual > existencias) {
+                        $('#inputCantidad').val(existencias);
+                    }
+                    return;
+                }
+            }
+
+            // Si no se encuentra en el datalist, hacer la consulta AJAX
+            const data = {
+                id_producto: idProducto,
+                sucursal: idsucursal,
+            };
+
+            $.ajax({
+                url: 'buscarexistencias',
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    $('#inputExistencias').val(data.existencias);
+                    $('#inputCantidad').attr('max', data.existencias);
+
+                    // Validar si la cantidad actual supera las existencias
+                    var cantidadActual = parseInt($('#inputCantidad').val());
+                    if (cantidadActual > data.existencias) {
+                        $('#inputCantidad').val(data.existencias);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        title: 'Error:',
+                        text: xhr.responseJSON?.error || 'Error al obtener existencias',
+                        icon: 'warning'
+                    });
+                }
+            });
+        }
+        // Función para obtener números hasta guión
+        function obtenerNumerosHastaGuion(text) {
+            if (!text) return null;
+            const indiceGuion = text.indexOf('-');
+            if (indiceGuion === -1) {
+                return text;
+            }
+            const subcadena = text.substring(0, indiceGuion);
+            const numeros = subcadena.match(/\d+/g);
+            return numeros ? numeros.join('') : '';
+        }
+
+        // Submit del formulario
+        // Submit del formulario
         $('#nuevopedido').submit(function(e) {
             e.preventDefault();
 
@@ -305,46 +474,52 @@
             }
 
             var table = `
-                <table style="width:100%; border: 1px solid black; border-collapse: collapse; font-size: 15px;">
-                    <tr><th style="border: 1px solid black; padding: 8px;">Campo</th>
-                    <th style="border: 1px solid black; padding: 8px;">Valor</th></tr>
-            `;
+        <table style="width:100%; border: 1px solid black; border-collapse: collapse; font-size: 15px;">
+            <tr><th style="border: 1px solid black; padding: 8px;">Campo</th>
+            <th style="border: 1px solid black; padding: 8px;">Valor</th></tr>
+    `;
 
             datos.forEach(element => {
                 table += `
-                    <tr>
-                        <td style="border: 1px solid black; padding: 8px;">${element.key}</td>
-                        <td style="border: 1px solid black; padding: 8px;">${element.value}</td>
-                    </tr>`;
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">${element.key}</td>
+                <td style="border: 1px solid black; padding: 8px;">${element.value}</td>
+            </tr>`;
             });
 
             table += '</table>';
 
+            // Clonar la tabla de productos
             var $productoTableClone = $('#productos').clone();
             $productoTableClone.attr('id', 'productosClone');
+
+            // Eliminar la columna "Eliminar" (última columna)
             $productoTableClone.find('tr').each(function() {
                 $(this).find('td:last-child, th:last-child').remove();
             });
 
-            var sum = 0;
-            $productoTableClone.find('tr').each(function() {
-                var $lastTd = $(this).find('td:last-child');
-                if ($lastTd.length) {
-                    var value = parseFloat($lastTd.text());
-                    if (!isNaN(value)) sum += value;
+            // Calcular el total correctamente
+            var total = 0;
+            $productoTableClone.find('tbody tr').each(function() {
+                // El subtotal está en la columna 4 (índice 4)
+                var subtotalText = $(this).find('td').eq(4).text().replace('$', '').trim();
+                var subtotal = parseFloat(subtotalText);
+                if (!isNaN(subtotal)) {
+                    total += subtotal;
                 }
             });
 
-            $productoTableClone.append(`
-                <tr>
-                    <td colspan="${$productoTableClone.find('tr:first-child th').length - 1}"
-                        style="border: 1px solid black; padding: 8px;">Total</td>
-                    <td style="border: 1px solid black; padding: 8px;">${sum}</td>
-                </tr>
-            `);
+            // Agregar fila de total
+            var columnCount = $productoTableClone.find('thead tr th').length;
+            $productoTableClone.find('tbody').append(`
+        <tr style="font-weight: bold; background-color: #f8f9fa;">
+            <td colspan="${columnCount - 1}" style="border: 1px solid black; padding: 8px; text-align: right;">Total</td>
+            <td style="border: 1px solid black; padding: 8px;">$${total.toFixed(2)}</td>
+        </tr>
+    `);
 
             var productoTableHtml = $productoTableClone.prop('outerHTML');
-            var elementos = table + '<br>' + productoTableHtml;
+            var elementos = table + '<br><br>' + productoTableHtml;
 
             Swal.fire({
                 title: '¡Se levantará un pedido con los siguientes datos!',
@@ -357,7 +532,6 @@
                 width: '80%',
             }).then((result) => {
                 if (result.isConfirmed) {
-
                     var fecha = $('#fecha').val();
                     const opciones = {
                         timeZone: 'America/Mexico_City',
@@ -366,15 +540,108 @@
                     var hora = new Date().toLocaleString('es-MX', opciones);
                     var nota = $('#nota').val();
                     var vendedor = $('#vendedor').data('value');
-                    var cantidadTotalLetra = convertirNumeroALetras(sum);
+                    var cantidadTotalLetra = convertirNumeroALetras(total);
                     var cliente = $('#cliente').val();
-                    var $productoTableClone2 = $('#productos').clone();
-                    numeroPedido = validarPedido(
-                        hora, nota, vendedor, cliente, $productoTableClone2
-                    );
+
+                    validarPedido(hora, nota, vendedor, cliente, total);
                 }
             });
         });
+
+        function validarPedido(hora, nota, vendedor, cliente, total) {
+            // Obtener datos de la tabla
+            var table = $('#productos');
+            var tableData = tableToJson(table);
+
+            // Eliminar la columna "Eliminar" de los datos
+            tableData.forEach(element => {
+                delete element["Eliminar"];
+            });
+
+            // Verificar que haya productos
+            if (tableData.length === 0) {
+                Swal.fire({
+                    title: '¡No has agregado productos!',
+                    icon: 'warning'
+                });
+                return;
+            }
+
+            // Si no se pasó el total, calcularlo
+            if (!total) {
+                total = 0;
+                tableData.forEach(element => {
+                    var subtotal = parseFloat(element.Subtotal.replace('$', '').trim());
+                    if (!isNaN(subtotal)) total += subtotal;
+                });
+            }
+
+            // Convertir a JSON
+            var jsonString = JSON.stringify(tableData, null, 2);
+
+            var tipo_precio = $("#tipo_precio").val();
+            const data = {
+                nota: nota,
+                fecha: hora,
+                vendedor: vendedor,
+                cliente: cliente,
+                productos: jsonString,
+                total: total,
+                tipo_precio: tipo_precio,
+            };
+
+            $.ajax({
+                url: 'crearnuevopedido',
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    var msg = data.message;
+                    Swal.fire({
+                        title: msg,
+                        icon: 'success',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        width: '80%'
+                    });
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        title: 'Error al crear el pedido',
+                        text: xhr.responseJSON?.error || 'Ocurrió un error',
+                        icon: 'error'
+                    });
+                }
+            });
+        }
+
+        function tableToJson(table) {
+            var data = [];
+            var headers = [];
+
+            // Obtener encabezados
+            $(table).find('thead th').each(function(index, th) {
+                headers[index] = $(th).text().trim();
+            });
+
+            // Obtener datos de las filas
+            $(table).find('tbody tr').each(function(index, tr) {
+                var row = {};
+                $(tr).find('td').each(function(cellIndex, td) {
+                    var header = headers[cellIndex];
+                    if (header) {
+                        row[header] = $(td).text().trim();
+                    }
+                });
+                data.push(row);
+            });
+
+            return data;
+        }
 
         $('#cliente').on('change', function() {
             var cliente = $(this).val();
@@ -402,83 +669,6 @@
                 }
             });
         });
-
-        function validarPedido(hora, nota, vendedor, cliente, $productoTableClone) {
-
-            var $productoTableClone = $('#productosClone').clone();
-
-            var table = $('#productos');
-            var tableData = tableToJson(table);
-
-            tableData.forEach(element => {
-                delete element["Cancelar"];
-            });
-            var jsonString = JSON.stringify(tableData, null, 2);
-
-            var total = 0;
-            tableData.forEach(element => {
-                total += parseInt(element.Subtotal);
-            });
-
-            if (total == 0) {
-                Swal.fire({
-                    title: '¡No has agregado productos!',
-                    icon: 'warning'
-                });
-                return;
-            }
-
-            var tipo_precio = $("#tipo_precio").val();
-            const data = {
-                nota: nota,
-                fecha: hora,
-                vendedor: vendedor,
-                cliente: cliente,
-                productos: jsonString,
-                total: total,
-                tipo_precio: tipo_precio,
-            };
-            var msg = "";
-            $.ajax({
-                url: 'crearnuevopedido',
-                type: 'POST',
-                data: data,
-                dataType: 'json',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(data) {
-                    msg = data.message + ": " + data.id;
-                    numeroPedido = data.id;
-                    Swal.fire({
-                        title: msg,
-                        icon: 'success',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        width: '80%'
-                    });
-                }
-            });
-        }
-
-        function tableToJson(table) {
-            var data = [];
-            var headers = [];
-            $(table).find('thead th').each(function(index, th) {
-                headers[index] = $(th).text();
-            });
-
-            $(table).find('tbody tr').each(function(index, tr) {
-                var row = {};
-                $(tr).find('td').each(function(cellIndex, td) {
-                    row[headers[cellIndex]] = $(td).text();
-                });
-                data.push(row);
-            });
-
-            return data;
-        }
 
         function convertirNumeroALetras(num) {
             const unidades = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
