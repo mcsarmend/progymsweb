@@ -20,6 +20,7 @@
                         <thead>
                             <tr>
                                 <th>Codigo</th>
+                                <th>Imagen</th>
                                 <th>Nombre</th>
                                 <th>Marca</th>
                                 <th>Categoria</th>
@@ -271,6 +272,18 @@
                     "data": "id"
                 },
                 {
+                    "data": null,
+                    "render": function(data, type, row) {
+                        if (row.tiene_imagen) {
+                            var imagePath = '{{ asset('assets/images/productos') }}/' + row.id + '.jpg';
+                            return '<img src="' + imagePath +
+                                '" alt="Producto" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">';
+                        } else {
+                            return '<span style="color:#999;font-size:12px;">Sin Imagen</span>';
+                        }
+                    }
+                },
+                {
                     "data": "nombre"
                 },
                 {
@@ -279,7 +292,6 @@
                 {
                     "data": "categoria"
                 },
-
                 {
                     "data": "almacenes",
                     "render": function(data, type, row) {
@@ -302,6 +314,7 @@
                     }
                 },
             ]
+
         });
 
         function editaralmacenes(id) {

@@ -11,6 +11,57 @@
             <h3>Listado de Cuentas por Cobrar</h3>
         </div>
         <div class="card-body">
+            <!-- ============================================= -->
+            <!-- RECUADRO DE TOTAL DEL SALDO RESTANTE          -->
+            <!-- ============================================= -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>${{ number_format($totalSaldoRestante ?? 0, 2) }}</h3>
+                            <p>Total Saldo Restante</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <a href="#" class="small-box-footer">
+                            <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ $totalCuentas ?? 0 }}</h3>
+                            <p>Total de Cuentas</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <a href="#" class="small-box-footer">
+                            <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>{{ $cuentasPendientes ?? 0 }}</h3>
+                            <p>Cuentas Pendientes</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <a href="#" class="small-box-footer">
+                            <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================= -->
+            <!-- TABLA PRINCIPAL                               -->
+            <!-- ============================================= -->
             <table class="table table-hover" id="cxc_tabla">
                 <thead>
                     <tr>
@@ -66,9 +117,24 @@
                         </tr>
                     @endforeach
                 </tbody>
+                <!-- ============================================= -->
+                <!-- PIE DE TABLA CON TOTALES                      -->
+                <!-- ============================================= -->
+                <tfoot>
+                    <tr style="background-color: #f8f9fa; font-weight: bold;">
+                        <td colspan="5" class="text-right">TOTALES:</td>
+                        <td>${{ number_format($totalMonto ?? 0, 2) }}</td>
+                        <td>${{ number_format($totalSaldoRestante ?? 0, 2) }}</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
+
+    <!-- ============================================= -->
+    <!-- MODALES                                        -->
+    <!-- ============================================= -->
 
     <!-- Modal de Detalle de Cuenta -->
     <div class="modal fade" id="detalleModal" tabindex="-1" role="dialog" aria-labelledby="detalleModalLabel">
@@ -120,7 +186,7 @@
         </div>
     </div>
 
-    <!-- Modal de Productos (reutilizando el mismo estilo que tu otro modal) -->
+    <!-- Modal de Productos -->
     <div class="modal fade" id="productosModal" tabindex="-1" role="dialog" aria-labelledby="productosCenterTitle"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered custom-width" role="document">
@@ -160,35 +226,184 @@
 
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+    <style>
+        .modal-dialog.custom-width {
+            max-width: 55%;
+        }
+
+        #productostabla th:first-child,
+        #productostabla td:first-child {
+            min-width: 100px;
+        }
+
+        /* Estilos para los recuadros de totales */
+        .small-box {
+            border-radius: 0.25rem;
+            box-shadow: 0 0 1px rgba(0, 0, 0, 0.125), 0 1px 3px rgba(0, 0, 0, 0.2);
+            display: block;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .small-box .inner {
+            padding: 10px;
+        }
+
+        .small-box .inner h3 {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            white-space: nowrap;
+            padding: 0;
+        }
+
+        .small-box .inner p {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .small-box .icon {
+            color: rgba(0, 0, 0, 0.15);
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            z-index: 0;
+        }
+
+        .small-box .icon i {
+            font-size: 70px;
+        }
+
+        .small-box .small-box-footer {
+            background-color: rgba(0, 0, 0, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            display: block;
+            padding: 3px 0;
+            position: relative;
+            text-align: center;
+            text-decoration: none;
+            z-index: 10;
+        }
+
+        .small-box .small-box-footer:hover {
+            background-color: rgba(0, 0, 0, 0.15);
+            color: #fff;
+        }
+
+        .bg-info {
+            background-color: #17a2b8 !important;
+            color: #fff !important;
+        }
+
+        .bg-success {
+            background-color: #28a745 !important;
+            color: #fff !important;
+        }
+
+        .bg-warning {
+            background-color: #ffc107 !important;
+            color: #fff !important;
+        }
+
+        /* Estilos para el footer de la tabla */
+        tfoot td {
+            background-color: #f8f9fa !important;
+            font-weight: bold !important;
+        }
+    </style>
 @stop
 
 @section('js')
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
     <script>
         $(document).ready(function() {
             drawTriangles();
             showUsersSections();
 
-            // Inicializar DataTable para la tabla principal
+            // =============================================
+            // TABLA PRINCIPAL DE CUENTAS POR COBRAR
+            // =============================================
             $('#cxc_tabla').DataTable({
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-MX.json"
                 },
+                buttons: [{
+                        extend: 'copy',
+                        text: 'Copiar'
+                    },
+                    {
+                        extend: 'excel',
+                        text: 'Excel'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: 'PDF'
+                    },
+                    {
+                        extend: 'print',
+                        text: 'Imprimir'
+                    }
+                ],
+                dom: 'Blfrtip',
                 order: [
                     [0, 'desc']
                 ],
                 pageLength: 25,
-                responsive: true
+                responsive: true,
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    [10, 25, 50, 100, 'Todos']
+                ],
+                columnDefs: [{
+                    orderable: false,
+                    targets: [3, 8]
+                }],
+                // Esto permite que el footer se mantenga visible
+                footerCallback: function(row, data, start, end, display) {
+                    var api = this.api();
+                    var intVal = function(i) {
+                        return typeof i === 'string' ?
+                            parseFloat(i.replace(/[\$,]/g, '')) || 0 :
+                            typeof i === 'number' ? i : 0;
+                    };
+
+                    // Calcular total del saldo restante en la página actual
+                    var totalSaldo = 0;
+                    var totalMonto = 0;
+
+                    for (var i = start; i < end; i++) {
+                        var rowData = data[i];
+                        // La columna 6 es Saldo Restante, la 5 es Importe total
+                        var saldo = rowData[6] ? parseFloat(rowData[6].replace(/[$,]/g, '')) || 0 : 0;
+                        var monto = rowData[5] ? parseFloat(rowData[5].replace(/[$,]/g, '')) || 0 : 0;
+                        totalSaldo += saldo;
+                        totalMonto += monto;
+                    }
+
+                    // Actualizar el footer
+                    var footer = $(api.table().footer());
+                    footer.find('td').eq(5).html('$' + totalMonto.toFixed(2));
+                    footer.find('td').eq(6).html('$' + totalSaldo.toFixed(2));
+                }
             });
 
-            // Manejar el click en el botón de detalle
+            // =============================================
+            // MANEJAR CLICK EN BOTÓN DE DETALLE
+            // =============================================
             $(document).on('click', '.btn-detalle', function() {
                 var clienteId = $(this).data('cliente-id');
                 var cuentaId = $(this).data('cuenta-id');
                 var fila = $(this).closest('tr');
                 var celdas = fila.find('td');
 
-                // Obtener datos de la fila seleccionada
                 var clienteNombre = celdas.eq(1).text();
                 var remision = celdas.eq(2).text();
                 var fecha = celdas.eq(4).text();
@@ -196,7 +411,6 @@
                 var saldo = celdas.eq(6).text();
                 var estado = celdas.eq(7).text();
 
-                // Mostrar datos en el modal
                 $('#nombreCliente').text(clienteNombre);
                 $('#cuentaId').text('#' + cuentaId);
                 $('#remisionId').text(remision);
@@ -205,10 +419,8 @@
                 $('#saldoRestante').text(saldo);
                 $('#estadoCuenta').html(estado);
 
-                // Limpiar tabla de pagos
                 $('#cuerpoPagos').empty();
 
-                // Obtener y mostrar los pagos de esta cuenta específica
                 $.get('/obtener-pagos/' + cuentaId, function(pagos) {
                     if (pagos.length === 0) {
                         $('#cuerpoPagos').append(`
@@ -242,17 +454,15 @@
                 });
             });
 
-            // Manejar el click en el botón de productos (reutilizando la misma función que en tu otro blade)
+            // =============================================
+            // MANEJAR CLICK EN BOTÓN DE PRODUCTOS
+            // =============================================
             $(document).on('click', '.btn-productos', function() {
                 var remisionId = $(this).data('remision-id');
 
-                // Mostrar el número de remisión en el modal
                 $('#remisionProductos').text('#' + remisionId);
-
-                // Mostrar el modal
                 $('#productosModal').modal('show');
 
-                // Hacer la petición AJAX a la ruta existente
                 $.ajax({
                     url: 'verproductosremision',
                     type: 'GET',
@@ -268,8 +478,22 @@
                             "language": {
                                 "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
                             },
-                            "buttons": [
-                                'copy', 'excel', 'pdf', 'print'
+                            "buttons": [{
+                                    extend: 'copy',
+                                    text: 'Copiar'
+                                },
+                                {
+                                    extend: 'excel',
+                                    text: 'Excel'
+                                },
+                                {
+                                    extend: 'pdf',
+                                    text: 'PDF'
+                                },
+                                {
+                                    extend: 'print',
+                                    text: 'Imprimir'
+                                }
                             ],
                             dom: 'Blfrtip',
                             processing: true,
@@ -277,7 +501,7 @@
                             paging: true,
                             lengthMenu: [
                                 [10, 25, 50, -1],
-                                [10, 25, 50, 'All']
+                                [10, 25, 50, 'Todos']
                             ],
                             pdf: {
                                 orientation: 'landscape',

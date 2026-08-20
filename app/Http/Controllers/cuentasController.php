@@ -6,6 +6,7 @@ use App\Models\accounts_payable;
 use App\Models\accounts_payable_payments;
 use App\Models\accounts_receivable;
 use App\Models\account_payment;
+use App\Models\clients;
 use App\Models\creditors;
 use App\Models\supplier;
 use Illuminate\Http\Request;
@@ -122,7 +123,7 @@ class cuentasController extends Controller
             ->get();
 
         // Resumen por cliente (opcional, para estadísticas)
-        $resumenPorCliente = \App\Models\Clients::select('clients.id', 'clients.nombre')
+        $resumenPorCliente = clients::select('clients.id', 'clients.nombre')
             ->selectRaw('
             SUM(accounts_receivable.saldo_restante) as saldo_total,
             SUM(accounts_receivable.monto) as monto_total,
@@ -140,11 +141,26 @@ class cuentasController extends Controller
             'total_clientes' => $resumenPorCliente->count(),
         ];
 
+        // =============================================
+        // VARIABLES PARA LOS RECUADROS DE TOTALES
+        // =============================================
+        $totalSaldoRestante = $cuentasPorCobrar->sum('saldo_restante');
+        $totalMonto         = $cuentasPorCobrar->sum('monto');
+        $totalCuentas       = $cuentasPorCobrar->count();
+        $cuentasPendientes  = $cuentasPorCobrar->where('estado', 'Pendiente')->count();
+
         return view('cuentas.reportecxc', [
-            'type'              => $type,
-            'cuentasPorCobrar'  => $cuentasPorCobrar,
-            'resumenPorCliente' => $resumenPorCliente,
-            'totalesGenerales'  => $totalesGenerales,
+            'type'               => $type,
+            'cuentasPorCobrar'   => $cuentasPorCobrar,
+            'resumenPorCliente'  => $resumenPorCliente,
+            'totalesGenerales'   => $totalesGenerales,
+            // =============================================
+            // NUEVAS VARIABLES PARA LOS RECUADROS
+            // =============================================
+            'totalSaldoRestante' => $totalSaldoRestante,
+            'totalMonto'         => $totalMonto,
+            'totalCuentas'       => $totalCuentas,
+            'cuentasPendientes'  => $cuentasPendientes,
         ]);
     }
     public function obtenercxc($clienteId)
@@ -372,9 +388,6 @@ class cuentasController extends Controller
             ->orderBy('accounts_payable.id', 'desc')
             ->get();
 
-        // Si quieres ver qué datos están llegando (para depurar)
-        // dd($cuentasPorPagar);
-
         // Resumen por proveedor
         $resumenProveedores = DB::table('accounts_payable')
             ->join('supplier', 'accounts_payable.proveedor_id', '=', 'supplier.id')
@@ -409,23 +422,53 @@ class cuentasController extends Controller
         $resumenPorPersona = $resumenProveedores->concat($resumenAcreedores)
             ->sortBy('nombre');
 
-        // Totales generales
+        // =============================================
+        // VARIABLES PARA LOS RECUADROS DE TOTALES
+        // =============================================
+        $totalSaldoRestante = $cuentasPorPagar->sum('saldo_restante');
+        $totalMonto         = $cuentasPorPagar->sum('monto');
+        $totalCuentas       = $cuentasPorPagar->count();
+        $cuentasPendientes  = $cuentasPorPagar->where('estado', 'Pendiente')->count();
+
+        // Estadísticas adicionales
+        $cuentasPorEstado = [
+            'pendiente' => $cuentasPorPagar->where('estado', 'Pendiente')->count(),
+            'pagada'    => $cuentasPorPagar->where('estado', 'Pagada')->count(),
+            'parcial'   => $cuentasPorPagar->where('estado', 'Parcial')->count(),
+            'vencida'   => $cuentasPorPagar->where('estado', 'Vencida')->count(),
+            'cancelada' => $cuentasPorPagar->where('estado', 'Cancelada')->count(),
+        ];
+
+        $cuentasProveedores = $cuentasPorPagar->whereNotNull('proveedor_id')->count();
+        $cuentasAcreedores  = $cuentasPorPagar->whereNotNull('acreedor_id')->count();
+
+        // Totales generales (manteniendo los que ya tenías)
         $totalesGenerales = [
-            'total_cuentas'     => $cuentasPorPagar->count(),
-            'total_monto'       => $cuentasPorPagar->sum('monto'),
-            'total_saldo'       => $cuentasPorPagar->sum('saldo_restante'),
-            'total_pendientes'  => $cuentasPorPagar->where('estado', 'Pendiente')->count(),
-            'total_pagadas'     => $cuentasPorPagar->where('estado', 'Pagada')->count(),
-            'total_canceladas'  => $cuentasPorPagar->where('estado', 'Cancelada')->count(),
+            'total_cuentas'     => $totalCuentas,
+            'total_monto'       => $totalMonto,
+            'total_saldo'       => $totalSaldoRestante,
+            'total_pendientes'  => $cuentasPendientes,
+            'total_pagadas'     => $cuentasPorEstado['pagada'],
+            'total_canceladas'  => $cuentasPorEstado['cancelada'],
             'total_proveedores' => $resumenProveedores->count(),
             'total_acreedores'  => $resumenAcreedores->count(),
         ];
 
         return view('cuentas.reportecxp', [
-            'type'              => $type,
-            'cuentasPorPagar'   => $cuentasPorPagar,
-            'resumenPorPersona' => $resumenPorPersona,
-            'totalesGenerales'  => $totalesGenerales,
+            'type'               => $type,
+            'cuentasPorPagar'    => $cuentasPorPagar,
+            'resumenPorPersona'  => $resumenPorPersona,
+            'totalesGenerales'   => $totalesGenerales,
+            // =============================================
+            // NUEVAS VARIABLES PARA LOS RECUADROS
+            // =============================================
+            'totalSaldoRestante' => $totalSaldoRestante,
+            'totalMonto'         => $totalMonto,
+            'totalCuentas'       => $totalCuentas,
+            'cuentasPendientes'  => $cuentasPendientes,
+            'cuentasPorEstado'   => $cuentasPorEstado,
+            'cuentasProveedores' => $cuentasProveedores,
+            'cuentasAcreedores'  => $cuentasAcreedores,
         ]);
     }
 

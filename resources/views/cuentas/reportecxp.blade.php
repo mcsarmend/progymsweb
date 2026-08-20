@@ -11,6 +11,88 @@
             <h3>Listado de Cuentas por Pagar</h3>
         </div>
         <div class="card-body">
+            <!-- ============================================= -->
+            <!-- RECUADROS DE TOTALES                          -->
+            <!-- ============================================= -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>${{ number_format($totalSaldoRestante ?? 0, 2) }}</h3>
+                            <p>Total Saldo Restante</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>${{ number_format($totalMonto ?? 0, 2) }}</h3>
+                            <p>Total Monto</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>{{ $totalCuentas ?? 0 }}</h3>
+                            <p>Total de Cuentas</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3>{{ $cuentasPendientes ?? 0 }}</h3>
+                            <p>Cuentas Pendientes</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================= -->
+            <!-- SEGUNDA FILA DE RECUADROS                     -->
+            <!-- ============================================= -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="small-box bg-primary">
+                        <div class="inner">
+                            <h3>{{ $cuentasProveedores ?? 0 }}</h3>
+                            <p>Cuentas de Proveedores</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="small-box bg-secondary">
+                        <div class="inner">
+                            <h3>{{ $cuentasAcreedores ?? 0 }}</h3>
+                            <p>Cuentas de Acreedores</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ============================================= -->
+            <!-- TABLA PRINCIPAL                               -->
+            <!-- ============================================= -->
             <table class="table table-hover" id="cxp_tabla">
                 <thead>
                     <tr>
@@ -74,6 +156,15 @@
                         </tr>
                     @endforeach
                 </tbody>
+                <!-- Pie de tabla con totales -->
+                <tfoot>
+                    <tr style="background-color: #f8f9fa; font-weight: bold;">
+                        <td colspan="4" class="text-right">TOTALES:</td>
+                        <td>${{ number_format($totalMonto ?? 0, 2) }}</td>
+                        <td>${{ number_format($totalSaldoRestante ?? 0, 2) }}</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
@@ -133,6 +224,7 @@
 
 @section('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
     <style>
         .badge {
             font-size: 12px;
@@ -143,29 +235,119 @@
             padding: 4px 8px;
             font-size: 12px;
         }
+
+        /* Estilos para los recuadros de totales */
+        .small-box {
+            border-radius: 0.25rem;
+            box-shadow: 0 0 1px rgba(0, 0, 0, 0.125), 0 1px 3px rgba(0, 0, 0, 0.2);
+            display: block;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .small-box .inner {
+            padding: 10px;
+        }
+
+        .small-box .inner h3 {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            white-space: nowrap;
+            padding: 0;
+        }
+
+        .small-box .inner p {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .small-box .icon {
+            color: rgba(0, 0, 0, 0.15);
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            z-index: 0;
+        }
+
+        .small-box .icon i {
+            font-size: 70px;
+        }
+
+        .bg-purple {
+            background-color: #6f42c1 !important;
+            color: #fff !important;
+        }
+
+        .bg-dark {
+            background-color: #343a40 !important;
+            color: #fff !important;
+        }
+
+        tfoot td {
+            background-color: #f8f9fa !important;
+            font-weight: bold !important;
+        }
     </style>
 @stop
 
 @section('js')
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
     <script>
         $(document).ready(function() {
             drawTriangles();
             showUsersSections();
 
-            // Inicializar DataTable para la tabla principal
+            // =============================================
+            // TABLA PRINCIPAL CON BOTONES
+            // =============================================
             $('#cxp_tabla').DataTable({
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-MX.json"
                 },
+                buttons: [{
+                        extend: 'copy',
+                        text: 'Copiar'
+                    },
+                    {
+                        extend: 'excel',
+                        text: 'Excel'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: 'PDF'
+                    },
+                    {
+                        extend: 'print',
+                        text: 'Imprimir'
+                    }
+                ],
+                dom: 'Blfrtip',
                 order: [
                     [0, 'desc']
                 ],
                 pageLength: 25,
-                responsive: true
+                responsive: true,
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    [10, 25, 50, 100, 'Todos']
+                ],
+                columnDefs: [{
+                    orderable: false,
+                    targets: [7]
+                }]
             });
 
-            // Manejar el click en el botón de detalle
+            // =============================================
+            // MANEJAR CLICK EN BOTÓN DE DETALLE
+            // =============================================
             $(document).on('click', '.btn-detalle', function() {
                 var cuentaId = $(this).data('cuenta-id');
                 var fila = $(this).closest('tr');
@@ -187,7 +369,7 @@
                 $('#montoTotal').text(monto);
                 $('#saldoRestante').text(saldo);
                 $('#estadoCuenta').html(estado);
-                $('#conceptoCuenta').text(''); // Limpiar concepto
+                $('#conceptoCuenta').text('');
 
                 // Limpiar tabla de pagos
                 $('#cuerpoPagos').empty();
@@ -240,10 +422,6 @@
                         `);
                     }
                 });
-
-                // Obtener el concepto de la cuenta (si existe en la fila)
-                // Si no está en la tabla, podrías hacer otra petición AJAX
-                // Por ahora lo dejamos vacío
             });
         });
     </script>
