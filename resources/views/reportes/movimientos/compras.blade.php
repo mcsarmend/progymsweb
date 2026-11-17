@@ -41,6 +41,7 @@
                         <th>Movimiento</th>
                         <th>Autor</th>
                         <th>Documento</th>
+                        <th>Costo Total</th>
                         <th>Productos</th>
                         <th>Imprimir</th>
                     </tr>
@@ -129,7 +130,6 @@
                         response.message,
                         'success'
                     );
-
                     $('#compras').DataTable({
                         destroy: true,
                         scrollX: true,
@@ -137,32 +137,25 @@
                         "language": {
                             "url": "{{ asset('js/datatables/lang/Spanish.json') }}"
                         },
-                        "buttons": [
-                            'copy', 'excel', 'pdf', 'print'
-                        ],
+                        "buttons": ['copy', 'excel', 'pdf', 'print'],
                         dom: 'Blfrtip',
-                        destroy: true,
                         processing: true,
                         sort: true,
                         paging: true,
                         lengthMenu: [
                             [10, 25, 50, -1],
                             [10, 25, 50, 'All']
-                        ], // Personalizar el menú de longitud de visualización
-
-                        // Configurar las opciones de exportación
-                        // Para PDF
+                        ],
                         pdf: {
-                            orientation: 'landscape', // Orientación del PDF (landscape o portrait)
-                            pageSize: 'A4', // Tamaño del papel del PDF
+                            orientation: 'landscape',
+                            pageSize: 'A4',
                             exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
+                                columns: ':visible'
                             }
                         },
-                        // Para Excel
                         excel: {
                             exportOptions: {
-                                columns: ':visible' // Exportar solo las columnas visibles
+                                columns: ':visible'
                             }
                         },
                         "data": response.compras,
@@ -178,6 +171,45 @@
                             {
                                 "data": "documento"
                             },
+
+                            // 🔽 Nueva columna: Total costo de la fila (Cantidad × Costo Unitario)
+                            {
+                                "data": "productos",
+                                "title": "Total costo",
+                                "render": function(data, type, row) {
+                                    let productos = data;
+
+                                    // Si viene como string JSON, parsear
+                                    if (typeof productos === 'string') {
+                                        try {
+                                            productos = JSON.parse(productos);
+                                        } catch (e) {
+                                            productos = [];
+                                        }
+                                    }
+                                    if (!Array.isArray(productos)) return '$0.00';
+
+                                    let total = 0;
+                                    productos.forEach(function(p) {
+                                        const cantidad = parseFloat(p[
+                                            'Cantidad']) || 0;
+                                        const costo = parseFloat(p[
+                                            'Costo en Compra']) || 0;
+                                        total += cantidad * costo;
+                                    });
+
+                                    // Para ordenar/filtrar/exportar correctamente, regresar el número puro
+                                    if (type === 'sort' || type === 'type' || type ===
+                                        'export')
+                                        return total;
+
+                                    return total.toLocaleString('es-MX', {
+                                        style: 'currency',
+                                        currency: 'MXN'
+                                    });
+                                }
+                            },
+
                             {
                                 "data": "productos",
                                 "render": function(data, type, row) {
@@ -192,11 +224,45 @@
                                         ')" class="btn btn-primary">Imprimir</button>';
                                 }
                             }
+                        ],
 
-
-
-                        ]
+                        // 🔽 Gran total de todas las filas filtradas
+                        "initComplete": function() {
+                            calcularGranTotal(this.api());
+                        },
+                        "drawCallback": function() {
+                            calcularGranTotal(this.api());
+                        }
                     });
+
+                    function calcularGranTotal(api) {
+                        let total = 0;
+                        api.rows({
+                            search: 'applied'
+                        }).every(function() {
+                            let productos = this.data().productos;
+                            if (typeof productos === 'string') {
+                                try {
+                                    productos = JSON.parse(productos);
+                                } catch (e) {
+                                    productos = [];
+                                }
+                            }
+                            if (!Array.isArray(productos)) return;
+                            productos.forEach(function(p) {
+                                const cantidad = parseFloat(p['Cantidad']) || 0;
+                                const costo = parseFloat(p['Costo en Compra']) || 0;
+                                total += cantidad * costo;
+                            });
+                        });
+
+                        $('#totalCompras').text(
+                            total.toLocaleString('es-MX', {
+                                style: 'currency',
+                                currency: 'MXN'
+                            })
+                        );
+                    }
                 },
                 error: function(response) {
                     Swal.fire(
@@ -334,64 +400,83 @@
                     let productos = JSON.parse(info.productos);
 
                     // ============================
-                    // ============================
                     //         ENCABEZADO
                     // ============================
 
                     doc.setFont("helvetica", "bold");
 
-                    // Título
                     doc.setFontSize(14);
                     doc.text("GRUPO PROGYMS", 105, 8, {
                         align: "center"
                     });
 
-                    // Movimiento
                     doc.setFontSize(11);
                     doc.text(`Movimiento: ${data.mov}`, 105, 14, {
                         align: "center"
                     });
 
-                    // Columnas
                     let leftX = 10;
                     let rightX = 110;
-
                     let y = 22;
 
                     doc.setFontSize(10);
 
-                    // Fila 1
                     doc.text(`Fecha: ${time}`, leftX, y);
                     doc.text(`Documento: ${documento}`, rightX, y);
 
-                    // Fila 2
                     y += 5;
                     doc.text(`Sucursal: ${sucursal}`, leftX, y);
                     doc.text(`RFC: ASG160718HS6`, rightX, y);
 
-                    // Fila 3
                     y += 5;
                     doc.text(`Realizó: ${data.autor ?? "N/A"}`, leftX, y);
                     doc.text(`Tel: 55 6834 1113`, rightX, y);
 
-                    // La tabla comienza inmediatamente después
                     let nextY = y + 4;
+
                     // ============================
                     //            TABLA
                     // ============================
 
-                    const tableData = productos.map(p => [
-                        p.Codigo,
-                        p.Cantidad,
-                        p.Nombre
-                    ]);
+                    // Calcular subtotal por producto y total general
+                    let granTotal = 0;
+
+                    const tableData = productos.map(p => {
+                        const cantidad = parseFloat(p.Cantidad) || 0;
+                        const costo = parseFloat(p["Costo en Compra"]) || 0;
+                        const subtotal = cantidad * costo;
+
+                        granTotal += subtotal;
+
+                        return [
+                            p.Codigo,
+                            cantidad,
+                            p.Nombre,
+                            subtotal.toLocaleString('es-MX', {
+                                style: 'currency',
+                                currency: 'MXN'
+                            })
+                        ];
+                    });
+
+                    // Fila de total al final
+                    const totalRow = [
+                        '',
+                        '',
+                        'TOTAL',
+                        granTotal.toLocaleString('es-MX', {
+                            style: 'currency',
+                            currency: 'MXN'
+                        })
+                    ];
 
                     doc.autoTable({
-                        startY: nextY + 4, // o 38 en la segunda función, PERO la misma posición
+                        startY: nextY + 4,
                         head: [
-                            ['Código', 'Cantidad', 'Descripción']
+                            ['Código', 'Cantidad', 'Descripción', 'Subtotal']
                         ],
-                        body: tableData, // o productos HTML
+                        body: tableData,
+                        foot: [totalRow],
                         styles: {
                             fontSize: 10,
                             fontStyle: 'bold',
@@ -400,13 +485,20 @@
                         },
                         columnStyles: {
                             0: {
-                                cellWidth: 25
+                                cellWidth: 25,
+                                halign: 'left'
                             },
                             1: {
-                                cellWidth: 20
+                                cellWidth: 20,
+                                halign: 'center'
                             },
                             2: {
-                                cellWidth: 120
+                                cellWidth: 105,
+                                halign: 'left'
+                            },
+                            3: {
+                                cellWidth: 40,
+                                halign: 'right'
                             }
                         },
                         margin: {
@@ -416,6 +508,12 @@
                             fillColor: [200, 200, 200],
                             textColor: 0,
                             fontStyle: 'bold'
+                        },
+                        footStyles: {
+                            fillColor: [230, 230, 230],
+                            textColor: 0,
+                            fontStyle: 'bold',
+                            halign: 'right'
                         }
                     });
 
@@ -423,14 +521,11 @@
                     //       imprimir PDF
                     // ============================
 
-                    // Convertir a blob y abrir en una nueva pestaña para imprimir
                     const pdfBlob = doc.output('blob');
                     const pdfUrl = URL.createObjectURL(pdfBlob);
 
-                    // Abrir en otra pestaña
                     const printWindow = window.open(pdfUrl);
 
-                    // Esperar un poco para asegurar que cargue y mandar imprimir
                     printWindow.onload = function() {
                         printWindow.print();
                     };

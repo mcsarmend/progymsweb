@@ -505,7 +505,8 @@ class reportesController extends Controller
                     'ur.name as vendedor_reparto',
                     'r.total as total',
                     'p.nombre as tipo_de_precio',
-                    'r.reparto'
+                    'r.reparto',
+                    'r.productos'
                 )
                 ->leftJoin('users as u', 'r.vendedor', '=', 'u.id')
                 ->leftJoin('users as ur', 'r.vendedor_reparto', '=', 'ur.id')
@@ -524,6 +525,44 @@ class reportesController extends Controller
             /* Cantidad de remisiones */
             $cantidad_remisiones = $query->count();
 
+            /*Total de costos*/
+
+            $remisiones = DB::table('referrals as r')
+                ->where('r.estatus', 'emitida')
+                ->whereBetween('r.fecha', [$dateStart, $dateEnd])
+                ->when($sucursal != 0, fn($q) => $q->where('r.almacen', $sucursal))
+                ->pluck('r.productos'); // colección de strings JSON
+
+            // Recolectar todos los códigos únicos
+            $codigos = [];
+            foreach ($remisiones as $json) {
+                $items = json_decode($json, true) ?: [];
+                foreach ($items as $item) {
+                    if (! empty($item['Codigo'])) {
+                        $codigos[$item['Codigo']] = true;
+                    }
+                }
+            }
+            $codigos = array_keys($codigos);
+
+            // Traer costos en una sola consulta
+            $costos = DB::table('product')
+                ->whereIn('id', $codigos) // ajusta el nombre de la columna si es distinto
+                ->pluck('costo_promedio', 'id')
+                ->toArray();
+
+            // Calcular costo total
+            $costo_total = 0;
+            foreach ($remisiones as $json) {
+                $items = json_decode($json, true) ?: [];
+                foreach ($items as $item) {
+                    $codigo   = $item['Codigo'] ?? null;
+                    $cantidad = (float) ($item['Cantidad'] ?? 0);
+                    if ($codigo && isset($costos[$codigo])) {
+                        $costo_total += $cantidad * (float) $costos[$codigo];
+                    }
+                }
+            }
             /* 2. Métodos de pago */
             $metodosBrutos = (clone $query)
                 ->select(
@@ -584,6 +623,7 @@ class reportesController extends Controller
 
             return response()->json([
                 'message'             => 'Reporte generado correctamente.',
+                'costo_total'         => $costo_total,
                 'total_vendido'       => $total_vendido,
                 'metodos'             => $metodos,
                 'cantidadesPorDia'    => $cantidadesPorDia,
