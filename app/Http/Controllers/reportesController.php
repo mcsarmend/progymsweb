@@ -621,10 +621,13 @@ class reportesController extends Controller
                 ->keyBy('tipo_remision')
                 ->toArray();
 
+            $utilidad_bruta = $total_vendido - $costo_total;
+
             return response()->json([
                 'message'             => 'Reporte generado correctamente.',
                 'costo_total'         => $costo_total,
                 'total_vendido'       => $total_vendido,
+                'utilidad_bruta'      => $utilidad_bruta,
                 'metodos'             => $metodos,
                 'cantidadesPorDia'    => $cantidadesPorDia,
                 'tipos_precio'        => $tipos_precio,
