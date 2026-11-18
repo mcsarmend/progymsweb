@@ -498,6 +498,9 @@
                 yPos += 10;
                 doc.text(`Total costos: $${Number(data.costo_total).toLocaleString('es-MX')}`, 25, yPos);
                 yPos += 5;
+                doc.text(`Utilidad Bruta: $${Number(data.utilidad_bruta).toLocaleString('es-MX')}`, 25, yPos);
+                yPos += 5;
+
                 // Línea separadora
                 doc.setDrawColor(200, 200, 200);
                 doc.setLineWidth(0.2);
