@@ -133,7 +133,7 @@
                                 </h4>
                             </a>
                             <h6>
-                                $1,290 MXN
+                                $1,330 MXN
                             </h6>
                             <p>
                                 24 gramos de proteína por servicio.Ideal para ganar masa muscular.
@@ -172,7 +172,7 @@
                                 </h4>
                             </a>
                             <h6>
-                                $450 MXN
+                                $600 MXN
                             </h6>
                             <p>
                                 Incrementa fuerza,potencia y recuperación.
@@ -195,6 +195,123 @@
                                 </li>
                             </ul>
                             <span></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- PRODUCTO 3 -->
+                <div class="col-md-4">
+                    <div class="product-item">
+                        <a href="#">
+                            <img src="assets/images/monster.jpeg">
+                        </a>
+                        <div class="down-content">
+                            <a href="#">
+                                <h4>
+                                    Monster 473
+                                </h4>
+                            </a>
+                            <h6>
+                                $30 MXN
+                            </h6>
+                            <p>
+                                Energía instantánea, mayor concentración y resistencia para afrontar cualquier reto.
+                            </p>
+                            <ul class="stars">
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- PRODUCTO 3 -->
+                <div class="col-md-4">
+                    <div class="product-item">
+                        <a href="#">
+                            <img src="assets/images/monster.jpeg">
+                        </a>
+                        <div class="down-content">
+                            <a href="#">
+                                <h4>
+                                    Monster 473
+                                </h4>
+                            </a>
+                            <h6>
+                                $30 MXN
+                            </h6>
+                            <p>
+                                Energía instantánea, mayor concentración y resistencia para afrontar cualquier reto.
+                            </p>
+                            <ul class="stars">
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- PRODUCTO 3 -->
+                <div class="col-md-4">
+                    <div class="product-item">
+                        <a href="#">
+                            <img src="assets/images/monster.jpeg">
+                        </a>
+                        <div class="down-content">
+                            <a href="#">
+                                <h4>
+                                    Monster 473
+                                </h4>
+                            </a>
+                            <h6>
+                                $30 MXN
+                            </h6>
+                            <p>
+                                Energía instantánea, mayor concentración y resistencia para afrontar cualquier reto.
+                            </p>
+                            <ul class="stars">
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                                <li>
+                                    <i class="fa fa-star"></i>
+                                </li>
+                            </ul>
+
                         </div>
                     </div>
                 </div>

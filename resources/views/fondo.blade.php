@@ -41,7 +41,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-    function exportarexcel(jsonData, fileName ) {
+    function exportarexcel(jsonData, fileName) {
         // Crear un libro de Excel
         const workbook = XLSX.utils.book_new();
 
@@ -100,7 +100,7 @@
     }
 
     function showUsersSections() {
-
+        $('a:contains("Cuentas")').hide();
         var type = parseInt(@json($type));
         switch (type) {
 
@@ -123,12 +123,12 @@
 
                 var almacenMenu = $('.nav-item.dropdown').has('.fas.fa-warehouse');
 
-                $('.nav-item.has-treeview').each(function () {
+                $('.nav-item.has-treeview').each(function() {
                     let menuTitle = $(this).find('> a.nav-link p').text().trim();
 
                     if (menuTitle.startsWith('Almacén')) {
                         // Dentro de este menú, eliminar Alta y Baja
-                        $(this).find('.nav-treeview .nav-link').each(function () {
+                        $(this).find('.nav-treeview .nav-link').each(function() {
                             let itemText = $(this).find('p').text().trim();
                             if (itemText === 'Alta' || itemText === 'Baja') {
                                 $(this).closest('li').remove();
@@ -137,12 +137,12 @@
                     }
                 });
 
-                $('.nav-item.has-treeview').each(function () {
+                $('.nav-item.has-treeview').each(function() {
                     let menuTitle = $(this).find('> a.nav-link p').text().trim();
 
                     if (menuTitle.startsWith('Clientes')) {
                         // Dentro de este menú, eliminar "Edición" y "Baja"
-                        $(this).find('.nav-treeview .nav-link').each(function () {
+                        $(this).find('.nav-treeview .nav-link').each(function() {
                             let itemText = $(this).find('p').text().trim();
                             if (itemText === 'Edición' || itemText === 'Baja') {
                                 $(this).closest('li').remove();
@@ -151,14 +151,15 @@
                     }
                 });
 
-                $('.nav-item.has-treeview').each(function () {
+                $('.nav-item.has-treeview').each(function() {
                     let menuTitle = $(this).find('> a.nav-link p').text().trim();
 
                     if (menuTitle.startsWith('Asistencias')) {
                         // Dentro de este menú, eliminar "Asistencia General", "Calendario" y "Vacaciones"
-                        $(this).find('.nav-treeview .nav-link').each(function () {
+                        $(this).find('.nav-treeview .nav-link').each(function() {
                             let itemText = $(this).find('p').text().trim();
-                            if (itemText === 'Asistencia General' || itemText === 'Calendario' || itemText === 'Vacaciones') {
+                            if (itemText === 'Asistencia General' || itemText === 'Calendario' ||
+                                itemText === 'Vacaciones') {
                                 $(this).closest('li').remove();
                             }
                         });
@@ -297,11 +298,6 @@
 
                 break;
         }
-
-
-
-
-
     }
 
     function getFormattedDateTime() {

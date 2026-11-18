@@ -67,8 +67,26 @@ class clientesController extends Controller
 
     public function crearcliente(Request $request)
     {
-
         try {
+            // Validar que el nombre no esté vacío
+            $request->validate([
+                'cliente'    => 'required|string|max:255',
+                'sucursal'   => 'required|integer',
+                'telefono'   => 'nullable|string|max:20',
+                'precio'     => 'required|integer',
+                'direccion'  => 'nullable|string',
+                'direccion2' => 'nullable|string',
+            ]);
+
+            // Verificar si ya existe un cliente con el mismo nombre
+            $clienteExistente = clients::where('nombre', $request->cliente)->first();
+
+            if ($clienteExistente) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ya existe un cliente con el nombre: ' . $request->cliente,
+                ], 422);
+            }
 
             // Crear una nueva instancia del modelo Usuario
             $cliente            = new clients();
@@ -78,9 +96,12 @@ class clientesController extends Controller
             $cliente->precio    = intval($request->precio);
             $iduser             = Auth::user()->id;
             $cliente->ejecutivo = intval($iduser);
+            $cliente->estatus   = 1;
 
             // Guardar el usuario en la base de datos
             $cliente->save();
+
+            // Guardar direcciones
             $newdireccion  = new address();
             $newdireccion2 = new address();
 
@@ -88,12 +109,14 @@ class clientesController extends Controller
             $newdireccion2->idcliente = $cliente->id;
             $direccion1               = $request->direccion;
             $direccion2               = $request->direccion2;
+
             if ($direccion1) {
                 $newdireccion->direccion = $direccion1;
                 $newdireccion->latitud   = $request->latitud;
                 $newdireccion->longitud  = $request->longitud;
                 $newdireccion->save();
             }
+
             if ($direccion2) {
                 $newdireccion2->direccion = $direccion2;
                 $newdireccion2->latitud   = $request->latitud2;
@@ -102,10 +125,24 @@ class clientesController extends Controller
             }
 
             // Devolver una respuesta de éxito
-            return response()->json(['message' => 'Cliente creado correctamente'], 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'Cliente creado correctamente',
+                'data'    => $cliente,
+            ], 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors'  => $e->errors(),
+            ], 422);
         } catch (\Throwable $e) {
             // Devolver una respuesta de error
-            return response()->json(['message' => 'Error al crear el cliente: ' . $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el cliente: ' . $e->getMessage(),
+            ], 500);
         }
     }
 

@@ -99,16 +99,14 @@
                 "buttons": [
                     'copy', 'excel', 'pdf', 'print'
                 ],
-
-                destroy: true,
+                dom: 'Blfrtip', // <-- Agrega esta línea
                 processing: true,
                 sort: true,
                 paging: true,
                 lengthMenu: [
                     [10, 25, 50, -1],
                     [10, 25, 50, 'All']
-                ], // Personalizar el menú de longitud de visualización
-
+                ],
                 "data": clientes,
                 "columns": [{
                         "data": "id"
@@ -131,8 +129,7 @@
                             return '<button onclick="ver(' + row.id +
                                 ')" class="btn btn-info">Ver</button>';
                         }
-                    },
-
+                    }
                 ]
             });
             drawTriangles();

@@ -329,7 +329,7 @@
                         error: function(response) {
                             Swal.fire(
                                 '¡Gracias por esperar!',
-                                "Existe un error: " + response.message,
+                                "Existe un error: " + response.responseJSON.message,
                                 'error'
                             )
                         }

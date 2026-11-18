@@ -90,6 +90,7 @@ class inventarioController extends Controller
             )
             ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
             ->leftJoin('category as c', 'p.categoria', '=', 'c.id')
+            ->where('p.estatus', 1)
             ->get();
 
         return view('inventario.baja', ['type' => $type, 'productos' => $products]);
@@ -103,13 +104,20 @@ class inventarioController extends Controller
             ->select(
                 'p.id',
                 'p.nombre',
+                'p.imagenid',
                 'b.nombre as marca',
                 'c.nombre as categoria',
             )
             ->leftJoin('brand as b', 'p.marca', '=', 'b.id')
             ->leftJoin('category as c', 'p.categoria', '=', 'c.id')
             ->where('p.estatus', 1)
-            ->get();
+            ->get()
+            ->map(function ($product) {
+                // Verificar si la imagen existe
+                $imagePath             = public_path('assets/images/productos/' . $product->id . '.jpg');
+                $product->tiene_imagen = file_exists($imagePath);
+                return $product;
+            });
 
         $almacenes  = warehouse::all();
         $marcas     = brand::orderByRaw('LOWER(nombre) ASC')->get();
@@ -265,7 +273,7 @@ class inventarioController extends Controller
             $id = $request->id;
 
             $productid = Crypt::decrypt($id);
-            product::where('idproducto', '=', $productid)
+            product::where('id', '=', $productid)
                 ->update(['estatus' => 0]);
 
             return response()->json(['message' => 'Producto eliminado correctamente'], 200);

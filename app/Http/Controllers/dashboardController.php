@@ -87,15 +87,23 @@ class dashboardController extends Controller
     public function enviareditarbanners(Request $request)
     {
         try {
+
             // Validar que los archivos sean imágenes
             $rules    = [];
             $messages = [];
 
             for ($i = 1; $i <= 6; $i++) {
-                $rules["banner{$i}_imagen"]          = 'nullable|image|mimes:jpg,jpeg|max:2048';
-                $messages["banner{$i}_imagen.mimes"] = "El banner {$i} debe ser una imagen JPG o JPEG";
-                $messages["banner{$i}_imagen.max"]   = "El banner {$i} no debe pesar más de 2MB";
-                $messages["banner{$i}_imagen.image"] = "El banner {$i} debe ser una imagen válida";
+
+                $rules["banner{$i}_imagen"] = 'nullable|image|mimes:jpg,jpeg|max:2048';
+
+                $messages["banner{$i}_imagen.mimes"] =
+                    "El banner {$i} debe ser una imagen JPG o JPEG";
+
+                $messages["banner{$i}_imagen.max"] =
+                    "El banner {$i} no debe pesar más de 2MB";
+
+                $messages["banner{$i}_imagen.image"] =
+                    "El banner {$i} debe ser una imagen válida";
             }
 
             $request->validate($rules, $messages);
@@ -104,50 +112,121 @@ class dashboardController extends Controller
             $updatedBanners = [];
             $errors         = [];
 
+            /*
+        |--------------------------------------------------------------------------
+        | Ruta de imágenes en producción
+        |--------------------------------------------------------------------------
+        */
+            // Usar public_path() para obtener la ruta correcta
+            $rutaImagenes = public_path('assets/images/');
+
+            // Alternativa si necesitas una ruta específica fuera de public
+            // $rutaImagenes = '/home/gprogyms/public_html/assets/images/';
+
+            // Crear directorio si no existe
+            if (! file_exists($rutaImagenes)) {
+                mkdir($rutaImagenes, 0755, true);
+            }
+
+            // Verificar que la carpeta sea escribible
+            if (! is_writable($rutaImagenes)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La carpeta de imágenes no tiene permisos de escritura: ' . $rutaImagenes,
+                ], 500);
+            }
+
             for ($i = 1; $i <= 6; $i++) {
+
                 if ($request->hasFile("banner{$i}_imagen")) {
+
                     $imagen = $request->file("banner{$i}_imagen");
 
                     // Nombre fijo del archivo
                     $nombreImagen = "slide_0{$i}.jpg";
 
-                    // Ruta específica para producción (similar a tu ejemplo)
-                    $rutaImagenes = public_path('assets/images/');
+                    /*
+                |--------------------------------------------------------------------------
+                | Validar dimensiones ANTES de eliminar la imagen anterior
+                |--------------------------------------------------------------------------
+                */
+                    try {
 
-                    // Crear directorio si no existe
-                    if (! file_exists($rutaImagenes)) {
-                        mkdir($rutaImagenes, 0777, true);
+                        $dimensiones = getimagesize($imagen->getPathname());
+
+                        if ($dimensiones === false) {
+                            $errors[] =
+                                "El banner {$i} no es una imagen válida";
+
+                            continue;
+                        }
+
+                        $width  = $dimensiones[0];
+                        $height = $dimensiones[1];
+
+                        if ($width != 1600 || $height != 697) {
+
+                            $errors[] =
+                                "El banner {$i} debe tener dimensiones de 1600x697 píxeles " .
+                                "(actual: {$width}x{$height})";
+
+                            continue;
+                        }
+
+                    } catch (\Exception $e) {
+
+                        $errors[] =
+                            "No se pudieron validar las dimensiones del banner {$i}";
+
+                        continue;
                     }
 
-                    // Eliminar imagen anterior si existe (solo JPG)
+                    /*
+                |--------------------------------------------------------------------------
+                | Ruta de la imagen anterior
+                |--------------------------------------------------------------------------
+                */
                     $rutaAnterior = $rutaImagenes . $nombreImagen;
+
+                    // Eliminar imagen anterior
                     if (file_exists($rutaAnterior)) {
                         unlink($rutaAnterior);
                     }
 
-                    // Validar dimensiones
+                    /*
+                |--------------------------------------------------------------------------
+                | Guardar nueva imagen
+                |--------------------------------------------------------------------------
+                */
                     try {
-                        list($width, $height) = getimagesize($imagen->getPathname());
 
-                        // Validar dimensiones exactas
-                        if ($width != 1600 || $height != 697) {
-                            $errors[] = "El banner {$i} debe tener dimensiones de 1600x697 píxeles (actual: {$width}x{$height})";
-                            continue;
-                        }
+                        $imagen->move(
+                            $rutaImagenes,
+                            $nombreImagen
+                        );
+
+                        $updatedBanners[] =
+                            "Banner {$i} actualizado correctamente";
+
                     } catch (\Exception $e) {
-                        $errors[] = "El banner {$i} no es una imagen válida";
-                        continue;
-                    }
 
-                    // Mover la imagen a la carpeta
-                    $imagen->move($rutaImagenes, $nombreImagen);
-                    $updatedBanners[] = "Banner {$i} actualizado correctamente";
+                        $errors[] =
+                        "No se pudo guardar el banner {$i}: " .
+                        $e->getMessage();
+                    }
                 }
             }
 
-            // Verificar si hubo errores
+            /*
+        |--------------------------------------------------------------------------
+        | Verificar errores
+        |--------------------------------------------------------------------------
+        */
+
             if (! empty($errors)) {
+
                 if (! empty($updatedBanners)) {
+
                     return response()->json([
                         'success' => false,
                         'message' => 'Algunos banners se actualizaron correctamente, pero otros fallaron',
@@ -163,13 +242,25 @@ class dashboardController extends Controller
                 ], 422);
             }
 
-            // Si no se actualizó ningún banner
+            /*
+        |--------------------------------------------------------------------------
+        | No se seleccionó ningún banner
+        |--------------------------------------------------------------------------
+        */
+
             if (empty($updatedBanners)) {
+
                 return response()->json([
                     'success' => false,
                     'message' => 'No se seleccionó ninguna imagen para actualizar',
                 ], 422);
             }
+
+            /*
+        |--------------------------------------------------------------------------
+        | Respuesta exitosa
+        |--------------------------------------------------------------------------
+        */
 
             return response()->json([
                 'success' => true,
@@ -178,12 +269,15 @@ class dashboardController extends Controller
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error de validación',
                 'errors'  => $e->errors(),
             ], 422);
+
         } catch (\Exception $e) {
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar los banners: ' . $e->getMessage(),
