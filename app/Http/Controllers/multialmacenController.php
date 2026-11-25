@@ -36,6 +36,13 @@ class multialmacenController extends Controller
         $type = $this->gettype();
         return view('almacen.edicion', ['type' => $type]);
     }
+    public function surtidomultialmacen()
+    {
+        $type      = $this->gettype();
+        $productos = DB::select('CALL sp_multialmacen_refilled()');
+
+        return view('almacen.surtidomultialmacen', ['type' => $type, 'products' => $productos]);
+    }
 
     public function crearalmacen(Request $request)
     {

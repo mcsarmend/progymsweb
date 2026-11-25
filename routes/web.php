@@ -108,6 +108,7 @@ Route::get('altalmacen', [multialmacenController::class, 'altalmacen'])->middlew
 Route::get('bajaalmacen', [multialmacenController::class, 'bajaalmacen'])->middleware(['auth']);
 Route::get('edicionalmacen', [multialmacenController::class, 'edicionalmacen'])->middleware(['auth']);
 Route::get('multialmacenfiltros', [multialmacenController::class, 'multialmacenfiltros'])->middleware(['auth']);
+Route::get('surtidomultialmacen', [multialmacenController::class, 'surtidomultialmacen'])->middleware(['auth']);
 
 Route::get('detalleamacenes', [multialmacenController::class, 'detalleamacenes']);
 Route::get('detalleprecios', [multialmacenController::class, 'detalleprecios'])->middleware(['auth']);

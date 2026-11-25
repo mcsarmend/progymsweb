@@ -436,6 +436,16 @@ return [
                     'icon' => 'fas fa-minus-square',
                     'url'  => 'bajaalmacen',
                 ],
+                [
+                    'text' => 'Edición',
+                    'icon' => 'fas fa-edit',
+                    'url'  => 'edicionalmacen',
+                ],
+                [
+                    'text' => 'Surtido Multialmacén',
+                    'icon' => 'fas fa-dolly-flatbed',
+                    'url'  => 'surtidomultialmacen',
+                ],
 
             ],
         ],
